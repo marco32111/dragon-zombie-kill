@@ -255,6 +255,40 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .trophy b{display:block}
 .trophy small{color:var(--muted)}
 
+/* daily quests, crates, collection, shop */
+.quests{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.quest{display:flex;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.quest.done{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--panel-2))}
+.quest .qi{font-size:24px}
+.qbar{height:8px;background:var(--ink);border-radius:999px;overflow:hidden;margin:6px 0 2px}
+.qbar span{display:block;height:100%;background:var(--good)}
+.crate-cta{animation:pulse 1.4s infinite}
+.lucky{font-size:16px;color:var(--good);background:color-mix(in srgb,var(--good) 20%,transparent);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.crate-zone{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:20px;align-items:center}
+.crate-box{font-size:96px;line-height:1;filter:drop-shadow(0 8px 0 rgba(0,0,0,.3))}
+.crate-box.shake{animation:crate 1s}
+.reveal{display:grid;justify-items:center;gap:6px;text-align:center}
+.revtxt{font-family:var(--f-display);font-size:22px}
+.cgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.ccard{--c:var(--c-transition);--r:var(--muted);position:relative;aspect-ratio:3/4;border-radius:12px;border:3px solid var(--r);background:color-mix(in srgb,var(--c) 20%,var(--panel-2));display:grid;place-items:center;align-content:center;gap:2px;padding:14px 4px 6px;text-align:center;color:var(--text)}
+button.ccard:hover{transform:translateY(-3px)}
+.ccard .cr{position:absolute;top:4px;left:0;right:0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--r)}
+.ccard .p{font-size:30px;line-height:1}
+.ccard .s{font-family:var(--f-display);font-size:22px;line-height:1}
+.ccard .nm{font-size:11px;font-weight:800;line-height:1.1;overflow-wrap:anywhere}
+.ccard .dup{position:absolute;bottom:3px;right:6px;font-size:10px;font-weight:800;color:var(--muted)}
+.ccard.locked{border:2px dashed var(--line);background:transparent;color:var(--muted)}
+.ccard.big{width:160px;animation:pop .4s;box-shadow:0 0 34px var(--r)}
+.ccard.big .p{font-size:56px} .ccard.big .s{font-size:38px} .ccard.big .nm{font-size:15px}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.item{background:var(--panel-2);border:2px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:8px;justify-items:center;text-align:center}
+.item.eq{border-color:var(--good)}
+.item .pic{font-size:48px;line-height:1;height:56px;display:grid;place-items:center}
+@keyframes crate{0%,100%{transform:none}10%,30%,50%,70%{transform:rotate(-12deg) scale(1.05)}20%,40%,60%,80%{transform:rotate(12deg) scale(1.12)}92%{transform:scale(1.35)}}
+@keyframes pulse{50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.crate-box.shake,.crate-cta,.ccard.big{animation:none!important}}
+@media (max-width:640px){.crate-zone{grid-template-columns:1fr;text-align:center;justify-items:center}.crate-zone .row{justify-content:center}}
+
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:grid;gap:8px;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}
 #toast div{background:var(--accent);color:var(--accent-ink);font-weight:800;padding:10px 18px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.5);animation:pop .3s;text-align:center}
@@ -298,6 +332,8 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
     <button role="tab" data-tab="play">🎮 Play</button>
     <button role="tab" data-tab="table">Periodic table</button>
     <button role="tab" data-tab="compounds">Compounds</button>
+    <button role="tab" data-tab="collection">🃏 Collection</button>
+    <button role="tab" data-tab="shop">🛍️ Shop</button>
     <button role="tab" data-tab="trophies">🏆 Trophies</button>
   </nav>
   <main id="app"></main>
@@ -588,7 +624,11 @@ const ACH = [
   ["m10","🌱","Rising Scientist","Master 10 elements."],
   ["noble","👑","Noble Knowledge","Master all 7 noble gases."],
   ["m54","🎓","Lab Expert","Master 54 elements."],
-  ["m118","🏆","Element Legend","Master all 118 elements."]
+  ["m118","🏆","Element Legend","Master all 118 elements."],
+  ["streak7","📅","Week Warrior","Play 7 days in a row."],
+  ["cards25","🃏","Card Collector","Collect 25 element cards."],
+  ["cards118","💎","Completionist","Collect all 118 element cards."],
+  ["shopper","🛍️","Fresh Look","Buy something in the shop."]
 ].map(a=>({id:a[0],pic:a[1],title:a[2],desc:a[3]}));
 const POOLS = [[20,"First 20"],[36,"First 36"],[54,"First 54"],[86,"First 86"],[118,"All 118"]];
 const LEVELS = ["Lab Rookie","Beaker Buddy","Atom Explorer","Molecule Maker","Element Ace","Reaction Master","Periodic Pro","Element Legend"];
@@ -600,6 +640,8 @@ let P = {xp:0,m:{},best:{},pool:20,typing:false,muted:false,sel:1,ach:{},viewed:
 try{ const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) P=Object.assign(P,s); }catch(e){}
 P.stats=Object.assign({blBest:0,bossBeat:0,memBest:0,crafted:{},hlBest:0,typed:0},P.stats||{});
 P.ach=P.ach||{}; P.viewed=P.viewed||{};
+P=Object.assign({coins:0,crates:1,cards:{},owned:{"av-sci":1,"sh-classic":1},equip:{avatar:"av-sci",ship:"sh-classic"},streak:{last:"",count:0},daily:null},P);
+for(let n=1;n<=118;n++) if((P.m[n]||0)>=3&&!P.cards[n]) P.cards[n]=1;
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(P)); }catch(e){} }
 let tab="play", G=null, A=null;
 
@@ -617,7 +659,81 @@ const mastered = ()=>EL.filter(e=>mk(e.n)>=3).length;
 const atomsIn = f=>[...new Set(f.match(/[A-Z][a-z]?/g))].map(s=>BYSYM[s]).filter(Boolean);
 const rnd = a=>a[Math.random()*a.length|0];
 const gamerHTML = e=>e&&e.gamer?`<div class="gamer"><b>🎮 Gamer fact:</b> ${esc(e.gamer)}</div>`:"";
-function bump(k,d){ P.m[k]=Math.max(0,Math.min(3,mk(k)+d)); checkMastery(); }
+function bump(k,d){ const was=mk(k); P.m[k]=Math.max(0,Math.min(3,was+d)); if(typeof k==="number"&&was<3&&P.m[k]>=3&&!P.cards[k]) addCard(k); checkMastery(); }
+
+// ================= REWARDS: coins, crates, cards, daily quests, shop =================
+const RAR={common:{label:"Common",c:"#a8aed6",w:55,refund:10},rare:{label:"Rare",c:"#7fb2ff",w:28,refund:25},epic:{label:"Epic",c:"#f2a2ff",w:13,refund:50},legendary:{label:"Legendary",c:"#ffcf5a",w:4,refund:100}};
+function rarity(n){ if(n>=104)return "legendary"; if((n>=57&&n<=71)||(n>=84&&n<=103))return "epic"; if(n>30)return "rare"; return "common"; }
+const SHOP=[
+ {id:"av-sci",kind:"avatar",pic:"🧑‍🔬",name:"Scientist",cost:0},
+ {id:"av-hero",kind:"avatar",pic:"🦸",name:"Superhero",cost:200},
+ {id:"av-cat",kind:"avatar",pic:"🐱",name:"Lab Cat",cost:250},
+ {id:"av-ninja",kind:"avatar",pic:"🥷",name:"Ninja",cost:300},
+ {id:"av-fox",kind:"avatar",pic:"🦊",name:"Fox",cost:350},
+ {id:"av-wiz",kind:"avatar",pic:"🧙",name:"Wizard",cost:450},
+ {id:"av-dino",kind:"avatar",pic:"🦖",name:"T-Rex",cost:550},
+ {id:"av-alien",kind:"avatar",pic:"👽",name:"Alien",cost:700},
+ {id:"sh-classic",kind:"ship",color:"#eef0ff",name:"Classic Rocket",cost:0},
+ {id:"sh-stealth",kind:"ship",color:"#8b6cff",name:"Stealth Purple",cost:250},
+ {id:"sh-lime",kind:"ship",color:"#4fdc9a",name:"Toxic Green",cost:300},
+ {id:"sh-plasma",kind:"ship",color:"#5fe3d3",name:"Plasma Blue",cost:400},
+ {id:"sh-gold",kind:"ship",color:"#ffcf5a",name:"Solid Gold",cost:600},
+ {id:"sh-rainbow",kind:"ship",color:"rainbow",name:"Rainbow Blaster",cost:900}
+];
+const QUESTS=[
+ {id:"right",text:"Get 15 answers right",goal:15},
+ {id:"blast",text:"Score 1,500 in one Element Blaster game",goal:1500,max:true},
+ {id:"craft",text:"Craft 3 compounds",goal:3},
+ {id:"match",text:"Clear a Memory Match board",goal:1},
+ {id:"hl",text:"Reach a 6 streak in Element Showdown",goal:6,max:true},
+ {id:"bossdmg",text:"Deal 800 damage to bosses",goal:800},
+ {id:"rounds",text:"Finish 2 quiz rounds",goal:2},
+ {id:"explore",text:"Look up 8 elements on the periodic table",goal:8},
+ {id:"crit",text:"Land 3 critical hits in Boss Battle",goal:3},
+ {id:"great",text:"Get 8 or more right in one quiz round",goal:1}
+];
+const SESSION_START=Date.now(); let breakShown=false, opening=false;
+const dayKey=(d=new Date())=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+function ensureDaily(){
+  const today=dayKey();
+  if(P.daily&&P.daily.date===today) return;
+  let h=7; for(const ch of today) h=(h*31+ch.charCodeAt(0))>>>0;
+  const pick=[];
+  while(pick.length<3){ h=(Math.imul(h,1103515245)+12345)>>>0; const id=QUESTS[(h>>>8)%QUESTS.length].id; if(!pick.includes(id)) pick.push(id); }
+  P.daily={date:today,ids:pick,prog:{},done:{},bonus:false}; save();
+}
+function quest(id,amt){
+  ensureDaily(); const d=P.daily; if(!d.ids.includes(id)||d.done[id]) return;
+  const q=QUESTS.find(x=>x.id===id);
+  d.prog[id]=q.max?Math.max(d.prog[id]||0,amt):(d.prog[id]||0)+amt;
+  if(d.prog[id]>=q.goal){
+    d.done[id]=1; P.coins+=60; toast(`✅ Daily quest done: ${q.text}! +60 ⚛️`); sfx.win();
+    if(!d.bonus&&d.ids.every(x=>d.done[x])){ d.bonus=true; P.crates++; P.coins+=100; setTimeout(()=>{toast("🎁 All 3 daily quests done! +1 Mystery Crate and +100 ⚛️");confetti(150);},900); }
+  }
+  save(); renderStats();
+}
+function markPlayed(){
+  const today=dayKey(); if(P.streak.last===today) return;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  P.streak.count = P.streak.last===dayKey(y) ? P.streak.count+1 : 1; P.streak.last=today;
+  const bonus=Math.min(P.streak.count,7)*15; P.coins+=bonus;
+  setTimeout(()=>toast(`🔥 Day ${P.streak.count} streak! +${bonus} ⚛️ Play tomorrow for a bigger bonus.`),400);
+  if(P.streak.count>=7) award("streak7");
+}
+function gain(xp){
+  if(xp<=0) return; markPlayed();
+  const before=level(); P.xp+=xp; P.coins+=Math.max(1,Math.round(xp/10));
+  if(level()>before){ P.crates++; setTimeout(()=>{toast(`⬆️ LEVEL UP! Level ${level()+1}: ${levelName()}. +1 Mystery Crate!`);sfx.win();confetti(160);},300); }
+  if(!breakShown&&Date.now()-SESSION_START>40*60000){ breakShown=true; setTimeout(()=>toast("🧠 40 minutes of science, amazing! Maybe stretch and grab some water 💧"),2500); }
+}
+function addCard(n,silent){
+  const isNew=!P.cards[n]; P.cards[n]=(P.cards[n]||0)+1;
+  const c=Object.keys(P.cards).length; if(c>=25)award("cards25"); if(c>=118)award("cards118");
+  if(isNew&&!silent) toast(`🃏 Mastered! ${EL[n-1].name} card added to your collection`);
+  return isNew;
+}
+const avatar=()=>(SHOP.find(x=>x.id===P.equip.avatar)||SHOP[0]).pic;
+function shipFill(t){ const s=SHOP.find(x=>x.id===P.equip.ship); if(!s) return "#eef0ff"; return s.color==="rainbow"?`hsl(${Math.round(t*140)%360},90%,65%)`:s.color; }
 
 // ================= TROPHIES =================
 let toastQ=[];
@@ -627,7 +743,7 @@ function toast(msg){
 }
 function award(id){
   if(P.ach[id]) return; const a=ACH.find(x=>x.id===id); if(!a) return;
-  P.ach[id]=Date.now(); P.xp+=250; save();
+  P.ach[id]=Date.now(); gain(250); save();
   toast(`${a.pic} Trophy unlocked: ${a.title}! +250 XP`); sfx.win(); confetti(60); renderStats();
 }
 function checkMastery(){
@@ -680,7 +796,9 @@ function floop(){
 function renderStats(){
   $("#stats").innerHTML =
     `<span class="chip">⭐ <b>${P.xp.toLocaleString()}</b> XP</span>`+
-    `<span class="chip">🏅 ${esc(levelName())}</span>`+
+    `<span class="chip" title="Coins">⚛️ <b>${P.coins.toLocaleString()}</b></span>`+
+    `<span class="chip" title="Day streak">🔥 <b>${P.streak.count}</b></span>`+
+    `<span class="chip">🏅 Lv ${level()+1}</span>`+
     `<span class="chip">🧠 <b>${mastered()}</b>/118</span>`+
     `<span class="chip">🏆 <b>${Object.keys(P.ach).length}</b>/${ACH.length}</span>`+
     `<button class="iconbtn" id="mute" aria-label="${P.muted?"Turn sound on":"Turn sound off"}">${P.muted?"🔇":"🔊"}</button>`;
@@ -738,6 +856,7 @@ function renderTable(){
 }
 function selectEl(n){
   P.sel=n; P.viewed[n]=1; if(Object.keys(P.viewed).length>=30) award("explore");
+  quest("explore",1);
   save(); sfx.click(); drawDetail(); drawTbl();
 }
 function drawFilters(){
@@ -788,6 +907,91 @@ function renderTrophies(){
   </section>`;
 }
 
+// ================= DAILY QUESTS PANEL =================
+function dailyHTML(){
+  ensureDaily(); const d=P.daily;
+  const left=Math.max(1,Math.ceil((new Date().setHours(24,0,0,0)-Date.now())/3600000));
+  const doneN=d.ids.filter(id=>d.done[id]).length;
+  return `<section class="panel" style="display:grid;gap:12px">
+    <div class="row" style="justify-content:space-between">
+      <div><h2 style="font-size:24px">📅 Daily quests <span class="muted" style="font-size:18px">${doneN}/3</span></h2>
+      <p class="small muted" style="margin:2px 0 0">${d.bonus?"All done today! New quests in "+left+"h.":"Finish all 3 for a free Mystery Crate 🎁 · New quests in "+left+"h"}</p></div>
+      <div class="row" style="gap:8px"><span class="chip">🔥 ${P.streak.count} day streak</span>${P.crates?`<button class="btn sm crate-cta" id="gocrate">🎁 Open ${P.crates} crate${P.crates>1?"s":""}!</button>`:""}</div>
+    </div>
+    <div class="quests">${d.ids.map(id=>{const q=QUESTS.find(x=>x.id===id),p=Math.min(q.goal,d.prog[id]||0),done=d.done[id];
+      return `<div class="quest ${done?"done":""}"><span class="qi" aria-hidden="true">${done?"✅":"🎯"}</span><div style="min-width:0;flex:1"><b>${q.text}</b><div class="qbar"><span style="width:${p/q.goal*100}%"></span></div><span class="small muted">${p.toLocaleString()} / ${q.goal.toLocaleString()} · reward 60 ⚛️</span></div></div>`;}).join("")}</div>
+  </section>`;
+}
+
+// ================= COLLECTION + CRATES =================
+function cardHTML(e,big){
+  const r=rarity(e.n), cnt=P.cards[e.n];
+  if(!cnt&&!big) return `<div class="ccard locked" title="Not collected yet"><span class="s">?</span><span class="nm">#${e.n}</span></div>`;
+  return `<button class="ccard${big?" big":""}" data-n="${e.n}" style="--c:var(--c-${e.cat});--r:${RAR[r].c}" aria-label="${esc(e.name)} card, ${RAR[r].label}"><span class="cr">${RAR[r].label}</span><span class="p" aria-hidden="true">${e.pic}</span><span class="s">${e.sym}</span><span class="nm">${esc(e.name)}</span>${cnt>1&&!big?`<span class="dup">×${cnt}</span>`:""}</button>`;
+}
+function renderCollection(rev){
+  const have=Object.keys(P.cards).length;
+  const byR=r=>EL.filter(e=>rarity(e.n)===r);
+  let revHTML="";
+  if(rev){ const e=EL[rev.n-1], r=rarity(e.n);
+    revHTML=`<div class="reveal">${cardHTML(e,true)}<div class="revtxt" style="color:${RAR[r].c}">${rev.isNew?"✨ NEW CARD!":"Duplicate: +"+rev.refund+" ⚛️"}</div><p class="small" style="margin:0;max-width:26ch">${esc(e.fact)}</p></div>`; }
+  $("#app").innerHTML=`<div class="wrap" style="gap:14px">
+    <section class="panel crate-zone">
+      <div class="crate-box" id="crate" aria-hidden="true">🎁</div>
+      <div style="min-width:0">
+        <h2 style="font-size:26px">Mystery Lab Crates</h2>
+        <p class="muted" style="margin:4px 0 10px;max-width:52ch">Every crate holds one element card. You earn crates when you level up and when you finish all 3 daily quests, and you can buy them in the shop. Mastering an element (3 stars) also earns its card. Duplicates turn into ⚛️ coins.</p>
+        <div class="row"><button class="btn" id="open" ${P.crates?"":"disabled"}>Open a crate (${P.crates} left)</button><button class="btn ghost" id="buyc" ${P.coins>=100?"":"disabled"}>Buy a crate: 100 ⚛️</button></div>
+        <p class="small muted" style="margin:8px 0 0">Odds: Common 55% · Rare 28% · Epic 13% · Legendary 4%</p>
+      </div>
+      <div id="reveal">${revHTML}</div>
+    </section>
+    <section class="panel" style="display:grid;gap:14px">
+      <div class="row" style="justify-content:space-between"><h2 style="font-size:24px">Your collection: ${have} / 118</h2><span class="small muted">Tap a card to learn about it</span></div>
+      <div class="levelbar" aria-label="Collection progress"><span style="width:${have/118*100}%"></span></div>
+      ${Object.keys(RAR).map(r=>{const list=byR(r), got=list.filter(e=>P.cards[e.n]).length;
+        return `<div style="display:grid;gap:8px"><h3 style="font-size:18px;color:${RAR[r].c}">${RAR[r].label} <span class="muted small" style="font-family:var(--f-body)">${got}/${list.length}</span></h3><div class="cgrid2">${list.map(e=>cardHTML(e)).join("")}</div></div>`;}).join("")}
+    </section></div>`;
+  $("#open").onclick=openCrate;
+  $("#buyc").onclick=()=>{ if(P.coins<100) return; P.coins-=100; P.crates++; save(); renderStats(); sfx.click(); renderCollection(rev); };
+  $("#app .wrap").addEventListener("click",ev=>{const b=ev.target.closest(".ccard[data-n]"); if(!b) return; P.sel=+b.dataset.n; tab="table"; render(); window.scrollTo({top:0});});
+}
+function openCrate(){
+  if(!P.crates||opening) return;
+  opening=true; P.crates--;
+  let x=Math.random()*100, r="common"; for(const k of Object.keys(RAR)){ x-=RAR[k].w; if(x<=0){r=k;break;} }
+  const e=rnd(EL.filter(el=>rarity(el.n)===r));
+  const isNew=addCard(e.n,true), refund=isNew?0:RAR[r].refund; P.coins+=refund; save();
+  $("#open").disabled=true; $("#reveal").innerHTML=""; $("#crate").classList.add("shake");
+  tone([[200,.12],[240,.12],[280,.12],[330,.12],[390,.12],[460,.12],[540,.2]]);
+  setTimeout(()=>{ opening=false; renderStats(); if(tab!=="collection") return;
+    renderCollection({n:e.n,isNew,refund}); sfx.win();
+    if(r==="epic"||r==="legendary") confetti(r==="legendary"?260:130);
+    $("#reveal").scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"});
+  }, reduce?150:1000);
+}
+
+// ================= SHOP =================
+function shipSVG(c){
+  const fill=c==="rainbow"?"url(#rb)":c;
+  return `<svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#ff6b7a"/><stop offset=".33" stop-color="#ffcf5a"/><stop offset=".66" stop-color="#4fdc9a"/><stop offset="1" stop-color="#7fb2ff"/></linearGradient></defs><path d="M28 6 L46 44 L28 36 L10 44 Z" style="fill:${fill}"/><circle cx="28" cy="26" r="5" style="fill:#7fb2ff"/><path d="M22 42 L28 54 L34 42 Z" style="fill:#ff9f43"/></svg>`;
+}
+function renderShop(){
+  const sec=(kind,title,sub)=>`<div style="display:grid;gap:10px"><div><h3 style="font-size:20px">${title}</h3><p class="small muted" style="margin:2px 0 0">${sub}</p></div><div class="shopgrid">${SHOP.filter(s=>s.kind===kind).map(s=>{
+    const own=P.owned[s.id], eq=P.equip[kind]===s.id;
+    const btn=eq?`<button class="btn sm" disabled>Equipped ✓</button>`:own?`<button class="btn ghost sm" data-eq="${s.id}">Equip</button>`:P.coins>=s.cost?`<button class="btn sm" data-buy="${s.id}">Buy · ${s.cost} ⚛️</button>`:`<button class="btn ghost sm" disabled>Need ${s.cost-P.coins} more ⚛️</button>`;
+    return `<div class="item ${eq?"eq":""}"><div class="pic">${kind==="avatar"?s.pic:shipSVG(s.color)}</div><b>${esc(s.name)}</b>${btn}</div>`;}).join("")}</div></div>`;
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:18px">
+    <div class="row" style="justify-content:space-between"><div><h2 style="font-size:26px">🛍️ Lab Shop</h2><p class="muted" style="margin:4px 0 0">Earn ⚛️ coins from every game, daily quests, and day streaks.</p></div><span class="chip" style="font-size:18px">⚛️ <b>${P.coins.toLocaleString()}</b></span></div>
+    ${sec("avatar","Avatars","Shows up on your home screen and in Boss Battles.")}
+    ${sec("ship","Ship skins","Your rocket in Element Blaster.")}
+    <div class="item" style="grid-template-columns:auto 1fr auto;justify-items:start;text-align:left;align-items:center"><div class="pic">🎁</div><div><b>Mystery Lab Crate</b><p class="small muted" style="margin:0">One random element card. You have ${P.crates}.</p></div><button class="btn sm" id="sbuyc" ${P.coins>=100?"":"disabled"}>Buy · 100 ⚛️</button></div>
+  </section>`;
+  $$("[data-buy]").forEach(b=>b.onclick=()=>{const s=SHOP.find(x=>x.id===b.dataset.buy); if(P.coins<s.cost) return; P.coins-=s.cost; P.owned[s.id]=1; P.equip[s.kind]=s.id; save(); sfx.win(); confetti(80); toast(`🛍️ You got ${s.name}!`); award("shopper"); renderStats(); renderShop();});
+  $$("[data-eq]").forEach(b=>b.onclick=()=>{const s=SHOP.find(x=>x.id===b.dataset.eq); P.equip[s.kind]=s.id; save(); sfx.click(); renderShop();});
+  $("#sbuyc").onclick=()=>{ if(P.coins<100) return; P.coins-=100; P.crates++; save(); renderStats(); toast("🎁 Crate added! Open it in the Collection tab."); sfx.click(); renderShop(); };
+}
+
 // ================= HOME =================
 function renderHome(){
   const lv=level(), into=P.xp-lv*1500, e=EL[P.sel-1];
@@ -795,13 +999,14 @@ function renderHome(){
   $("#app").innerHTML=`<div class="wrap" style="gap:16px">
   <section class="panel hero">
     <div>
-      <h2>Ready for a quest, Dylan?</h2>
+      <h2><span aria-hidden="true">${avatar()}</span> Ready for a quest, Dylan?</h2>
       <p>Play arcade games or take a quiz. Get an element right 3 times to master it. Master all 118 to become an Element Legend!</p>
       <div class="levelbar" aria-label="Level progress"><span style="width:${Math.min(100,into/15)}%"></span></div>
       <p style="font-size:13px;margin-top:6px">Level ${lv+1}: ${esc(levelName())} · ${1500-into} XP to next level</p>
     </div>
     <div class="tile" style="--c:var(--c-${e.cat})" aria-hidden="true"><span class="n">${e.n}</span><span class="s">${e.sym}</span><span class="nm">${esc(e.name)}</span></div>
   </section>
+  ${dailyHTML()}
   <section class="panel settings">
     <div style="display:grid;gap:6px"><span class="label">Which elements?</span>
       <div class="seg" id="pool">${POOLS.map(([n,l])=>`<button aria-pressed="${P.pool===n}" data-p="${n}">${l}</button>`).join("")}</div></div>
@@ -812,6 +1017,7 @@ function renderHome(){
   <div class="sechead"><h2>📝 Quiz modes</h2><span class="muted small">${ROUND} questions a round, with hints.</span></div>
   <section class="modes">${MODES.map(m=>`<button class="mode" data-m="${m.id}"><span class="pic" aria-hidden="true">${m.pic}</span><h3>${m.title}</h3><p>${m.desc}</p>${P.best[m.id]?`<span class="best">Best: ${P.best[m.id].toLocaleString()}</span>`:""}</button>`).join("")}</section>
   </div>`;
+  const gc=$("#gocrate"); if(gc) gc.onclick=()=>{tab="collection";render();window.scrollTo({top:0});};
   $("#pool").onclick=ev=>{const b=ev.target.closest("button");if(!b)return;P.pool=+b.dataset.p;save();renderHome();};
   $("#typing").onchange=ev=>{P.typing=ev.target.checked;save();};
   $$("[data-m]").forEach(b=>b.onclick=()=>start(b.dataset.m));
@@ -918,7 +1124,7 @@ function feedbackHTML(q){
   const title = q.kind==="cp" ? `${fmt(t.f)} = ${esc(t.name)}` : `${esc(t.name)} (${t.sym}) · #${t.n}`;
   const extra = q.kind==="cp" ? `<p class="muted" style="font-size:14px">Made of: ${Object.entries(parseF(t.f)).map(([s,k])=>`${k} ${esc(BYSYM[s].name)}`).join(", ")}</p>` : `<p class="muted" style="font-size:14px">${CATS[t.cat].label} · period ${t.period}</p>${gamerHTML(t)}`;
   return `<div class="feedback ${ok?"good":"bad"}" role="status"><div class="fpic" aria-hidden="true">${t.pic}</div>
-    <div><h3>${head} ${ok?`<span class="points">+${G.lastPts}</span>`:""}</h3><p><b>${title}</b></p><p>${esc(t.fact)}</p>${extra}</div></div>
+    <div><h3>${head} ${ok?`<span class="points">+${G.lastPts}</span>${G.lucky?` <span class="lucky">🍀 LUCKY ×2!</span>`:""}`:""}</h3><p><b>${title}</b></p><p>${esc(t.fact)}</p>${extra}</div></div>
     <button class="btn" id="next">${G.i+1<ROUND?"Next question ▸":"See my score ▸"}</button>`;
 }
 function bindGame(q,typing){
@@ -951,7 +1157,8 @@ function answer(ok,picked,revealed){
   if(ok){
     G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
     let pts=100+Math.min(G.streak-1,10)*20; if(typingFor(q))pts=Math.round(pts*1.5); if(G.hint)pts=Math.round(pts/2);
-    G.lastPts=pts; G.score+=pts; P.xp+=pts;
+    G.lucky=Math.random()<.12; if(G.lucky) pts*=2;
+    G.lastPts=pts; G.score+=pts; gain(pts); quest("right",1);
     if(typingFor(q)){P.stats.typed++; if(P.stats.typed>=25) award("typist");}
     bump(q.key,1);
     sfx.good(); if(G.streak%5===0) confetti(90);
@@ -991,6 +1198,7 @@ function finish(){
   $("#again").onclick=()=>start(G.mode); $("#home").onclick=goHome;
   if(stars>=2){ sfx.win(); confetti(stars===3?220:120); }
   award("first"); if(right===ROUND) award("perfect");
+  quest("rounds",1); if(right>=8) quest("great",1);
 }
 
 // ================= ARCADE: ELEMENT BLASTER =================
@@ -1065,9 +1273,10 @@ function startBlaster(){
   function loseLife(msg,x,y){ S.lives--; S.combo=0; S.shake=.35; say(x,y,msg,"#ff6b7a"); sfx.bad(); hud(); if(S.lives<=0) gameOver(); }
   function gameOver(){
     S.running=false; S.over=true;
-    const xp=Math.floor(S.score/10); P.xp+=xp;
+    const xp=Math.floor(S.score/10); gain(xp);
     const best=S.score>P.stats.blBest; if(best) P.stats.blBest=S.score; save(); renderStats();
     if(S.score>=1000) award("blast1"); if(S.score>=5000) award("blast2");
+    quest("blast",S.score);
     const chips=(map,c)=>[...map.values()].slice(0,12).map(e=>`<span style="--c:var(--c-${e.cat})">${e.sym} · ${esc(e.name)}</span>`).join("");
     const ov=$("#bover"); ov.hidden=false;
     ov.innerHTML=`<div class="bigpic" aria-hidden="true">💥</div><h2>Game over!</h2>
@@ -1099,7 +1308,7 @@ function startBlaster(){
       // ship
       const sx=S.ship.x, sy=H-30;
       if(S.running){ cx.fillStyle=Math.random()<.5?"#ff9f43":"#ffcf5a"; cx.beginPath(); cx.moveTo(sx-7,sy+12); cx.lineTo(sx,sy+22+Math.random()*8); cx.lineTo(sx+7,sy+12); cx.fill(); }
-      cx.fillStyle="#eef0ff"; cx.beginPath(); cx.moveTo(sx,sy-22); cx.lineTo(sx+18,sy+14); cx.lineTo(sx,sy+8); cx.lineTo(sx-18,sy+14); cx.closePath(); cx.fill();
+      cx.fillStyle=shipFill(S.t); cx.beginPath(); cx.moveTo(sx,sy-22); cx.lineTo(sx+18,sy+14); cx.lineTo(sx,sy+8); cx.lineTo(sx-18,sy+14); cx.closePath(); cx.fill();
       cx.fillStyle="#7fb2ff"; cx.beginPath(); cx.arc(sx,sy-4,5,0,7); cx.fill();
       for(const p of S.parts){ cx.globalAlpha=Math.max(0,p.life); cx.fillStyle=p.c; cx.fillRect(p.x-2,p.y-2,4,4); }
       cx.globalAlpha=1;
@@ -1159,7 +1368,7 @@ function bossTurn(){
   $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
     <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Run away</button><span class="streak">${A.streak>=2?"🔥 "+A.streak:""}</span></div>
     <div class="arena">
-      <div class="fighter" id="fp"><div class="avatar" aria-hidden="true">🧑‍🔬</div><h3>Dylan</h3><div class="hp"><span style="width:${A.php}%"></span></div><span class="small muted">${A.php} / 100 HP</span></div>
+      <div class="fighter" id="fp"><div class="avatar" aria-hidden="true">${avatar()}</div><h3>Dylan</h3><div class="hp"><span style="width:${A.php}%"></span></div><span class="small muted">${A.php} / 100 HP</span></div>
       <div class="vs">VS</div>
       <div class="fighter" id="fb"><div class="avatar" aria-hidden="true">${B.pic}</div><h3>${esc(B.name)}</h3><div class="hp boss"><span style="width:${Math.max(0,A.bhp/B.hp*100)}%"></span></div><span class="small muted">${Math.max(0,A.bhp)} / ${B.hp} HP</span><p class="taunt">“${esc(B.taunt)}”</p></div>
     </div>
@@ -1183,7 +1392,8 @@ function bossAnswer(ok,picked,timeout){
   if(ok){
     A.streak++; const fast=(performance.now()-A.t0)<4000;
     let dmg=80+Math.min(A.streak-1,8)*20; if(fast) dmg=Math.round(dmg*1.5);
-    A.bhp-=dmg; P.xp+=Math.round(dmg/2); bump(q.key,1);
+    A.bhp-=dmg; gain(Math.round(dmg/2)); bump(q.key,1);
+    quest("right",1); quest("bossdmg",dmg); if(fast) quest("crit",1);
     const fb=$("#fb"); fb.classList.add("hit"); floatText(fb,`${fast?"CRITICAL! ":""}-${dmg}`,fast?"var(--accent)":"var(--good)");
     fb.querySelector(".hp span").style.width=Math.max(0,A.bhp/B.hp*100)+"%"; fb.querySelector(".small").textContent=`${Math.max(0,A.bhp)} / ${B.hp} HP`;
     $("#bmsg").innerHTML=`✅ ${ansName}! ${esc(q.t.fact)}`; sfx.hit();
@@ -1200,7 +1410,7 @@ function bossAnswer(ok,picked,timeout){
 function bossEnd(won){
   const i=A.i, B=A.B;
   if(won){
-    P.stats.bossBeat=Math.max(P.stats.bossBeat,i+1); const xp=400*(i+1); P.xp+=xp; save(); renderStats();
+    P.stats.bossBeat=Math.max(P.stats.bossBeat,i+1); const xp=400*(i+1); gain(xp); save(); renderStats();
     award("boss"+(i+1)); sfx.win(); confetti(220);
     $("#app").innerHTML=`<section class="panel results"><div class="bigpic" aria-hidden="true">🏆</div><h2 style="font-size:30px">You defeated ${esc(B.name)}!</h2>
       <p class="muted" style="margin:0">+${xp} XP · ${A.php} HP left</p>
@@ -1257,7 +1467,8 @@ function memDone(){
   const secs=Math.round((Date.now()-A.t0)/1000), moves=A.moves;
   const stars=moves<=12?3:moves<=16?2:1, xp=Math.max(60,320-moves*10);
   const best=!P.stats.memBest||moves<P.stats.memBest; if(best) P.stats.memBest=moves;
-  P.xp+=xp; save(); renderStats(); if(moves<=12) award("memory");
+  gain(xp); save(); renderStats(); if(moves<=12) award("memory");
+  quest("match",1);
   sfx.win(); confetti(stars===3?200:100);
   setTimeout(()=>{ if(!A||A.type!=="memory") return;
     $("#minfo").innerHTML=`<div class="results"><div class="starsbig">${[0,1,2].map(i=>`<span class="${i<stars?"":"off"}">⭐</span>`).join("")}</div>
@@ -1317,9 +1528,10 @@ function craftCheck(){
     if(h>n){diff=`Too many ${nm} (${s}) atoms.`;break;} }
   if(!diff){
     const pts=Math.max(40,(A.hint?75:150)-A.tries*20);
-    A.score+=pts; P.xp+=pts; A.solved=true; A.results.push(true);
+    A.score+=pts; gain(pts); A.solved=true; A.results.push(true);
     bump("c"+c.i,1); P.stats.crafted[c.i]=1; save(); renderStats();
     award("craft1"); if(Object.keys(P.stats.crafted).length>=10) award("craft10");
+    quest("craft",1);
     A.msg=`🎉 You crafted <b>${esc(c.name)}</b> (${fmt(c.f)})! +${pts}`; sfx.win(); confetti(70);
   } else {
     A.tries++; A.msg=`❌ ${esc(diff)}${A.tries>=3&&!A.hint?" Stuck? Try the 💡 button.":""}`; sfx.bad();
@@ -1371,9 +1583,10 @@ function hlPick(i){
   let note="";
   if(k!=="gas"&&((a.n<b.n)!==(a.mass<b.mass))){ const heavy=a.mass>b.mass?a:b, lighter=heavy===a?b:a; note=` Tricky one! ${heavy.name} is heavier than ${lighter.name} even though it has fewer protons, because it has extra neutrons.`; }
   if(ok){
-    A.streak++; P.xp+=20+A.streak*5; save(); renderStats(); sfx.good();
+    A.streak++; gain(20+A.streak*5); save(); renderStats(); sfx.good();
     if(A.streak%5===0) confetti(80);
     if(A.streak>=10) award("hl10");
+    quest("hl",A.streak);
     $("#hmsg").innerHTML=`✅ Yes! <b>${esc(w.name)}</b> wins.${esc(note)}`;
     $("#hact").innerHTML=`<button class="btn" id="hnext">Next showdown ▸</button>`; $("#hnext").onclick=hlRound; $("#hnext").focus({preventScroll:true});
   } else {
@@ -1402,6 +1615,8 @@ function render(){
   if(tab==="table") return renderTable();
   if(tab==="compounds") return renderCompounds();
   if(tab==="trophies") return renderTrophies();
+  if(tab==="collection") return renderCollection();
+  if(tab==="shop") return renderShop();
   if(G&&!G.done) return renderGame();
   renderHome();
 }
