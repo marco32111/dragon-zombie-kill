@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;800&display=swap">
 <style>
-/* Layout: a night-shift chemistry lab. One column of game panels; the periodic table scrolls sideways inside its own frame. */
+/* Layout: a night-shift chemistry lab turned arcade. One column of game panels; the periodic table scrolls sideways inside its own frame. */
 :root{
   --ink:#151935; --panel:#1f2548; --panel-2:#293060; --line:#3b4380;
   --text:#eef0ff; --muted:#a8aed6; --accent:#ffcf5a; --accent-ink:#2a1f00;
@@ -32,6 +32,9 @@ body{font-family:var(--f-body);font-size:16px;line-height:1.5;
 h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.5px;margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.small{font-size:13px}
+.muted{color:var(--muted)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
 /* header */
 header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
@@ -41,17 +44,13 @@ header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-betw
 .brand h1{font-size:clamp(24px,5vw,34px);line-height:1}
 .brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
 .stats{display:flex;gap:8px;flex-wrap:wrap}
-.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip b{color:var(--accent)}
 .iconbtn{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px}
-
 nav.tabs{display:flex;gap:6px;background:var(--panel);padding:6px;border-radius:999px;border:1px solid var(--line);width:max-content;max-width:100%;overflow-x:auto}
 nav.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:800;color:var(--muted);white-space:nowrap}
 nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
-
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px}
-.muted{color:var(--muted)}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
 
 /* home */
 .hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
@@ -59,9 +58,12 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .hero p{margin:6px 0 0;max-width:60ch;color:var(--muted)}
 .levelbar{height:12px;background:var(--panel-2);border-radius:999px;overflow:hidden;margin-top:10px}
 .levelbar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ff9f43);border-radius:999px}
+.sechead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sechead h2{font-size:26px}
 .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 .mode{text-align:left;background:var(--panel-2);border:2px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:6px;transition:transform .12s,border-color .12s}
 .mode:hover{transform:translateY(-2px);border-color:var(--accent)}
+.mode.arcade{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 14%,var(--panel-2)),var(--panel-2) 70%)}
 .mode .pic{font-size:34px;line-height:1}
 .mode h3{font-size:21px}
 .mode p{margin:0;color:var(--muted);font-size:14px}
@@ -74,7 +76,7 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .toggle{display:flex;gap:8px;align-items:center;font-weight:800;font-size:14px}
 .toggle input{width:20px;height:20px;accent-color:var(--accent)}
 
-/* game */
+/* shared game bits */
 .gamebar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
 .progress{flex:1 1 200px;display:flex;gap:4px}
 .progress i{flex:1;height:10px;border-radius:999px;background:var(--panel-2)}
@@ -90,23 +92,25 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .tile .s{font-family:var(--f-display);font-size:64px;line-height:1;text-align:center;align-self:center}
 .tile .nm{text-align:center;font-weight:800;font-size:14px;color:var(--muted)}
 .formula{font-family:var(--f-display);font-size:clamp(48px,11vw,80px);line-height:1;letter-spacing:1px}
-.formula sub{font-size:.5em}
+.formula sub,.f sub{font-size:.5em}
 .bigname{font-family:var(--f-display);font-size:clamp(34px,7vw,52px);line-height:1.1}
 .options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;max-width:620px}
 .opt{background:var(--panel-2);border:2px solid var(--line);border-radius:12px;padding:14px 12px;font-weight:800;font-size:18px;display:flex;gap:10px;align-items:center;justify-content:center;min-height:62px;transition:transform .1s}
 .opt:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
 .opt .k{font-size:11px;background:var(--line);border-radius:6px;padding:1px 6px;color:var(--muted)}
-.opt small{display:block;font-weight:600;font-size:12px;color:var(--muted)}
 .opt.sym{font-family:var(--f-display);font-size:30px;font-weight:400}
 .opt.correct{background:color-mix(in srgb,var(--good) 30%,var(--panel-2));border-color:var(--good)}
 .opt.wrong{background:color-mix(in srgb,var(--bad) 30%,var(--panel-2));border-color:var(--bad);animation:shake .35s}
 .opt.gone{opacity:.2}
 .opt:disabled{cursor:default}
 .typebox{display:flex;gap:8px;width:100%;max-width:460px}
-.typebox input{flex:1;min-width:0;background:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font:800 20px var(--f-body)}
+.typebox input,.search{flex:1;min-width:0;background:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font:800 20px var(--f-body)}
+.search{font-size:15px;padding:8px 12px;flex:0 1 240px}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:12px 20px;font-weight:800;font-size:17px;box-shadow:0 4px 0 #c99a1f}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c99a1f}
 .btn.ghost{background:transparent;color:var(--text);border:2px solid var(--line);box-shadow:none}
+.btn.sm{padding:6px 14px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:default}
 .helpers{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .helpers button{background:transparent;border:1px dashed var(--line);border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px;color:var(--muted)}
 .helpers button:disabled{opacity:.35;cursor:default}
@@ -118,38 +122,41 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .feedback h3{font-size:22px}
 .feedback p{margin:2px 0 0}
 .points{font-family:var(--f-display);color:var(--good)}
+.gamer{background:color-mix(in srgb,var(--c-halogen) 14%,var(--panel-2));border:1px solid var(--c-halogen);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:14px;max-width:60ch}
+.gamer b{color:var(--c-halogen)}
 
 /* periodic table */
 .tablewrap{overflow-x:auto;padding-bottom:6px}
 .ptable{display:grid;grid-template-columns:repeat(18,minmax(44px,1fr));grid-template-rows:repeat(7,auto) 12px repeat(2,auto);gap:3px;min-width:820px}
-.el{--c:var(--c-transition);position:relative;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 20%,var(--panel));border-radius:7px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;line-height:1.05;min-height:52px;color:var(--text)}
+.el{--c:var(--c-transition);position:relative;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 20%,var(--panel));border-radius:7px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;line-height:1.05;min-height:52px;color:var(--text);transition:opacity .15s,transform .1s}
 .el .n{font-size:9px;font-weight:800;align-self:flex-start;padding-left:2px;opacity:.85}
 .el .s{font-family:var(--f-display);font-size:19px}
 .el .nm{font-size:7.5px;font-weight:800;opacity:.8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .el:hover{background:color-mix(in srgb,var(--c) 45%,var(--panel));transform:scale(1.08);z-index:2}
 .el.sel{outline:3px solid var(--accent);outline-offset:1px;z-index:3}
-.el.dim{opacity:.28}
+.el.dim{opacity:.2}
 .el.hit{background:var(--good);border-color:var(--good);color:var(--ink)}
 .el.miss{background:var(--bad);border-color:var(--bad);color:var(--ink)}
 .el.glow{animation:glow 1s infinite alternate}
 .el .stars{position:absolute;top:1px;right:3px;font-size:8px;color:var(--accent);letter-spacing:-1px}
 .el.ph{border-style:dashed;background:transparent;justify-content:center;font-size:9px;font-weight:800;color:var(--muted);--c:var(--line)}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;font-weight:800}
-.legend span{display:flex;align-items:center;gap:6px}
-.legend i{width:12px;height:12px;border-radius:4px;background:var(--c)}
-.detail{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{--c:var(--line);border:2px solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:999px;padding:3px 10px;font-weight:800;font-size:12px;color:var(--text)}
+.fchip[aria-pressed="true"]{background:var(--c);color:var(--ink)}
+.detail{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:20px;align-items:center}
 .detail .bigpic{font-size:80px}
 .detail h2{font-size:32px}
 .detail p{margin:4px 0 0;max-width:60ch}
 .kv{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .kv span{background:var(--panel-2);border-radius:8px;padding:4px 10px;font-weight:800;font-size:13px}
+.bohr{width:170px;height:170px;display:block}
+.orbit{transform-box:view-box;transform-origin:50% 50%;animation:spin linear infinite}
 
 /* compounds */
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .cmp{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:6px}
 .cmp .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.cmp .f{font-family:var(--f-display);font-size:30px;line-height:1}
-.cmp .f sub{font-size:.55em}
+.cmp .f{font-family:var(--f-display);font-size:28px;line-height:1;overflow-wrap:anywhere}
 .cmp .e{font-size:34px;line-height:1}
 .cmp h3{font-size:18px}
 .cmp p{margin:0;font-size:14px;color:var(--muted)}
@@ -167,23 +174,115 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .missed b{display:block}
 .missed small{color:var(--muted)}
 
+/* blaster */
+.stage{position:relative;border-radius:12px;overflow:hidden;border:2px solid var(--line);background:#0b0e24;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage canvas{display:block;width:100%}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:10px;background:rgba(10,12,30,.86);text-align:center;padding:16px;overflow-y:auto}
+.overlay h2{font-size:32px}
+.target{font-family:var(--f-display);font-size:clamp(18px,4vw,24px);flex:1 1 220px;text-align:center}
+.target b{color:var(--accent)}
+.touchpad{display:none;gap:8px}
+.touchpad button{flex:1;background:var(--panel-2);border:2px solid var(--line);border-radius:12px;padding:14px;font-weight:800;font-size:18px;touch-action:manipulation}
+@media (pointer:coarse){.touchpad{display:flex}}
+
+/* boss */
+.arena{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.fighter{display:grid;justify-items:center;gap:6px;text-align:center;position:relative;min-width:0}
+.fighter .avatar{font-size:clamp(60px,13vw,104px);line-height:1}
+.fighter.hit .avatar{animation:shake .4s}
+.fighter h3{font-size:20px}
+.hp{width:100%;max-width:240px;height:14px;background:var(--panel-2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.hp span{display:block;height:100%;background:var(--good);transition:width .4s}
+.hp.boss span{background:var(--bad)}
+.vs{font-family:var(--f-display);font-size:30px;color:var(--accent)}
+.dmg{position:absolute;top:0;left:50%;font-family:var(--f-display);font-size:28px;animation:float 1.1s forwards;pointer-events:none;white-space:nowrap}
+.taunt{font-style:italic;color:var(--muted);font-size:14px;max-width:32ch;margin:0}
+.timer{height:8px;background:var(--panel-2);border-radius:999px;overflow:hidden;width:100%;max-width:620px}
+.timer span{display:block;height:100%;background:var(--accent);width:100%;animation:drain linear forwards}
+.timer.stop span{animation-play-state:paused}
+.bosses{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.bosscard{text-align:center;background:var(--panel-2);border:2px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:6px;justify-items:center}
+.bosscard:hover:not(:disabled){border-color:var(--bad)}
+.bosscard .avatar{font-size:64px;line-height:1}
+.bosscard:disabled{opacity:.45;cursor:not-allowed}
+.bosscard .tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)}
+
+/* memory */
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:560px;margin:0 auto;width:100%}
+.mcard{aspect-ratio:1;perspective:600px;border:0;background:transparent;padding:0}
+.mcard .in{position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.mcard.up .in,.mcard.done .in{transform:rotateY(180deg)}
+.mcard .back,.mcard .face{position:absolute;inset:0;border-radius:12px;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mcard .back{background:repeating-linear-gradient(45deg,var(--panel-2) 0 10px,var(--line) 10px 20px);border:2px solid var(--line);font-size:28px}
+.mcard:hover .back{border-color:var(--accent)}
+.mcard .face{--c:var(--c-transition);transform:rotateY(180deg);border:2px solid var(--c);background:color-mix(in srgb,var(--c) 22%,var(--panel));padding:4px;text-align:center;align-content:center;gap:2px}
+.mcard .face .s{font-family:var(--f-display);font-size:clamp(26px,7vw,42px);line-height:1}
+.mcard .face .n{font-size:11px;font-weight:800;opacity:.8}
+.mcard .face .p{font-size:clamp(22px,6vw,36px);line-height:1}
+.mcard .face .nm{font-weight:800;font-size:clamp(9px,2.5vw,13px);line-height:1.1}
+.mcard.done .face{background:color-mix(in srgb,var(--good) 30%,var(--panel));border-color:var(--good)}
+.infoline{min-height:48px;text-align:center;font-weight:600;max-width:60ch;margin:0 auto}
+
+/* crafter */
+.bench{width:100%;max-width:620px;min-height:110px;border:3px dashed var(--line);border-radius:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:14px;background:var(--panel-2)}
+.bench.ok{border-color:var(--good);border-style:solid}
+.atom{--c:var(--c-nonmetal);width:46px;height:46px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.6) 0 12%,var(--c) 45%,color-mix(in srgb,var(--c) 55%,#000) 100%);color:#151935;font-family:var(--f-display);font-size:17px;animation:pop .2s;box-shadow:0 3px 0 rgba(0,0,0,.3)}
+.palette{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:640px}
+.pal{--c:var(--c-transition);width:68px;height:68px;border-radius:12px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 22%,var(--panel));display:grid;place-items:center;align-content:center;padding:2px}
+.pal .s{font-family:var(--f-display);font-size:24px;line-height:1}
+.pal .nm{font-size:10px;font-weight:800;color:var(--muted)}
+.pal:hover{transform:translateY(-2px)}
+.counts{font-weight:800;color:var(--muted);font-size:14px;min-height:21px}
+
+/* showdown */
+.duel{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:stretch;width:100%;max-width:640px}
+.dcard{--c:var(--c-transition);background:color-mix(in srgb,var(--c) 16%,var(--panel-2));border:3px solid var(--c);border-radius:16px;padding:18px 10px;display:grid;gap:4px;justify-items:center;transition:transform .12s}
+.dcard:hover:not(:disabled){transform:translateY(-3px)}
+.dcard .p{font-size:52px;line-height:1}
+.dcard .s{font-family:var(--f-display);font-size:40px;line-height:1}
+.dcard .nm{font-weight:800}
+.dcard .val{font-family:var(--f-display);font-size:22px;color:var(--accent);min-height:30px}
+.dcard.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 25%,var(--panel-2))}
+.dcard.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 22%,var(--panel-2))}
+.dcard:disabled{cursor:default}
+
+/* trophies */
+.trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.trophy{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.trophy.got{border-color:var(--accent)}
+.trophy.locked{opacity:.45;filter:grayscale(1)}
+.trophy .p{font-size:36px;line-height:1}
+.trophy b{display:block}
+.trophy small{color:var(--muted)}
+
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:grid;gap:8px;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}
+#toast div{background:var(--accent);color:var(--accent-ink);font-weight:800;padding:10px 18px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.5);animation:pop .3s;text-align:center}
 @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-@keyframes pop{from{transform:scale(.95);opacity:.4}to{transform:none;opacity:1}}
+@keyframes pop{from{transform:scale(.9);opacity:.4}to{transform:none;opacity:1}}
 @keyframes glow{from{box-shadow:0 0 0 0 var(--accent)}to{box-shadow:0 0 14px 4px var(--accent)}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media (max-width:560px){
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-50px);opacity:0}}
+@keyframes drain{to{width:0}}
+@media (prefers-reduced-motion:reduce){.orbit,.el.glow,.opt.wrong,.fighter.hit .avatar,.atom,.feedback{animation:none!important}.mcard .in{transition:none}}
+@media (max-width:640px){
   .hero{grid-template-columns:1fr}
+  .hero .tile{display:none}
   .options{grid-template-columns:1fr}
   .detail{grid-template-columns:1fr;text-align:center;justify-items:center}
   .detail .kv{justify-content:center}
   .opt .k{display:none}
+  .arena{grid-template-columns:1fr auto 1fr;gap:6px}
+  .fighter h3{font-size:16px}
+  .taunt{display:none}
+  .vs{font-size:20px}
 }
 </style>
 </head>
 <body>
 
 <canvas id="fx" aria-hidden="true"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
 <div class="wrap">
   <header>
     <div class="brand">
@@ -196,9 +295,10 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
     <div class="stats" id="stats"></div>
   </header>
   <nav class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="play">Play</button>
+    <button role="tab" data-tab="play">🎮 Play</button>
     <button role="tab" data-tab="table">Periodic table</button>
     <button role="tab" data-tab="compounds">Compounds</button>
+    <button role="tab" data-tab="trophies">🏆 Trophies</button>
   </nav>
   <main id="app"></main>
 </div>
@@ -206,8 +306,8 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 <script>
 (function(){
 "use strict";
-// ---------- DATA ----------
-// [symbol, name, picture, clue]  (index + 1 = atomic number)
+// ================= DATA =================
+// [symbol, name, picture, clue, other accepted spellings]  (index + 1 = atomic number)
 const E = [
 ["H","Hydrogen","☀️","The lightest element. Stars like the Sun smash it together to make light and heat."],
 ["He","Helium","🎈","Lighter than air, so it makes party balloons float and voices squeaky."],
@@ -328,6 +428,36 @@ const E = [
 ["Ts","Tennessine","🎸","Named after the state of Tennessee."],
 ["Og","Oganesson","🏆","The heaviest element ever made. Named after scientist Yuri Oganessian."]
 ];
+// standard atomic weights (u); whole numbers = most stable isotope of radioactive elements
+const MASS=[1.008,4.0026,6.94,9.012,10.81,12.011,14.007,15.999,18.998,20.180,22.990,24.305,26.982,28.085,30.974,32.06,35.45,39.95,39.098,40.078,44.956,47.867,50.942,51.996,54.938,55.845,58.933,58.693,63.546,65.38,69.723,72.630,74.922,78.971,79.904,83.798,85.468,87.62,88.906,91.224,92.906,95.95,98,101.07,102.91,106.42,107.87,112.41,114.82,118.71,121.76,127.60,126.90,131.29,132.91,137.33,138.91,140.12,140.91,144.24,145,150.36,151.96,157.25,158.93,162.50,164.93,167.26,168.93,173.05,174.97,178.49,180.95,183.84,186.21,190.23,192.22,195.08,196.97,200.59,204.38,207.2,208.98,209,210,222,223,226,227,232.04,231.04,238.03,237,244,243,247,247,251,252,257,258,259,266,267,268,269,270,277,278,281,282,285,286,289,290,293,294,294];
+const GAMER={
+1:"Space games full of stars? Every real star is a giant furnace fusing hydrogen.",
+2:"Helium is the second most common element in the whole universe.",
+3:"Your controller and handheld console run on lithium-ion batteries.",
+6:"Diamond tools in block-building games? Real diamonds are pure carbon, the hardest natural material.",
+8:"Underwater levels with an air meter? That meter is tracking oxygen.",
+10:"The glowing 'neon' look of arcades and retro games is named after this gas.",
+14:"Every game console's processor is built on a silicon chip.",
+15:"Glow-in-the-dark items are called 'phosphorescent' after phosphorus.",
+22:"Games love 'titanium armor' because real titanium is as strong as steel but much lighter.",
+26:"Iron is the most-used metal in the real world too. Billions of tons of iron ore are mined every year.",
+29:"Copper blocks in games turn green over time. Real copper does too: that's why the Statue of Liberty is green.",
+31:"Gallium is a real 'shape-shifting' metal. It melts at 30 °C (86 °F).",
+47:"Silver bullets defeat werewolves in legends and lots of monster games.",
+49:"Every touch-screen game you tap works thanks to a thin film of indium tin oxide.",
+54:"The ion thrusters in sci-fi space games are real, and they run on xenon.",
+56:"Green fireworks in victory celebrations? Real green fireworks get their color from barium.",
+60:"Neodymium magnets make the speakers in gaming headsets work.",
+74:"Tungsten is so dense it's used in real armor-piercing tips: true 'heavy ammo'.",
+79:"Game coins are usually gold-colored because real gold never tarnishes.",
+80:"Liquid-metal villains look a lot like real mercury, a metal that flows like water.",
+82:"Radiation suits in survival games often use lead, because it blocks radiation.",
+83:"Bismuth crystals look like pixel-art staircases from a video game.",
+88:"Radium paint that glowed in the dark inspired the 'radioactive green glow' in cartoons and games.",
+92:"Glowing green uranium is a myth. Real uranium is a dull silver-gray metal.",
+94:"Real spacecraft run on plutonium power packs, a real-life 'power cell' item.",
+118:"The final boss of the periodic table: the heaviest element ever made."
+};
 const CATS = {
   alkali:{label:"Alkali metal",nums:[3,11,19,37,55,87]},
   alkaline:{label:"Alkaline earth",nums:[4,12,20,38,56,88]},
@@ -340,6 +470,8 @@ const CATS = {
   lanthanide:{label:"Lanthanide",nums:[]},
   actinide:{label:"Actinide",nums:[]}
 };
+const GASES=[1,2,7,8,9,10,17,18,36,54,86], LIQUIDS=[35,80];
+function stateOf(n){ if(GASES.includes(n))return "Gas"; if(LIQUIDS.includes(n))return "Liquid"; if(n>=100)return "Unknown"; return "Solid"; }
 function catOf(n){
   if(n>=57&&n<=71) return "lanthanide";
   if(n>=89&&n<=103) return "actinide";
@@ -355,7 +487,13 @@ function pos(n){ // [row, col]
   if(n<=86){ if(n<=56) return [6,n-54]; if(n<=71) return [9,n-54]; return [6,n-68]; }
   if(n<=88) return [7,n-86]; if(n<=103) return [10,n-86]; return [7,n-100];
 }
-const EL = E.map((e,i)=>{const n=i+1;const p=pos(n);return {n,sym:e[0],name:e[1],pic:e[2],fact:e[3],alt:e[4]||[],cat:catOf(n),row:p[0],col:p[1],period:p[0]>7?(p[0]===9?6:7):p[0]};});
+const EL = E.map((e,i)=>{const n=i+1;const p=pos(n);return {n,sym:e[0],name:e[1],pic:e[2],fact:e[3],alt:e[4]||[],cat:catOf(n),row:p[0],col:p[1],period:p[0]>7?(p[0]===9?6:7):p[0],mass:MASS[i],gamer:GAMER[n]||""};});
+const BYSYM = Object.fromEntries(EL.map(e=>[e.sym,e]));
+
+// electron shells (filling order, with the real exceptions for well-known elements)
+const ORB=[[1,2],[2,2],[2,6],[3,2],[3,6],[4,2],[3,10],[4,6],[5,2],[4,10],[5,6],[6,2],[4,14],[5,10],[6,6],[7,2],[5,14],[6,10],[7,6]];
+const SHELL_FIX={24:[2,8,13,1],29:[2,8,18,1],41:[2,8,18,12,1],42:[2,8,18,13,1],44:[2,8,18,15,1],45:[2,8,18,16,1],46:[2,8,18,18],47:[2,8,18,18,1],57:[2,8,18,18,9,2],58:[2,8,18,19,9,2],64:[2,8,18,25,9,2],78:[2,8,18,32,17,1],79:[2,8,18,32,18,1],89:[2,8,18,32,18,9,2],90:[2,8,18,32,18,10,2],91:[2,8,18,32,20,9,2],92:[2,8,18,32,21,9,2],93:[2,8,18,32,22,9,2],96:[2,8,18,32,25,9,2],103:[2,8,18,32,32,8,3]};
+function shells(z){ if(SHELL_FIX[z]) return SHELL_FIX[z]; const s=[]; let left=z; for(const [n,c] of ORB){ if(left<=0)break; const k=Math.min(c,left); s[n-1]=(s[n-1]||0)+k; left-=k; } return Array.from(s,x=>x||0); }
 
 // [formula, common name, picture, clue, other accepted names]
 const CP = [
@@ -387,9 +525,38 @@ const CP = [
 ["C8H18","Octane","⛽","A main ingredient in gasoline.",["gasoline"]],
 ["NaClO","Bleach","🧺","Sodium hypochlorite whitens laundry and kills germs.",["sodium hypochlorite"]],
 ["Al2O3","Ruby and sapphire","❤️","Aluminum oxide. With a few impurities it becomes rubies and sapphires.",["aluminum oxide","aluminium oxide","ruby","sapphire","corundum"]],
-["MgSO4","Epsom salt","🛁","Dissolved in warm baths to soothe sore muscles.",["magnesium sulfate"]]
+["MgSO4","Epsom salt","🛁","Dissolved in warm baths to soothe sore muscles.",["magnesium sulfate"]],
+["C6H8O7","Citric acid","🍋","Makes lemons and sour candy taste sour.",[]],
+["KNO3","Saltpeter","🎆","Potassium nitrate. Used in fireworks and fertilizer.",["potassium nitrate"]],
+["NaF","Sodium fluoride","🪥","The cavity fighter added to many toothpastes.",["fluoride"]],
+["C9H8O4","Aspirin","💊","A medicine for headaches, first made from willow tree bark.",[]],
+["C2H4","Ethylene","🍌","A gas fruit gives off as it ripens. Bananas in a paper bag ripen faster!",[]],
+["SO2","Sulfur dioxide","🌋","A choking gas that pours out of volcanoes.",["sulphur dioxide"]],
+["CaO","Quicklime","🧱","Gets super hot when mixed with water. Used to make cement.",["calcium oxide","lime"]],
+["CaSO4","Plaster","🦴","Calcium sulfate (gypsum). Used for casts on broken arms and in drywall.",["calcium sulfate","gypsum"]],
+["CuSO4","Copper sulfate","🔷","Grows beautiful bright blue crystals.",["copper sulphate"]],
+["KCl","Potassium chloride","🥗","A salt substitute that tastes salty with no sodium.",[]],
+["C3H6O","Acetone","💅","The main ingredient in nail polish remover.",["nail polish remover"]],
+["H2CO3","Carbonic acid","🥤","Forms when CO₂ dissolves in water. It gives soda its tangy bite.",[]],
+["C2H2","Acetylene","👨‍🏭","Burns in welding torches hot enough to cut steel.",[]],
+["Fe3O4","Magnetite","🧭","A naturally magnetic rock. The first compasses used it.",["lodestone"]],
+["SiC","Silicon carbide","🪚","Super hard grit on sandpaper and in race-car brakes.",["carborundum"]],
+["TiO2","Titanium dioxide","🎨","The bright white in paint, toothpaste, and sunscreen.",[]],
+["CH3OH","Methanol","🏎️","A fuel used in some race cars.",["methyl alcohol","wood alcohol"]],
+["C6H6","Benzene","🛢️","A ring-shaped molecule made from crude oil.",[]],
+["C5H8NNaO4","MSG","🍜","Monosodium glutamate adds savory flavor to snacks and ramen.",["monosodium glutamate"]]
 ].map((c,i)=>({i,f:c[0],name:c[1],pic:c[2],fact:c[3],alt:c[4]}));
+function parseF(f){ const o={}; f.replace(/([A-Z][a-z]?)(\d*)/g,(_,s,d)=>{o[s]=(o[s]||0)+(d?+d:1);return "";}); return o; }
+const CRAFTABLE = CP.filter(c=>{const t=Object.values(parseF(c.f)).reduce((a,b)=>a+b,0);return t>=2&&t<=14;});
+const COMMON = ["H","C","N","O","Na","Cl","S","Ca","K","Fe","Mg","Si","Al","Cu","F","P","Ti"];
 
+const ARCADE = [
+  {id:"blaster",pic:"🚀",title:"Element Blaster",desc:"Meteors are falling! Shoot only the one that matches the target element."},
+  {id:"boss",pic:"🐉",title:"Boss Battle",desc:"Answer fast to blast three bosses. Wrong answers hurt!"},
+  {id:"craft",pic:"⚒️",title:"Compound Crafter",desc:"Build molecules atom by atom, like a crafting table."},
+  {id:"memory",pic:"🃏",title:"Memory Match",desc:"Flip cards to match each symbol with its element."},
+  {id:"hl",pic:"⚖️",title:"Element Showdown",desc:"Heavier? More protons? A gas? Pick the winner and keep your streak."}
+];
 const MODES = [
   {id:"picture",pic:"🖼️",title:"Picture Clue",desc:"See a picture and a clue. Which element is it?"},
   {id:"symbol",pic:"🔤",title:"Symbol Sprint",desc:"A symbol pops up. Name that element!"},
@@ -398,19 +565,47 @@ const MODES = [
   {id:"compound",pic:"⚗️",title:"Compound Lab",desc:"H₂O, CO₂, NaCl... match formulas and names."},
   {id:"mix",pic:"🎲",title:"Mystery Mix",desc:"A bit of everything. The ultimate test."}
 ];
+const BOSSES = [
+  {name:"Rusty the Robot",pic:"🤖",hp:600,atk:20,pool:20,taunt:"Beep boop! You can't name a single element!",tag:"Elements 1–20"},
+  {name:"Toxic Slime King",pic:"🦠",hp:900,atk:25,pool:54,taunt:"Blorp! My goo is full of elements you've never heard of!",tag:"Elements 1–54"},
+  {name:"Plasma Dragon",pic:"🐉",hp:1300,atk:30,pool:118,taunt:"Roar! My fire is hotter than tungsten's melting point!",tag:"All 118 elements"}
+];
+const ACH = [
+  ["first","🧪","First Experiment","Finish your first quiz round."],
+  ["perfect","💯","Flawless","Get 10 out of 10 in a quiz round."],
+  ["streak10","🔥","On Fire","Get 10 quiz answers right in a row."],
+  ["typist","⌨️","Speed Typist","Get 25 answers right in hard mode."],
+  ["boss1","🤖","Robot Wrecker","Defeat Rusty the Robot."],
+  ["boss2","🦠","Slime Buster","Defeat the Toxic Slime King."],
+  ["boss3","🐉","Dragon Slayer","Defeat the Plasma Dragon."],
+  ["blast1","🚀","Space Cadet","Score 1,000 in Element Blaster."],
+  ["blast2","🌠","Meteor Master","Score 5,000 in Element Blaster."],
+  ["memory","🧠","Photographic Memory","Clear Memory Match in 12 moves or fewer."],
+  ["craft1","⚒️","Apprentice Crafter","Craft your first compound."],
+  ["craft10","🏭","Master Crafter","Craft 10 different compounds."],
+  ["hl10","⚖️","Heavyweight Judge","Reach a 10 streak in Element Showdown."],
+  ["explore","🔍","Curious Mind","Look up 30 different elements on the table."],
+  ["m10","🌱","Rising Scientist","Master 10 elements."],
+  ["noble","👑","Noble Knowledge","Master all 7 noble gases."],
+  ["m54","🎓","Lab Expert","Master 54 elements."],
+  ["m118","🏆","Element Legend","Master all 118 elements."]
+].map(a=>({id:a[0],pic:a[1],title:a[2],desc:a[3]}));
 const POOLS = [[20,"First 20"],[36,"First 36"],[54,"First 54"],[86,"First 86"],[118,"All 118"]];
 const LEVELS = ["Lab Rookie","Beaker Buddy","Atom Explorer","Molecule Maker","Element Ace","Reaction Master","Periodic Pro","Element Legend"];
 const ROUND = 10;
 
-// ---------- STATE ----------
+// ================= STATE =================
 const KEY = "dylan-element-quest-v1";
-let P = {xp:0,m:{},best:{},pool:20,typing:false,muted:false,sel:1};
+let P = {xp:0,m:{},best:{},pool:20,typing:false,muted:false,sel:1,ach:{},viewed:{},stats:{}};
 try{ const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) P=Object.assign(P,s); }catch(e){}
+P.stats=Object.assign({blBest:0,bossBeat:0,memBest:0,crafted:{},hlBest:0,typed:0},P.stats||{});
+P.ach=P.ach||{}; P.viewed=P.viewed||{};
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(P)); }catch(e){} }
-let tab="play", G=null;
+let tab="play", G=null, A=null;
 
-// ---------- HELPERS ----------
+// ================= HELPERS =================
 const $ = s=>document.querySelector(s);
+const $$ = s=>document.querySelectorAll(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const shuffle = a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
 const fmt = f=>esc(f).replace(/(\d+)/g,"<sub>$1</sub>");
@@ -419,61 +614,88 @@ const mk = k=>P.m[k]||0;
 const level = ()=>Math.floor(P.xp/1500);
 const levelName = ()=>LEVELS[Math.min(level(),LEVELS.length-1)];
 const mastered = ()=>EL.filter(e=>mk(e.n)>=3).length;
-const atomsIn = f=>[...new Set(f.match(/[A-Z][a-z]?/g))].map(s=>EL.find(e=>e.sym===s)).filter(Boolean);
+const atomsIn = f=>[...new Set(f.match(/[A-Z][a-z]?/g))].map(s=>BYSYM[s]).filter(Boolean);
+const rnd = a=>a[Math.random()*a.length|0];
+const gamerHTML = e=>e&&e.gamer?`<div class="gamer"><b>🎮 Gamer fact:</b> ${esc(e.gamer)}</div>`:"";
+function bump(k,d){ P.m[k]=Math.max(0,Math.min(3,mk(k)+d)); checkMastery(); }
 
-// ---------- SOUND ----------
+// ================= TROPHIES =================
+let toastQ=[];
+function toast(msg){
+  const t=$("#toast"), d=document.createElement("div"); d.textContent=msg; t.appendChild(d);
+  setTimeout(()=>d.remove(),3200);
+}
+function award(id){
+  if(P.ach[id]) return; const a=ACH.find(x=>x.id===id); if(!a) return;
+  P.ach[id]=Date.now(); P.xp+=250; save();
+  toast(`${a.pic} Trophy unlocked: ${a.title}! +250 XP`); sfx.win(); confetti(60); renderStats();
+}
+function checkMastery(){
+  const m=mastered();
+  if(m>=10)award("m10"); if(m>=54)award("m54"); if(m>=118)award("m118");
+  if(CATS.noble.nums.every(n=>mk(n)>=3)) award("noble");
+}
+
+// ================= SOUND =================
 let AC=null;
 function tone(seq){
   if(P.muted) return;
   try{
     AC = AC || new (window.AudioContext||window.webkitAudioContext)();
     let t=AC.currentTime;
-    seq.forEach(([f,d,type])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||"triangle";o.frequency.value=f;
-      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.18,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    seq.forEach(([f,d,type,vol])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||"triangle";o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.18,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
       o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02);t+=d*.8;});
   }catch(e){}
 }
 const sfx = {
   good:()=>tone([[660,.12],[880,.18]]),
-  bad:()=>tone([[220,.18,"sawtooth"],[170,.25,"sawtooth"]]),
+  bad:()=>tone([[220,.18,"sawtooth",.12],[170,.25,"sawtooth",.12]]),
   win:()=>tone([[523,.12],[659,.12],[784,.12],[1047,.3]]),
-  click:()=>tone([[500,.05]])
+  click:()=>tone([[500,.05,"triangle",.1]]),
+  laser:()=>tone([[1200,.06,"square",.05],[700,.06,"square",.04]]),
+  boom:()=>tone([[140,.2,"sawtooth",.15],[90,.25,"square",.1]]),
+  hit:()=>tone([[300,.08,"square",.12],[600,.12,"square",.12]])
 };
 
-// ---------- CONFETTI ----------
+// ================= CONFETTI =================
 const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-const fx=$("#fx"), ctx=fx.getContext("2d"); let parts=[], raf=0;
+const fx=$("#fx"), fctx=fx.getContext("2d"); let parts=[], fraf=0;
 function confetti(count){
   if(reduce) return;
   fx.width=innerWidth; fx.height=innerHeight;
   const cols=["#ffcf5a","#4fdc9a","#7fb2ff","#f2a2ff","#ff8a65","#5fe3d3"];
   for(let i=0;i<count;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:Math.random()*6+4,c:cols[i%cols.length],a:Math.random()*6,life:120});
-  if(!raf) loop();
+  if(!fraf) floop();
 }
-function loop(){
-  ctx.clearRect(0,0,fx.width,fx.height);
-  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.vx*=.99;p.a+=.2;p.life--;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore();});
+function floop(){
+  fctx.clearRect(0,0,fx.width,fx.height);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.vx*=.99;p.a+=.2;p.life--;fctx.save();fctx.translate(p.x,p.y);fctx.rotate(p.a);fctx.fillStyle=p.c;fctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);fctx.restore();});
   parts=parts.filter(p=>p.life>0&&p.y<fx.height+20);
-  raf = parts.length?requestAnimationFrame(loop):0;
-  if(!raf) ctx.clearRect(0,0,fx.width,fx.height);
+  fraf = parts.length?requestAnimationFrame(floop):0;
+  if(!fraf) fctx.clearRect(0,0,fx.width,fx.height);
 }
 
-// ---------- HEADER ----------
+// ================= HEADER / TABS =================
 function renderStats(){
   $("#stats").innerHTML =
     `<span class="chip">⭐ <b>${P.xp.toLocaleString()}</b> XP</span>`+
     `<span class="chip">🏅 ${esc(levelName())}</span>`+
-    `<span class="chip">🧠 <b>${mastered()}</b>/118 mastered</span>`+
-    `<button class="iconbtn" id="mute" aria-label="${P.muted?"Turn sound on":"Turn sound off"}">${P.muted?"🔇 Sound off":"🔊 Sound on"}</button>`;
+    `<span class="chip">🧠 <b>${mastered()}</b>/118</span>`+
+    `<span class="chip">🏆 <b>${Object.keys(P.ach).length}</b>/${ACH.length}</span>`+
+    `<button class="iconbtn" id="mute" aria-label="${P.muted?"Turn sound on":"Turn sound off"}">${P.muted?"🔇":"🔊"}</button>`;
   $("#mute").onclick=()=>{P.muted=!P.muted;save();renderStats();};
-  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===tab)));
+  $$("#tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===tab)));
 }
-$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tab=b.dataset.tab;if(tab!=="play")G=G&&G.done?null:G;render();});
+function leaveArcade(){ if(A&&A.stop) A.stop(); A=null; }
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tab=b.dataset.tab;leaveArcade();if(G&&G.done)G=null;render();});
+function goHome(){ leaveArcade(); G=null; tab="play"; render(); window.scrollTo({top:0}); }
 
-// ---------- PERIODIC TABLE ----------
+// ================= PERIODIC TABLE =================
+let TF={cat:null,state:null,q:""};
 function tableHTML(o){
   o=o||{};
-  let h=`<div class="tablewrap"><div class="ptable" role="grid" aria-label="Periodic table">`;
+  let h=`<div class="tablewrap"><div class="ptable" aria-label="Periodic table">`;
   h+=`<div class="el ph" style="grid-row:6;grid-column:3">57–71</div><div class="el ph" style="grid-row:7;grid-column:3">89–103</div>`;
   for(const e of EL){
     const cls=["el"]; if(o.sel===e.n)cls.push("sel"); if(o.dim&&o.dim(e))cls.push("dim");
@@ -481,69 +703,122 @@ function tableHTML(o){
     const hide=o.hideNames;
     const st=o.stars?"★".repeat(Math.min(3,mk(e.n))):"";
     h+=`<button class="${cls.join(" ")}" data-n="${e.n}" style="--c:var(--c-${e.cat});grid-row:${e.row};grid-column:${e.col}" aria-label="${hide?"Element number "+e.n:esc(e.name)}">`+
-       `<span class="n">${e.n}</span><span class="s">${hide&&o.hideSym?"?":e.sym}</span>${hide?"":`<span class="nm">${esc(e.name)}</span>`}${st?`<span class="stars">${st}</span>`:""}</button>`;
+       `<span class="n">${e.n}</span><span class="s">${e.sym}</span>${hide?"":`<span class="nm">${esc(e.name)}</span>`}${st?`<span class="stars">${st}</span>`:""}</button>`;
   }
   return h+`</div></div>`;
 }
-function legendHTML(){
-  return `<div class="legend">`+Object.keys(CATS).map(k=>`<span><i style="--c:var(--c-${k})"></i>${CATS[k].label}</span>`).join("")+`</div>`;
+function bohrSVG(e){
+  const sh=shells(e.n), N=sh.length; let g="";
+  sh.forEach((cnt,k)=>{
+    const r=N===1?40:24+k*(58/(N-1));
+    g+=`<circle cx="90" cy="90" r="${r.toFixed(1)}" style="fill:none;stroke:var(--line)" stroke-width="1"/>`;
+    const dr=cnt>18?1.9:cnt>8?2.4:3; let dots="";
+    for(let j=0;j<cnt;j++){const a=j/cnt*Math.PI*2;dots+=`<circle cx="${(90+r*Math.cos(a)).toFixed(1)}" cy="${(90+r*Math.sin(a)).toFixed(1)}" r="${dr}" style="fill:var(--accent)"/>`;}
+    g+=`<g class="orbit" style="animation-duration:${6+k*3}s;animation-direction:${k%2?"reverse":"normal"}">${dots}</g>`;
+  });
+  return `<div><svg class="bohr" viewBox="0 0 180 180" role="img" aria-label="Electron shells of ${esc(e.name)}: ${sh.join(", ")}">${g}<circle cx="90" cy="90" r="17" style="fill:var(--c-${e.cat})"/><text x="90" y="95" text-anchor="middle" font-family="Lilita One, sans-serif" font-size="15" style="fill:#151935">${e.sym}</text></svg><div class="small muted" style="text-align:center">Electron shells: ${sh.join(" · ")}</div></div>`;
 }
 function renderTable(){
-  const e=EL[P.sel-1];
   $("#app").innerHTML=`<div class="wrap" style="gap:14px">
-    <section class="panel detail" aria-live="polite">
-      <div class="bigpic" aria-hidden="true">${e.pic}</div>
-      <div>
-        <h2>${esc(e.name)} <span class="muted">(${e.sym})</span></h2>
-        <p>${esc(e.fact)}</p>
-        <div class="kv"><span>Atomic number ${e.n}</span><span style="color:var(--c-${e.cat})">${CATS[e.cat].label}</span><span>Period ${e.period}</span><span>Mastery ${"★".repeat(Math.min(3,mk(e.n)))}${"☆".repeat(3-Math.min(3,mk(e.n)))}</span></div>
-      </div>
-    </section>
+    <section class="panel" id="det" aria-live="polite"></section>
     <section class="panel" style="display:grid;gap:12px">
-      <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">Tap any element to learn about it</h2><span class="muted" style="font-size:14px">★ = times answered right (3 = mastered)</span></div>
-      ${tableHTML({sel:e.n,stars:true})}
-      ${legendHTML()}
+      <div class="row" style="justify-content:space-between"><h2 style="font-size:22px">Tap any element to explore it</h2>
+        <input class="search" id="tsearch" type="search" placeholder="Search a name or symbol" aria-label="Search elements" value="${esc(TF.q)}"></div>
+      <div class="filters" id="tfil"></div>
+      <div id="tbl"></div>
+      <p class="small muted" style="margin:0">★ = times answered right (3 stars = mastered). Use ← and → keys to step through elements.</p>
     </section></div>`;
-  $("#app").querySelector(".ptable").addEventListener("click",ev=>{const b=ev.target.closest("[data-n]");if(!b)return;P.sel=+b.dataset.n;save();sfx.click();renderTable();});
+  drawDetail(); drawFilters(); drawTbl();
+  $("#tbl").addEventListener("click",ev=>{const b=ev.target.closest("[data-n]");if(!b)return;selectEl(+b.dataset.n);});
+  $("#tfil").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;
+    if(b.dataset.cat!==undefined) TF.cat=TF.cat===b.dataset.cat?null:b.dataset.cat;
+    if(b.dataset.st!==undefined) TF.state=TF.state===b.dataset.st?null:b.dataset.st;
+    sfx.click(); drawFilters(); drawTbl();});
+  $("#tsearch").addEventListener("input",e=>{TF.q=e.target.value;drawTbl();});
+}
+function selectEl(n){
+  P.sel=n; P.viewed[n]=1; if(Object.keys(P.viewed).length>=30) award("explore");
+  save(); sfx.click(); drawDetail(); drawTbl();
+}
+function drawFilters(){
+  $("#tfil").innerHTML=Object.keys(CATS).map(k=>`<button class="fchip" style="--c:var(--c-${k})" data-cat="${k}" aria-pressed="${TF.cat===k}">${CATS[k].label}</button>`).join("")+
+    `<span class="small muted" style="margin-left:6px">State:</span>`+
+    ["Solid","Liquid","Gas"].map(s=>`<button class="fchip" data-st="${s}" aria-pressed="${TF.state===s}">${{Solid:"🧱",Liquid:"💧",Gas:"💨"}[s]} ${s}</button>`).join("");
+}
+function drawTbl(){
+  const q=norm(TF.q);
+  const dim=e=>(TF.cat&&e.cat!==TF.cat)||(TF.state&&stateOf(e.n)!==TF.state)||(q&&!(norm(e.name).includes(q)||norm(e.sym)===q||String(e.n)===q));
+  $("#tbl").innerHTML=tableHTML({sel:P.sel,stars:true,dim});
+}
+function drawDetail(){
+  const e=EL[P.sel-1], m=Math.min(3,mk(e.n));
+  $("#det").innerHTML=`<div class="detail">
+    <div class="bigpic" aria-hidden="true">${e.pic}</div>
+    ${bohrSVG(e)}
+    <div style="min-width:0">
+      <h2>${esc(e.name)} <span class="muted">(${e.sym})</span></h2>
+      <p>${esc(e.fact)}</p>
+      ${gamerHTML(e)}
+      <div class="kv"><span>Atomic number ${e.n}</span><span>Mass ${e.mass} u</span><span style="color:var(--c-${e.cat})">${CATS[e.cat].label}</span><span>Period ${e.period}</span><span>${{Solid:"🧱",Liquid:"💧",Gas:"💨",Unknown:"❓"}[stateOf(e.n)]} ${stateOf(e.n)}</span><span>Mastery ${"★".repeat(m)}${"☆".repeat(3-m)}</span></div>
+      <div class="row" style="margin-top:12px;gap:8px"><button class="btn ghost sm" id="prevEl" ${e.n===1?"disabled":""}>◀ ${e.n>1?EL[e.n-2].sym:""}</button><button class="btn ghost sm" id="nextEl" ${e.n===118?"disabled":""}>${e.n<118?EL[e.n].sym:""} ▶</button></div>
+    </div></div>`;
+  $("#prevEl").onclick=()=>e.n>1&&selectEl(e.n-1);
+  $("#nextEl").onclick=()=>e.n<118&&selectEl(e.n+1);
 }
 
-// ---------- COMPOUNDS ----------
+// ================= COMPOUNDS =================
 function renderCompounds(){
   $("#app").innerHTML=`<section class="panel" style="display:grid;gap:14px">
-    <div class="row" style="justify-content:space-between"><div><h2 style="font-size:24px">Common compounds</h2><p class="muted" style="margin:4px 0 0">Elements team up to make everyday stuff. The little numbers tell you how many of each atom.</p></div>
-    <button class="btn" id="cplay">Play Compound Lab</button></div>
+    <div class="row" style="justify-content:space-between"><div><h2 style="font-size:24px">${CP.length} common compounds</h2><p class="muted" style="margin:4px 0 0;max-width:60ch">Elements team up to make everyday stuff. The little numbers tell you how many of each atom there are. H₂O means 2 hydrogens and 1 oxygen.</p></div>
+    <div class="row"><button class="btn" id="ccraft">⚒️ Craft them</button><button class="btn ghost" id="cplay">Quiz me</button></div></div>
     <div class="cgrid">${CP.map(c=>`<article class="cmp"><div class="top"><span class="f">${fmt(c.f)}</span><span class="e" aria-hidden="true">${c.pic}</span></div>
       <h3>${esc(c.name)}</h3><p>${esc(c.fact)}</p>
-      <div class="atoms">${atomsIn(c.f).map(e=>`<span style="--c:var(--c-${e.cat})">${e.sym} · ${esc(e.name)}</span>`).join("")}</div></article>`).join("")}</div></section>`;
+      <div class="atoms">${Object.entries(parseF(c.f)).map(([s,k])=>{const e=BYSYM[s];return `<span style="--c:var(--c-${e.cat})">${k}× ${esc(e.name)}</span>`;}).join("")}</div></article>`).join("")}</div></section>`;
   $("#cplay").onclick=()=>{tab="play";start("compound");};
+  $("#ccraft").onclick=()=>{tab="play";renderStats();startCraft();};
 }
 
-// ---------- HOME ----------
+// ================= TROPHIES TAB =================
+function renderTrophies(){
+  const got=Object.keys(P.ach).length;
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:14px">
+    <div><h2 style="font-size:24px">Trophy case: ${got} of ${ACH.length}</h2><p class="muted" style="margin:4px 0 0">Every trophy is worth 250 bonus XP.</p></div>
+    <div class="trophies">${ACH.map(a=>{const t=P.ach[a.id];return `<div class="trophy ${t?"got":"locked"}"><span class="p" aria-hidden="true">${t?a.pic:"🔒"}</span><span><b>${esc(a.title)}</b><small>${esc(a.desc)}${t?` · Won ${new Date(t).toLocaleDateString()}`:""}</small></span></div>`;}).join("")}</div>
+    <div class="row small muted" style="gap:16px"><span>🚀 Blaster best: ${P.stats.blBest.toLocaleString()}</span><span>🐉 Bosses beaten: ${P.stats.bossBeat}/3</span><span>⚒️ Compounds crafted: ${Object.keys(P.stats.crafted).length}</span><span>🃏 Fewest memory moves: ${P.stats.memBest||"–"}</span><span>⚖️ Best showdown streak: ${P.stats.hlBest}</span></div>
+  </section>`;
+}
+
+// ================= HOME =================
 function renderHome(){
-  const lv=level(), into=P.xp-lv*1500;
-  $("#app").innerHTML=`<div class="wrap" style="gap:14px">
+  const lv=level(), into=P.xp-lv*1500, e=EL[P.sel-1];
+  const arcBest={blaster:P.stats.blBest?`Best: ${P.stats.blBest.toLocaleString()}`:"",boss:`${P.stats.bossBeat}/3 bosses beaten`,craft:Object.keys(P.stats.crafted).length?`${Object.keys(P.stats.crafted).length} crafted`:"",memory:P.stats.memBest?`Best: ${P.stats.memBest} moves`:"",hl:P.stats.hlBest?`Best streak: ${P.stats.hlBest}`:""};
+  $("#app").innerHTML=`<div class="wrap" style="gap:16px">
   <section class="panel hero">
     <div>
       <h2>Ready for a quest, Dylan?</h2>
-      <p>Pick a game below. Each round has ${ROUND} questions. Get an element right 3 times to master it. Master all 118 to become an Element Legend!</p>
+      <p>Play arcade games or take a quiz. Get an element right 3 times to master it. Master all 118 to become an Element Legend!</p>
       <div class="levelbar" aria-label="Level progress"><span style="width:${Math.min(100,into/15)}%"></span></div>
       <p style="font-size:13px;margin-top:6px">Level ${lv+1}: ${esc(levelName())} · ${1500-into} XP to next level</p>
     </div>
-    <div class="tile" style="--c:var(--c-${EL[P.sel-1].cat})" aria-hidden="true"><span class="n">${EL[P.sel-1].n}</span><span class="s">${EL[P.sel-1].sym}</span><span class="nm">${esc(EL[P.sel-1].name)}</span></div>
+    <div class="tile" style="--c:var(--c-${e.cat})" aria-hidden="true"><span class="n">${e.n}</span><span class="s">${e.sym}</span><span class="nm">${esc(e.name)}</span></div>
   </section>
   <section class="panel settings">
     <div style="display:grid;gap:6px"><span class="label">Which elements?</span>
       <div class="seg" id="pool">${POOLS.map(([n,l])=>`<button aria-pressed="${P.pool===n}" data-p="${n}">${l}</button>`).join("")}</div></div>
-    <label class="toggle"><input type="checkbox" id="typing" ${P.typing?"checked":""}> Hard mode: type the answer (1.5× points)</label>
+    <label class="toggle"><input type="checkbox" id="typing" ${P.typing?"checked":""}> Hard mode: type quiz answers (1.5× points)</label>
   </section>
+  <div class="sechead"><h2>🕹️ Arcade</h2><span class="muted small">Video-game style. Learn while you play.</span></div>
+  <section class="modes">${ARCADE.map(m=>`<button class="mode arcade" data-a="${m.id}"><span class="pic" aria-hidden="true">${m.pic}</span><h3>${m.title}</h3><p>${m.desc}</p>${arcBest[m.id]?`<span class="best">${arcBest[m.id]}</span>`:""}</button>`).join("")}</section>
+  <div class="sechead"><h2>📝 Quiz modes</h2><span class="muted small">${ROUND} questions a round, with hints.</span></div>
   <section class="modes">${MODES.map(m=>`<button class="mode" data-m="${m.id}"><span class="pic" aria-hidden="true">${m.pic}</span><h3>${m.title}</h3><p>${m.desc}</p>${P.best[m.id]?`<span class="best">Best: ${P.best[m.id].toLocaleString()}</span>`:""}</button>`).join("")}</section>
   </div>`;
-  $("#pool").onclick=e=>{const b=e.target.closest("button");if(!b)return;P.pool=+b.dataset.p;save();renderHome();};
-  $("#typing").onchange=e=>{P.typing=e.target.checked;save();};
-  document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>start(b.dataset.m));
+  $("#pool").onclick=ev=>{const b=ev.target.closest("button");if(!b)return;P.pool=+b.dataset.p;save();renderHome();};
+  $("#typing").onchange=ev=>{P.typing=ev.target.checked;save();};
+  $$("[data-m]").forEach(b=>b.onclick=()=>start(b.dataset.m));
+  $$("[data-a]").forEach(b=>b.onclick=()=>({blaster:startBlaster,boss:bossMenu,craft:startCraft,memory:startMemory,hl:startHL})[b.dataset.a]());
 }
 
-// ---------- GAME ----------
+// ================= QUIZ =================
 function weightedPick(items,key,used){
   const c=items.filter(x=>!used.has(key(x))); const list=c.length?c:items;
   const w=list.map(x=>{const m=mk(key(x));return m>=3?1:5-m;});
@@ -551,23 +826,24 @@ function weightedPick(items,key,used){
   for(let i=0;i<list.length;i++){r-=w[i];if(r<=0)return list[i];}
   return list[list.length-1];
 }
-function makeQ(mode,used){
-  if(mode==="mix") mode=["picture","symbol","name2sym","find","compound"][Math.random()*5|0];
+function makeQ(mode,used,poolN){
+  poolN=poolN||P.pool;
+  if(mode==="mix") mode=rnd(["picture","symbol","name2sym","find","compound"]);
   if(mode==="compound"){
     const t=weightedPick(CP,c=>"c"+c.i,used); used.add("c"+t.i);
     const dir=Math.random()<.5?"f2n":"n2f";
     const opts=shuffle([t,...shuffle(CP.filter(c=>c!==t)).slice(0,3)]);
     return {kind:"cp",mode,dir,t,key:"c"+t.i,opts};
   }
-  const pool=EL.slice(0,P.pool);
+  const pool=EL.slice(0,poolN);
   const t=weightedPick(pool,e=>e.n,used); used.add(t.n);
-  // distractors: prefer near neighbours so it's not too easy
   const near=pool.filter(e=>e!==t&&Math.abs(e.n-t.n)<=12);
   const src=near.length>=3?near:pool.filter(e=>e!==t);
   const opts=shuffle([t,...shuffle(src).slice(0,3)]);
   return {kind:"el",mode,t,key:t.n,opts};
 }
 function start(mode){
+  leaveArcade();
   const used=new Set();
   G={mode,qs:Array.from({length:ROUND},()=>makeQ(mode,used)),i:0,score:0,streak:0,bestStreak:0,results:[],missed:[],answered:false,hint:0,done:false};
   render();
@@ -591,15 +867,23 @@ function optLabel(q,o,i){
   if(q.kind==="cp") return q.dir==="f2n" ? `${k}<span>${esc(o.name)}</span>` : `${k}<span class="f" style="font-family:var(--f-display);font-size:24px;font-weight:400">${fmt(o.f)}</span>`;
   return q.mode==="name2sym" ? `${k}<span>${o.sym}</span>` : `${k}<span>${esc(o.name)}</span>`;
 }
-const typingFor = q=>P.typing && q.mode!=="find";
-function hintText(q){
-  if(q.mode==="find") return `Hint: it's in period ${q.t.period}${q.t.period>=6&&q.t.row>7?" (in the bottom rows)":""}, and it's a ${CATS[q.t.cat].label.toLowerCase()}.`;
-  const ans = answerText(q);
-  return `Hint: it starts with “${ans[0]}” and has ${ans.replace(/\s/g,"").length} characters.`;
+function optsHTML(q,answered,picked,removed){
+  return `<div class="options">${q.opts.map((o,i)=>{
+    let cls="opt"+(q.mode==="name2sym"&&q.kind==="el"?" sym":"");
+    const val=q.kind==="cp"?o.i:o.n, tv=q.kind==="cp"?q.t.i:q.t.n;
+    if(answered){ if(val===tv)cls+=" correct"; else if(val===picked)cls+=" wrong"; }
+    else if(removed&&removed.includes(val)) cls+=" gone";
+    return `<button class="${cls}" data-v="${val}" ${answered||(removed&&removed.includes(val))?"disabled":""}>${optLabel(q,o,i)}</button>`;}).join("")}</div>`;
 }
+const typingFor = q=>P.typing && q.mode!=="find";
 function answerText(q){
   if(q.kind==="cp") return q.dir==="f2n"?q.t.name:q.t.f;
   return q.mode==="name2sym"?q.t.sym:q.t.name;
+}
+function hintText(q){
+  if(q.mode==="find") return `Hint: it's in period ${q.t.period}${q.t.row>7?" (in the bottom rows)":""}, and it's a ${CATS[q.t.cat].label.toLowerCase()}.`;
+  const ans=answerText(q);
+  return `Hint: it starts with “${ans[0]}” and has ${ans.replace(/\s/g,"").length} characters.`;
 }
 function renderGame(){
   const q=G.qs[G.i];
@@ -612,25 +896,16 @@ function renderGame(){
     body+=`<div style="width:100%;text-align:left">${tableHTML({hideNames:true,dim:e=>e.n>P.pool,mark})}</div>`;
   } else if(typing){
     body+=`<form class="typebox" id="tf" autocomplete="off"><input id="ans" aria-label="Your answer" placeholder="${q.kind==="cp"&&q.dir==="n2f"?"Type the formula, like H2O":q.mode==="name2sym"?"Type the symbol":"Type the name"}" ${G.answered?"disabled":""}><button class="btn" ${G.answered?"disabled":""}>Check</button></form>`;
-  } else {
-    body+=`<div class="options">${q.opts.map((o,i)=>{
-      let cls="opt"+(q.mode==="name2sym"&&q.kind==="el"?" sym":"");
-      const val=q.kind==="cp"?o.i:o.n, tv=q.kind==="cp"?q.t.i:q.t.n;
-      if(G.answered){ if(val===tv)cls+=" correct"; else if(val===G.picked)cls+=" wrong"; }
-      else if(G.removed&&G.removed.includes(val)) cls+=" gone";
-      return `<button class="${cls}" data-v="${val}" ${G.answered||(G.removed&&G.removed.includes(val))?"disabled":""}>${optLabel(q,o,i)}</button>`;}).join("")}</div>`;
-  }
+  } else body+=optsHTML(q,G.answered,G.picked,G.removed);
   if(!G.answered){
-    const fifty = !typing && q.mode!=="find";
+    const fifty=!typing&&q.mode!=="find";
     body+=`<div class="helpers">
       ${fifty?`<button id="h50" ${G.hint?"disabled":""}>✂️ 50/50 (half points)</button>`:`<button id="hclue" ${G.hint?"disabled":""}>💡 Hint (half points)</button>`}
       <button id="hshow">👀 Just show me the answer</button></div>`;
     if(G.hintMsg) body+=`<div class="hinttext">${esc(G.hintMsg)}</div>`;
-  } else {
-    body+=feedbackHTML(q);
-  }
+  } else body+=feedbackHTML(q);
   $("#app").innerHTML=`<section class="panel" style="display:grid;gap:18px">
-    <div class="gamebar"><button class="btn ghost" id="quit" style="padding:6px 14px;font-size:14px">✕ Quit</button>
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Quit</button>
       <div class="progress" aria-label="Question ${G.i+1} of ${ROUND}">${bar}</div>
       <span class="chip">Score <b>${G.score.toLocaleString()}</b></span>
       <span class="streak" aria-label="Streak ${G.streak}">${G.streak>=2?"🔥 "+G.streak:""}</span></div>
@@ -639,23 +914,23 @@ function renderGame(){
 }
 function feedbackHTML(q){
   const t=q.t, ok=G.lastOk;
-  const head = G.revealed ? "Here's the answer!" : ok ? ["Nailed it!","Awesome!","You're on fire!","Science genius!","Correct!"][Math.random()*5|0] : "Not quite!";
+  const head = G.revealed ? "Here's the answer!" : ok ? rnd(["Nailed it!","Awesome!","You're on fire!","Science genius!","Correct!"]) : "Not quite!";
   const title = q.kind==="cp" ? `${fmt(t.f)} = ${esc(t.name)}` : `${esc(t.name)} (${t.sym}) · #${t.n}`;
-  const extra = q.kind==="cp" ? `<p class="muted" style="font-size:14px">Made of: ${atomsIn(t.f).map(e=>esc(e.name)).join(", ")}</p>` : `<p class="muted" style="font-size:14px">${CATS[t.cat].label} · period ${t.period}</p>`;
+  const extra = q.kind==="cp" ? `<p class="muted" style="font-size:14px">Made of: ${Object.entries(parseF(t.f)).map(([s,k])=>`${k} ${esc(BYSYM[s].name)}`).join(", ")}</p>` : `<p class="muted" style="font-size:14px">${CATS[t.cat].label} · period ${t.period}</p>${gamerHTML(t)}`;
   return `<div class="feedback ${ok?"good":"bad"}" role="status"><div class="fpic" aria-hidden="true">${t.pic}</div>
     <div><h3>${head} ${ok?`<span class="points">+${G.lastPts}</span>`:""}</h3><p><b>${title}</b></p><p>${esc(t.fact)}</p>${extra}</div></div>
     <button class="btn" id="next">${G.i+1<ROUND?"Next question ▸":"See my score ▸"}</button>`;
 }
 function bindGame(q,typing){
-  $("#quit").onclick=()=>{G=null;render();};
-  if(G.answered){ const n=$("#next"); n.onclick=next; n.focus(); return; }
+  $("#quit").onclick=goHome;
+  if(G.answered){ const n=$("#next"); n.onclick=next; n.focus({preventScroll:true}); return; }
   if(q.mode==="find"){
     $("#app").querySelector(".ptable").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(!b||G.answered)return;const v=+b.dataset.n;if(v>P.pool)return;answer(v===q.t.n,v);});
   } else if(typing){
     const inp=$("#ans"); inp.focus();
     $("#tf").onsubmit=e=>{e.preventDefault();const v=inp.value.trim();if(!v)return;answer(checkTyped(q,v),null);};
   } else {
-    document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const v=+b.dataset.v;answer(v===(q.kind==="cp"?q.t.i:q.t.n),v);});
+    $$(".opt").forEach(b=>b.onclick=()=>{const v=+b.dataset.v;answer(v===(q.kind==="cp"?q.t.i:q.t.n),v);});
   }
   const h50=$("#h50"); if(h50) h50.onclick=()=>{const tv=q.kind==="cp"?q.t.i:q.t.n;G.removed=shuffle(q.opts.map(o=>q.kind==="cp"?o.i:o.n).filter(v=>v!==tv)).slice(0,2);G.hint=1;sfx.click();renderGame();};
   const hc=$("#hclue"); if(hc) hc.onclick=()=>{G.hint=1;G.hintMsg=hintText(q);sfx.click();renderGame();};
@@ -670,24 +945,20 @@ function checkTyped(q,v){
   if(q.mode==="name2sym") return norm(v)===norm(t.sym);
   return [t.name,...t.alt].some(a=>norm(a)===norm(v));
 }
-document.addEventListener("keydown",e=>{
-  if(tab!=="play"||!G||G.done||e.target.tagName==="INPUT") return;
-  const q=G.qs[G.i]; if(G.answered||typingFor(q)||q.mode==="find") return;
-  const k=+e.key; if(k>=1&&k<=4){const b=document.querySelectorAll(".opt")[k-1];if(b&&!b.disabled)b.click();}
-});
 function answer(ok,picked,revealed){
   const q=G.qs[G.i];
   G.answered=true; G.lastOk=ok; G.picked=picked;
-  const k=q.key;
   if(ok){
     G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
     let pts=100+Math.min(G.streak-1,10)*20; if(typingFor(q))pts=Math.round(pts*1.5); if(G.hint)pts=Math.round(pts/2);
     G.lastPts=pts; G.score+=pts; P.xp+=pts;
-    P.m[k]=Math.min(3,mk(k)+1);
+    if(typingFor(q)){P.stats.typed++; if(P.stats.typed>=25) award("typist");}
+    bump(q.key,1);
     sfx.good(); if(G.streak%5===0) confetti(90);
+    if(G.streak>=10) award("streak10");
   } else {
     G.streak=0; G.lastPts=0;
-    if(!revealed) P.m[k]=Math.max(0,mk(k)-1);
+    if(!revealed) bump(q.key,-1);
     G.missed.push(q);
     revealed?sfx.click():sfx.bad();
   }
@@ -697,6 +968,11 @@ function next(){
   G.i++; G.answered=false; G.hint=0; G.removed=null; G.hintMsg=null; G.revealed=false; G.picked=null;
   if(G.i>=ROUND){ G.done=true; finish(); return; }
   renderGame(); window.scrollTo({top:0,behavior:reduce?"auto":"smooth"});
+}
+function studyHTML(list){
+  return list.length?`<h3 style="font-size:20px;margin-top:8px">Study these</h3><div class="missed">${list.map(q=>q.kind==="cp"
+      ?`<div><span class="p" aria-hidden="true">${q.t.pic}</span><span><b>${fmt(q.t.f)} · ${esc(q.t.name)}</b><small>${esc(q.t.fact)}</small></span></div>`
+      :`<div><span class="p" aria-hidden="true">${q.t.pic}</span><span><b>${esc(q.t.name)} (${q.t.sym}) · #${q.t.n}</b><small>${esc(q.t.fact)}</small></span></div>`).join("")}</div>`:"";
 }
 function finish(){
   const right=G.results.filter(Boolean).length;
@@ -710,21 +986,423 @@ function finish(){
     <h2 style="font-size:26px">${right} out of ${ROUND} right${isBest&&G.score?" · New best!":""}</h2>
     <p class="muted" style="margin:0;max-width:52ch">${msg} Best streak: ${G.bestStreak} 🔥</p>
     <div class="row" style="justify-content:center"><button class="btn" id="again">Play again</button><button class="btn ghost" id="home">Choose another game</button></div>
-    ${uniq.length?`<h3 style="font-size:20px;margin-top:8px">Study these</h3><div class="missed">${uniq.map(q=>q.kind==="cp"
-      ?`<div><span class="p" aria-hidden="true">${q.t.pic}</span><span><b>${fmt(q.t.f)} · ${esc(q.t.name)}</b><small>${esc(q.t.fact)}</small></span></div>`
-      :`<div><span class="p" aria-hidden="true">${q.t.pic}</span><span><b>${esc(q.t.name)} (${q.t.sym}) · #${q.t.n}</b><small>${esc(q.t.fact)}</small></span></div>`).join("")}</div>`:""}
+    ${studyHTML(uniq)}
   </section>`;
-  $("#again").onclick=()=>start(G.mode); $("#home").onclick=()=>{G=null;render();};
+  $("#again").onclick=()=>start(G.mode); $("#home").onclick=goHome;
   if(stars>=2){ sfx.win(); confetti(stars===3?220:120); }
+  award("first"); if(right===ROUND) award("perfect");
 }
 
-// ---------- ROUTER ----------
+// ================= ARCADE: ELEMENT BLASTER =================
+function startBlaster(){
+  leaveArcade(); G=null;
+  const pool=EL.slice(0,P.pool);
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:12px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Quit</button>
+      <div class="target" id="btarget" aria-live="polite"></div>
+      <span class="chip">Score <b id="bscore">0</b></span><span class="chip" id="blives" aria-label="Lives"></span></div>
+    <div class="stage" id="stage"><canvas id="bc" aria-label="Element Blaster game area"></canvas>
+      <div class="overlay" id="bover"><div class="bigpic" aria-hidden="true">🚀</div><h2>Element Blaster</h2>
+        <p class="muted" style="max-width:42ch;margin:0">Meteors with element symbols are falling. Blast only the one that matches the target at the top! Hitting the wrong one, or letting the target escape, costs a heart. Every 5 hits in a row earns a bonus heart.</p>
+        <p class="small muted" style="margin:0">Move: ← → (or A / D) or drag · Shoot: Space or tap</p>
+        <button class="btn" id="bgo">Launch! 🚀</button></div></div>
+    <div class="touchpad" id="tpad"><button data-k="left" aria-label="Move left">◀</button><button data-k="fire" aria-label="Fire">🔥 Fire</button><button data-k="right" aria-label="Move right">▶</button></div>
+  </section>`;
+  const cv=$("#bc"), cx=cv.getContext("2d"), stage=$("#stage");
+  let W=0,H=0;
+  function size(){ W=stage.clientWidth; H=Math.round(Math.min(540,Math.max(380,W*.66))); const d=window.devicePixelRatio||1; cv.width=W*d; cv.height=H*d; cv.style.height=H+"px"; cx.setTransform(d,0,0,d,0,0); }
+  size();
+  const cs=getComputedStyle(document.documentElement), col={}; Object.keys(CATS).forEach(k=>col[k]=cs.getPropertyValue("--c-"+k).trim()||"#7fb2ff");
+  const accent=cs.getPropertyValue("--accent").trim()||"#ffcf5a";
+  const starsBg=Array.from({length:80},()=>({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2}));
+  let S=null, raf=0, last=0; const keys={};
+  function reset(){ S={ship:{x:W/2,tx:W/2},bul:[],met:[],parts:[],texts:[],score:0,lives:3,level:1,hits:0,combo:0,spawn:.3,cool:0,over:false,running:true,shake:0,t:0,learned:new Map(),oops:new Map()}; newTarget(); }
+  function newTarget(){ const prev=S.target; let t; do{ t=weightedPick(pool,e=>e.n,new Set()); }while(prev&&t===prev&&pool.length>1); S.target=t; hud(); }
+  function hud(){ $("#btarget").innerHTML=`Blast: <span aria-hidden="true">${S.target.pic}</span> <b>${esc(S.target.name)}</b>`; $("#bscore").textContent=S.score.toLocaleString(); $("#blives").textContent=S.lives>0?"❤️".repeat(S.lives):"💀"; }
+  function spawn(){
+    const has=S.met.some(m=>m.e===S.target);
+    let e=(!has&&Math.random()<.6)?S.target:rnd(pool);
+    const r=Math.max(20,Math.min(28,W/22));
+    const shape=Array.from({length:10},()=>.85+Math.random()*.18);
+    S.met.push({x:r+Math.random()*(W-2*r),y:-r,r,vy:(46+S.level*10)*(.85+Math.random()*.3),vx:(Math.random()-.5)*24,e,rot:Math.random()*6,vr:(Math.random()-.5)*1.4,shape});
+  }
+  function boom(x,y,c,n){ for(let i=0;i<n;i++){const a=Math.random()*6.28,s=Math.random()*220+40;S.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.5,c});} }
+  function say(x,y,text,c,big){ S.texts.push({x:Math.min(W-100,Math.max(100,x)),y,text,c,life:1.6,big}); }
+  function shoot(){ if(S.cool>0||!S.running) return; S.cool=.22; S.bul.push({x:S.ship.x,y:H-50}); sfx.laser(); }
+  function update(dt){
+    const sp=440; if(keys.left) S.ship.tx-=sp*dt; if(keys.right) S.ship.tx+=sp*dt;
+    S.ship.tx=Math.max(22,Math.min(W-22,S.ship.tx)); S.ship.x+=(S.ship.tx-S.ship.x)*Math.min(1,dt*14);
+    S.cool-=dt; if(keys.fire) shoot();
+    S.spawn-=dt; if(S.spawn<=0){ spawn(); S.spawn=Math.max(.5,1.25-S.level*.07); }
+    for(const b of S.bul) b.y-=580*dt;
+    for(const m of S.met){
+      m.y+=m.vy*dt; m.x+=m.vx*dt; if(m.x<m.r||m.x>W-m.r) m.vx*=-1; m.rot+=m.vr*dt;
+      for(const b of S.bul){ if(!b.dead&&(b.x-m.x)**2+(b.y-m.y)**2<(m.r+5)**2){ b.dead=true; m.dead=true; hitMet(m); break; } }
+      if(!m.dead&&m.y>H+m.r){ m.dead=true; if(m.e===S.target&&S.running){ S.oops.set(m.e.n,m.e); loseLife(`Missed ${m.e.name} (${m.e.sym})!`,m.x,H-70); newTarget(); } }
+    }
+    S.bul=S.bul.filter(b=>!b.dead&&b.y>-20); S.met=S.met.filter(m=>!m.dead);
+  }
+  function fxUpdate(dt){
+    for(const p of S.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.95;p.vy*=.95;p.life-=dt;} S.parts=S.parts.filter(p=>p.life>0);
+    for(const t of S.texts){t.y-=28*dt;t.life-=dt;} S.texts=S.texts.filter(t=>t.life>0);
+    S.shake=Math.max(0,S.shake-dt);
+  }
+  function hitMet(m){
+    if(!S.running) return;
+    if(m.e===S.target){
+      S.combo++; S.hits++; const pts=100*S.level+S.combo*10; S.score+=pts;
+      boom(m.x,m.y,col[m.e.cat],30); say(m.x,m.y,`+${pts}  ${m.e.sym} = ${m.e.name}`,"#4fdc9a"); sfx.boom();
+      S.learned.set(m.e.n,m.e); bump(m.e.n,1);
+      if(S.hits%6===0){S.level++; say(W/2,H/2,`LEVEL ${S.level}!`,accent,true); sfx.win();}
+      if(S.combo%5===0&&S.lives<5){S.lives++; say(W/2,H/2+40,"+1 ❤️ combo bonus!","#ff6b7a",true);}
+      newTarget();
+    } else {
+      S.oops.set(m.e.n,m.e); boom(m.x,m.y,"#ff6b7a",16);
+      loseLife(`Oops! That was ${m.e.name} (${m.e.sym})`,m.x,m.y);
+    }
+    hud();
+  }
+  function loseLife(msg,x,y){ S.lives--; S.combo=0; S.shake=.35; say(x,y,msg,"#ff6b7a"); sfx.bad(); hud(); if(S.lives<=0) gameOver(); }
+  function gameOver(){
+    S.running=false; S.over=true;
+    const xp=Math.floor(S.score/10); P.xp+=xp;
+    const best=S.score>P.stats.blBest; if(best) P.stats.blBest=S.score; save(); renderStats();
+    if(S.score>=1000) award("blast1"); if(S.score>=5000) award("blast2");
+    const chips=(map,c)=>[...map.values()].slice(0,12).map(e=>`<span style="--c:var(--c-${e.cat})">${e.sym} · ${esc(e.name)}</span>`).join("");
+    const ov=$("#bover"); ov.hidden=false;
+    ov.innerHTML=`<div class="bigpic" aria-hidden="true">💥</div><h2>Game over!</h2>
+      <div class="scorebig">${S.score.toLocaleString()}</div>
+      <p style="margin:0">${best&&S.score?"🎉 New high score! ":""}Level ${S.level} · +${xp} XP</p>
+      ${S.learned.size?`<div><div class="small muted">Blasted correctly</div><div class="atoms" style="justify-content:center">${chips(S.learned)}</div></div>`:""}
+      ${S.oops.size?`<div><div class="small muted">Study these</div><div class="atoms" style="justify-content:center">${chips(S.oops)}</div></div>`:""}
+      <div class="row" style="justify-content:center"><button class="btn" id="bgo">Play again</button><button class="btn ghost" id="bback">Back to games</button></div>`;
+    $("#bgo").onclick=go; $("#bback").onclick=goHome;
+  }
+  function draw(){
+    cx.save();
+    if(S&&S.shake>0&&!reduce) cx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);
+    cx.fillStyle="#0b0e24"; cx.fillRect(-10,-10,W+20,H+20);
+    const t=S?S.t:0;
+    for(const s of starsBg){ const y=(s.y*H+t*24*s.z)%H; cx.fillStyle=`rgba(255,255,255,${s.z*.8})`; cx.fillRect(s.x*W,y,s.z*2,s.z*2); }
+    if(S){
+      for(const m of S.met){
+        cx.save(); cx.translate(m.x,m.y); cx.rotate(m.rot); cx.beginPath();
+        m.shape.forEach((k,i)=>{const a=i/m.shape.length*Math.PI*2; const px=Math.cos(a)*m.r*k, py=Math.sin(a)*m.r*k; i?cx.lineTo(px,py):cx.moveTo(px,py);});
+        cx.closePath(); cx.fillStyle=col[m.e.cat]; cx.fill(); cx.lineWidth=3; cx.strokeStyle="rgba(0,0,0,.35)"; cx.stroke();
+        cx.fillStyle="rgba(0,0,0,.15)"; cx.beginPath(); cx.arc(m.r*.35,m.r*.3,m.r*.18,0,7); cx.fill();
+        cx.restore();
+        cx.fillStyle="#151935"; cx.font=`${Math.round(m.r*.85)}px "Lilita One", sans-serif`; cx.textAlign="center"; cx.textBaseline="middle"; cx.fillText(m.e.sym,m.x,m.y+1);
+      }
+      cx.fillStyle=accent; cx.shadowColor=accent; cx.shadowBlur=10;
+      for(const b of S.bul) cx.fillRect(b.x-2,b.y-12,4,16);
+      cx.shadowBlur=0;
+      // ship
+      const sx=S.ship.x, sy=H-30;
+      if(S.running){ cx.fillStyle=Math.random()<.5?"#ff9f43":"#ffcf5a"; cx.beginPath(); cx.moveTo(sx-7,sy+12); cx.lineTo(sx,sy+22+Math.random()*8); cx.lineTo(sx+7,sy+12); cx.fill(); }
+      cx.fillStyle="#eef0ff"; cx.beginPath(); cx.moveTo(sx,sy-22); cx.lineTo(sx+18,sy+14); cx.lineTo(sx,sy+8); cx.lineTo(sx-18,sy+14); cx.closePath(); cx.fill();
+      cx.fillStyle="#7fb2ff"; cx.beginPath(); cx.arc(sx,sy-4,5,0,7); cx.fill();
+      for(const p of S.parts){ cx.globalAlpha=Math.max(0,p.life); cx.fillStyle=p.c; cx.fillRect(p.x-2,p.y-2,4,4); }
+      cx.globalAlpha=1;
+      for(const tx of S.texts){ cx.globalAlpha=Math.min(1,tx.life); cx.fillStyle=tx.c; cx.font=tx.big?`28px "Lilita One", sans-serif`:`800 15px Nunito, sans-serif`; cx.textAlign="center"; cx.fillText(tx.text,tx.x,tx.y); }
+      cx.globalAlpha=1;
+    }
+    cx.restore();
+  }
+  function frame(ts){
+    const dt=Math.min(.05,(ts-(last||ts))/1000); last=ts;
+    if(S){ S.t+=dt; if(S.running) update(dt); fxUpdate(dt); }
+    draw(); raf=requestAnimationFrame(frame);
+  }
+  function go(){ $("#bover").hidden=true; reset(); sfx.click(); cv.focus&&cv.focus(); }
+  const KM={ArrowLeft:"left",a:"left",A:"left",ArrowRight:"right",d:"right",D:"right"," ":"fire",ArrowUp:"fire"};
+  const kd=e=>{const k=KM[e.key]; if(!k) return; if(e.target.tagName==="INPUT") return; e.preventDefault(); keys[k]=true;};
+  const ku=e=>{const k=KM[e.key]; if(k) keys[k]=false;};
+  let drag=false;
+  const toX=e=>e.clientX-cv.getBoundingClientRect().left;
+  cv.addEventListener("pointerdown",e=>{ if(!S||!S.running) return; drag=true; S.ship.tx=toX(e); shoot(); });
+  cv.addEventListener("pointermove",e=>{ if(!S||!S.running) return; if(e.pointerType==="mouse"||drag) S.ship.tx=toX(e); });
+  const pu=()=>{drag=false;};
+  window.addEventListener("pointerup",pu);
+  $("#tpad").querySelectorAll("button").forEach(b=>{
+    b.addEventListener("pointerdown",e=>{e.preventDefault();keys[b.dataset.k]=true;});
+    ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>keys[b.dataset.k]=false));
+  });
+  document.addEventListener("keydown",kd); document.addEventListener("keyup",ku); window.addEventListener("resize",size);
+  $("#bgo").onclick=go; $("#quit").onclick=goHome;
+  raf=requestAnimationFrame(frame);
+  A={type:"blaster",stop(){cancelAnimationFrame(raf);document.removeEventListener("keydown",kd);document.removeEventListener("keyup",ku);window.removeEventListener("resize",size);window.removeEventListener("pointerup",pu);}};
+}
+
+// ================= ARCADE: BOSS BATTLE =================
+function bossMenu(){
+  leaveArcade(); G=null; A={type:"bossmenu"};
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Back</button><h2 style="font-size:26px;flex:1">Boss Battle</h2></div>
+    <p class="muted" style="margin:0;max-width:62ch">Each right answer hits the boss. Answer within 4 seconds for a CRITICAL hit, and keep a streak for extra damage. Wrong answers or running out of time let the boss hit you. Beat a boss to unlock the next one!</p>
+    <div class="bosses">${BOSSES.map((b,i)=>{const locked=i>P.stats.bossBeat, beat=i<P.stats.bossBeat;return `<button class="bosscard" data-b="${i}" ${locked?"disabled":""}>
+      <span class="avatar" aria-hidden="true">${locked?"🔒":b.pic}</span><h3>${esc(b.name)}</h3><span class="tag">${b.tag}</span><span class="small muted">${b.hp} HP · hits for ${b.atk}</span><span class="small" style="font-weight:800;color:${beat?"var(--good)":"var(--muted)"}">${beat?"✔ Defeated":locked?"Beat the last boss to unlock":"Ready to fight!"}</span></button>`;}).join("")}</div>
+  </section>`;
+  $("#quit").onclick=goHome;
+  $$("[data-b]").forEach(b=>b.onclick=()=>startBoss(+b.dataset.b));
+}
+function startBoss(i){
+  leaveArcade();
+  const B=BOSSES[i];
+  A={type:"boss",i,B,bhp:B.hp,php:100,streak:0,used:new Set(),timers:[],stop(){A.timers.forEach(clearTimeout);}};
+  bossTurn();
+}
+function bossTurn(){
+  const Bt=A; const B=A.B;
+  const q=makeQ(rnd(["picture","symbol","name2sym","picture","compound"]),A.used,B.pool);
+  A.q=q; A.answered=false; A.t0=performance.now();
+  const TIME=12;
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Run away</button><span class="streak">${A.streak>=2?"🔥 "+A.streak:""}</span></div>
+    <div class="arena">
+      <div class="fighter" id="fp"><div class="avatar" aria-hidden="true">🧑‍🔬</div><h3>Dylan</h3><div class="hp"><span style="width:${A.php}%"></span></div><span class="small muted">${A.php} / 100 HP</span></div>
+      <div class="vs">VS</div>
+      <div class="fighter" id="fb"><div class="avatar" aria-hidden="true">${B.pic}</div><h3>${esc(B.name)}</h3><div class="hp boss"><span style="width:${Math.max(0,A.bhp/B.hp*100)}%"></span></div><span class="small muted">${Math.max(0,A.bhp)} / ${B.hp} HP</span><p class="taunt">“${esc(B.taunt)}”</p></div>
+    </div>
+    <div class="card">
+      <div class="timer" id="btimer"><span style="animation-duration:${TIME}s"></span></div>
+      ${promptHTML(q)}
+      ${optsHTML(q,false)}
+      <div class="infoline" id="bmsg"></div>
+    </div></section>`;
+  $("#quit").onclick=goHome;
+  $$(".opt").forEach(b=>b.onclick=()=>{const v=+b.dataset.v;bossAnswer(v===(q.kind==="cp"?q.t.i:q.t.n),v);});
+  A.timers.push(setTimeout(()=>{ if(A===Bt&&!A.answered) bossAnswer(false,null,true); },TIME*1000));
+}
+function floatText(el,text,color){ const d=document.createElement("div"); d.className="dmg"; d.style.color=color; d.textContent=text; el.appendChild(d); setTimeout(()=>d.remove(),1100); }
+function bossAnswer(ok,picked,timeout){
+  if(A.answered) return; A.answered=true;
+  const q=A.q, B=A.B, tv=q.kind==="cp"?q.t.i:q.t.n;
+  $("#btimer").classList.add("stop");
+  $$(".opt").forEach(b=>{b.disabled=true;const v=+b.dataset.v;if(v===tv)b.classList.add("correct");else if(v===picked)b.classList.add("wrong");});
+  const ansName=q.kind==="cp"?`${fmt(q.t.f)} = ${esc(q.t.name)}`:`${esc(q.t.name)} (${q.t.sym})`;
+  if(ok){
+    A.streak++; const fast=(performance.now()-A.t0)<4000;
+    let dmg=80+Math.min(A.streak-1,8)*20; if(fast) dmg=Math.round(dmg*1.5);
+    A.bhp-=dmg; P.xp+=Math.round(dmg/2); bump(q.key,1);
+    const fb=$("#fb"); fb.classList.add("hit"); floatText(fb,`${fast?"CRITICAL! ":""}-${dmg}`,fast?"var(--accent)":"var(--good)");
+    fb.querySelector(".hp span").style.width=Math.max(0,A.bhp/B.hp*100)+"%"; fb.querySelector(".small").textContent=`${Math.max(0,A.bhp)} / ${B.hp} HP`;
+    $("#bmsg").innerHTML=`✅ ${ansName}! ${esc(q.t.fact)}`; sfx.hit();
+  } else {
+    A.streak=0; A.php=Math.max(0,A.php-B.atk); bump(q.key,-1);
+    const fp=$("#fp"); fp.classList.add("hit"); floatText(fp,`-${B.atk}`,"var(--bad)");
+    fp.querySelector(".hp span").style.width=A.php+"%"; fp.querySelector(".small").textContent=`${A.php} / 100 HP`;
+    $("#bmsg").innerHTML=`${timeout?"⏰ Too slow!":"❌ Ouch!"} The answer was <b>${ansName}</b>. ${esc(q.t.fact)}`; sfx.bad();
+  }
+  save(); renderStats();
+  const me=A;
+  A.timers.push(setTimeout(()=>{ if(A!==me) return; if(A.bhp<=0) bossEnd(true); else if(A.php<=0) bossEnd(false); else bossTurn(); }, ok?1600:3000));
+}
+function bossEnd(won){
+  const i=A.i, B=A.B;
+  if(won){
+    P.stats.bossBeat=Math.max(P.stats.bossBeat,i+1); const xp=400*(i+1); P.xp+=xp; save(); renderStats();
+    award("boss"+(i+1)); sfx.win(); confetti(220);
+    $("#app").innerHTML=`<section class="panel results"><div class="bigpic" aria-hidden="true">🏆</div><h2 style="font-size:30px">You defeated ${esc(B.name)}!</h2>
+      <p class="muted" style="margin:0">+${xp} XP · ${A.php} HP left</p>
+      <div class="row" style="justify-content:center">${i<2?`<button class="btn" id="bnext">Fight ${esc(BOSSES[i+1].name)} ▸</button>`:`<p style="margin:0;font-weight:800">You beat every boss! You're a true Element Champion.</p>`}<button class="btn ghost" id="bmenu">Boss menu</button></div></section>`;
+    if(i<2) $("#bnext").onclick=()=>startBoss(i+1);
+  } else {
+    sfx.bad();
+    $("#app").innerHTML=`<section class="panel results"><div class="bigpic" aria-hidden="true">${B.pic}</div><h2 style="font-size:30px">${esc(B.name)} wins this time…</h2>
+      <p class="muted" style="margin:0;max-width:50ch">Boss HP left: ${A.bhp}. Study a bit on the Periodic table tab, then come back for a rematch!</p>
+      <div class="row" style="justify-content:center"><button class="btn" id="bre">Rematch!</button><button class="btn ghost" id="bmenu">Boss menu</button></div></section>`;
+    $("#bre").onclick=()=>startBoss(i);
+  }
+  $("#bmenu").onclick=bossMenu;
+}
+
+// ================= ARCADE: MEMORY MATCH =================
+function startMemory(){
+  leaveArcade(); G=null;
+  const els=shuffle(EL.slice(0,P.pool)).slice(0,8);
+  const cards=shuffle([...els.map(e=>({e,t:"sym"})),...els.map(e=>({e,t:"pic"}))]);
+  A={type:"memory",cards,open:[],done:0,moves:0,t0:Date.now(),lock:false,stop(){clearInterval(A.iv);}};
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Quit</button><h2 style="font-size:24px;flex:1">Memory Match</h2>
+      <span class="chip">Moves <b id="mmoves">0</b></span><span class="chip">Pairs <b id="mpairs">0</b>/8</span><span class="chip">⏱ <b id="mtime">0s</b></span></div>
+    <p class="muted" style="margin:0;text-align:center">Find each symbol card's partner: the card with its picture and name.</p>
+    <div class="mgrid">${cards.map((c,i)=>`<button class="mcard" data-i="${i}" aria-label="Hidden card"><div class="in"><div class="back" aria-hidden="true">⚛️</div>
+      <div class="face" style="--c:var(--c-${c.e.cat})">${c.t==="sym"?`<span class="n">${c.e.n}</span><span class="s">${c.e.sym}</span>`:`<span class="p">${c.e.pic}</span><span class="nm">${esc(c.e.name)}</span>`}</div></div></button>`).join("")}</div>
+    <div class="infoline" id="minfo"></div>
+  </section>`;
+  $("#quit").onclick=goHome;
+  A.iv=setInterval(()=>{const t=$("#mtime"); if(t) t.textContent=Math.round((Date.now()-A.t0)/1000)+"s";},500);
+  $$(".mcard").forEach(b=>b.onclick=()=>memFlip(+b.dataset.i,b));
+}
+function memFlip(i,b){
+  if(A.lock||b.classList.contains("up")||b.classList.contains("done")) return;
+  const c=A.cards[i]; b.classList.add("up"); b.setAttribute("aria-label",c.t==="sym"?`Symbol ${c.e.sym}`:c.e.name); sfx.click();
+  A.open.push(i);
+  if(A.open.length<2) return;
+  A.moves++; $("#mmoves").textContent=A.moves;
+  const [a,z]=A.open, ca=A.cards[a], cz=A.cards[z], ba=$(`.mcard[data-i="${a}"]`), bz=$(`.mcard[data-i="${z}"]`);
+  A.open=[];
+  if(ca.e===cz.e&&ca.t!==cz.t){
+    ba.classList.add("done"); bz.classList.add("done"); A.done++; $("#mpairs").textContent=A.done; sfx.good(); bump(ca.e.n,1);
+    $("#minfo").innerHTML=`✅ <b>${ca.e.sym} = ${esc(ca.e.name)}</b>. ${esc(ca.e.fact)}`;
+    if(A.done===8) memDone();
+  } else {
+    A.lock=true;
+    $("#minfo").textContent="Not a match. Try to remember where they are!";
+    setTimeout(()=>{ba.classList.remove("up");bz.classList.remove("up");ba.setAttribute("aria-label","Hidden card");bz.setAttribute("aria-label","Hidden card");A.lock=false;},950);
+  }
+}
+function memDone(){
+  clearInterval(A.iv);
+  const secs=Math.round((Date.now()-A.t0)/1000), moves=A.moves;
+  const stars=moves<=12?3:moves<=16?2:1, xp=Math.max(60,320-moves*10);
+  const best=!P.stats.memBest||moves<P.stats.memBest; if(best) P.stats.memBest=moves;
+  P.xp+=xp; save(); renderStats(); if(moves<=12) award("memory");
+  sfx.win(); confetti(stars===3?200:100);
+  setTimeout(()=>{ if(!A||A.type!=="memory") return;
+    $("#minfo").innerHTML=`<div class="results"><div class="starsbig">${[0,1,2].map(i=>`<span class="${i<stars?"":"off"}">⭐</span>`).join("")}</div>
+    <h2 style="font-size:26px">All matched in ${moves} moves and ${secs} seconds!${best?" New best!":""}</h2><p class="muted" style="margin:0">+${xp} XP</p>
+    <div class="row" style="justify-content:center"><button class="btn" id="magain">Play again</button><button class="btn ghost" id="mhome">Back to games</button></div></div>`;
+    $("#magain").onclick=startMemory; $("#mhome").onclick=goHome; },700);
+}
+
+// ================= ARCADE: COMPOUND CRAFTER =================
+function startCraft(){
+  leaveArcade(); G=null;
+  const used=new Set();
+  A={type:"craft",list:Array.from({length:5},()=>{const c=weightedPick(CRAFTABLE,c=>"c"+c.i,used);used.add("c"+c.i);return c;}),i:0,score:0,results:[]};
+  craftNew();
+}
+function craftNew(){
+  const c=A.list[A.i], syms=Object.keys(parseF(c.f));
+  A.bench=[]; A.tries=0; A.hint=false; A.solved=false; A.msg="";
+  A.pal=shuffle([...syms,...shuffle(COMMON.filter(s=>!syms.includes(s))).slice(0,Math.max(3,7-syms.length))]);
+  craftRender();
+}
+function craftRender(){
+  const c=A.list[A.i];
+  const bar=A.list.map((_,i)=>`<i class="${i<A.results.length?(A.results[i]?"ok":"no"):(i===A.i?"now":"")}"></i>`).join("");
+  const counts={}; A.bench.forEach(s=>counts[s]=(counts[s]||0)+1);
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Quit</button><div class="progress" aria-label="Compound ${A.i+1} of 5">${bar}</div><span class="chip">Score <b>${A.score}</b></span></div>
+    <div class="card">
+      <div class="prompt-q">⚒️ Craft this compound!</div>
+      <div class="row" style="justify-content:center;gap:16px"><span class="bigpic" style="font-size:72px" aria-hidden="true">${c.pic}</span><span class="bigname">${esc(c.name)}</span></div>
+      <div class="clue" style="font-size:16px">${esc(c.fact)}</div>
+      ${A.hint||A.solved?`<div class="hinttext" style="font-size:20px">Formula: <span class="f" style="font-family:var(--f-display)">${fmt(c.f)}</span></div>`:""}
+      <div class="bench ${A.solved?"ok":""}" id="bench" aria-label="Crafting table">${A.bench.length?A.bench.map((s,i)=>`<button class="atom" style="--c:var(--c-${BYSYM[s].cat})" data-k="${i}" aria-label="Remove ${BYSYM[s].name} atom" ${A.solved?"disabled":""}>${s}</button>`).join(""):`<span class="muted">Tap atoms below to put them on the crafting table. Tap an atom here to take it off.</span>`}</div>
+      <div class="counts">${Object.entries(counts).map(([s,k])=>`${s} × ${k}`).join(" · ")}</div>
+      ${A.solved?"":`<div class="palette" id="pal">${A.pal.map(s=>{const e=BYSYM[s];return `<button class="pal" style="--c:var(--c-${e.cat})" data-s="${s}" aria-label="Add ${e.name} atom"><span class="s">${s}</span><span class="nm">${esc(e.name)}</span></button>`;}).join("")}</div>
+      <div class="row" style="justify-content:center"><button class="btn ghost" id="cclear">Clear</button><button class="btn ghost" id="chint" ${A.hint?"disabled":""}>💡 Show formula (half points)</button><button class="btn" id="cgo">⚒️ Craft!</button></div>`}
+      <div class="infoline" id="cmsg">${A.msg}</div>
+      ${A.solved?`<button class="btn" id="cnext">${A.i<4?"Next compound ▸":"See my score ▸"}</button>`:""}
+    </div></section>`;
+  $("#quit").onclick=goHome;
+  if(A.solved){ $("#cnext").onclick=craftNext; $("#cnext").focus({preventScroll:true}); return; }
+  $("#pal").onclick=e=>{const b=e.target.closest("[data-s]"); if(!b) return; if(A.bench.length>=24){A.msg="The table is full! Take some atoms off.";craftRender();return;} A.bench.push(b.dataset.s); A.msg=""; sfx.click(); craftRender();};
+  $("#bench").onclick=e=>{const b=e.target.closest("[data-k]"); if(!b) return; A.bench.splice(+b.dataset.k,1); sfx.click(); craftRender();};
+  $("#cclear").onclick=()=>{A.bench=[];A.msg="";craftRender();};
+  $("#chint").onclick=()=>{A.hint=true;sfx.click();craftRender();};
+  $("#cgo").onclick=craftCheck;
+}
+function craftCheck(){
+  const c=A.list[A.i], need=parseF(c.f), have={};
+  A.bench.forEach(s=>have[s]=(have[s]||0)+1);
+  if(!A.bench.length){ A.msg="Put some atoms on the crafting table first!"; craftRender(); return; }
+  const all=[...new Set([...Object.keys(have).filter(s=>!need[s]),...Object.keys(need),...Object.keys(have)])];
+  let diff=null;
+  for(const s of all){ const n=need[s]||0, h=have[s]||0, nm=BYSYM[s].name;
+    if(!n){diff=`There's no ${nm} in ${c.name}. Take the ${s} atoms off.`;break;}
+    if(h<n){diff=`Close! ${c.name} needs more ${nm} (${s}).`;break;}
+    if(h>n){diff=`Too many ${nm} (${s}) atoms.`;break;} }
+  if(!diff){
+    const pts=Math.max(40,(A.hint?75:150)-A.tries*20);
+    A.score+=pts; P.xp+=pts; A.solved=true; A.results.push(true);
+    bump("c"+c.i,1); P.stats.crafted[c.i]=1; save(); renderStats();
+    award("craft1"); if(Object.keys(P.stats.crafted).length>=10) award("craft10");
+    A.msg=`🎉 You crafted <b>${esc(c.name)}</b> (${fmt(c.f)})! +${pts}`; sfx.win(); confetti(70);
+  } else {
+    A.tries++; A.msg=`❌ ${esc(diff)}${A.tries>=3&&!A.hint?" Stuck? Try the 💡 button.":""}`; sfx.bad();
+  }
+  craftRender();
+}
+function craftNext(){
+  A.i++;
+  if(A.i<5){ craftNew(); return; }
+  const n=A.results.filter(Boolean).length;
+  $("#app").innerHTML=`<section class="panel results"><div class="bigpic" aria-hidden="true">🏭</div><div class="scorebig">${A.score}</div>
+    <h2 style="font-size:26px">You crafted ${n} compounds!</h2>
+    <div class="missed">${A.list.map(c=>`<div><span class="p" aria-hidden="true">${c.pic}</span><span><b>${fmt(c.f)} · ${esc(c.name)}</b><small>${Object.entries(parseF(c.f)).map(([s,k])=>`${k} ${esc(BYSYM[s].name)}`).join(" + ")}</small></span></div>`).join("")}</div>
+    <div class="row" style="justify-content:center"><button class="btn" id="cagain">Craft more</button><button class="btn ghost" id="chome">Back to games</button></div></section>`;
+  $("#cagain").onclick=startCraft; $("#chome").onclick=goHome;
+}
+
+// ================= ARCADE: ELEMENT SHOWDOWN =================
+function startHL(){ leaveArcade(); G=null; A={type:"hl",streak:0}; hlRound(); }
+function hlRound(){
+  const pool=EL.slice(0,P.pool);
+  const gas=pool.filter(e=>stateOf(e.n)==="Gas"), notGas=pool.filter(e=>stateOf(e.n)==="Solid"||stateOf(e.n)==="Liquid");
+  const kind=rnd(["mass","mass","protons","gas"]);
+  let a,b;
+  if(kind==="gas"){ [a,b]=shuffle([rnd(gas),rnd(notGas)]); }
+  else { do{ [a,b]=shuffle(pool).slice(0,2); }while(a.mass===b.mass); }
+  A.pair=[a,b]; A.kind=kind; A.answered=false;
+  const Q={mass:"Which one is HEAVIER?",protons:"Which one has MORE protons?",gas:"Which one is a GAS at room temperature?"}[kind];
+  const sub={mass:"Heavier means a bigger atomic mass.",protons:"Protons = the atomic number.",gas:"The other one is a solid or liquid."}[kind];
+  $("#app").innerHTML=`<section class="panel" style="display:grid;gap:16px">
+    <div class="gamebar"><button class="btn ghost sm" id="quit">✕ Quit</button><h2 style="font-size:24px;flex:1">Element Showdown</h2>
+      <span class="streak">${A.streak?"🔥 "+A.streak:""}</span><span class="chip">Best <b>${P.stats.hlBest}</b></span></div>
+    <div class="card">
+      <div class="prompt-q">${Q}</div><p class="muted" style="margin:-10px 0 0">${sub}</p>
+      <div class="duel">${[a,"vs",b].map((e,i)=>e==="vs"?`<div class="vs" style="align-self:center">VS</div>`:`<button class="dcard" data-i="${i?1:0}" style="--c:var(--c-${e.cat})"><span class="p" aria-hidden="true">${e.pic}</span><span class="s">${e.sym}</span><span class="nm">${esc(e.name)}</span><span class="val"></span></button>`).join("")}</div>
+      <div class="infoline" id="hmsg"></div>
+      <div id="hact"></div>
+    </div></section>`;
+  $("#quit").onclick=goHome;
+  $$(".dcard").forEach(btn=>btn.onclick=()=>hlPick(+btn.dataset.i));
+}
+function hlPick(i){
+  if(A.answered) return; A.answered=true;
+  const [a,b]=A.pair, k=A.kind;
+  const win = k==="mass"?(a.mass>b.mass?0:1):k==="protons"?(a.n>b.n?0:1):(stateOf(a.n)==="Gas"?0:1);
+  const val=e=>k==="mass"?`${e.mass} u`:k==="protons"?`${e.n} protons`:stateOf(e.n);
+  $$(".dcard").forEach(btn=>{const j=+btn.dataset.i, e=A.pair[j]; btn.disabled=true; btn.querySelector(".val").textContent=val(e); btn.classList.add(j===win?"right":(j===i?"wrong":"x"));});
+  const ok=i===win, w=A.pair[win], l=A.pair[1-win];
+  let note="";
+  if(k!=="gas"&&((a.n<b.n)!==(a.mass<b.mass))){ const heavy=a.mass>b.mass?a:b, lighter=heavy===a?b:a; note=` Tricky one! ${heavy.name} is heavier than ${lighter.name} even though it has fewer protons, because it has extra neutrons.`; }
+  if(ok){
+    A.streak++; P.xp+=20+A.streak*5; save(); renderStats(); sfx.good();
+    if(A.streak%5===0) confetti(80);
+    if(A.streak>=10) award("hl10");
+    $("#hmsg").innerHTML=`✅ Yes! <b>${esc(w.name)}</b> wins.${esc(note)}`;
+    $("#hact").innerHTML=`<button class="btn" id="hnext">Next showdown ▸</button>`; $("#hnext").onclick=hlRound; $("#hnext").focus({preventScroll:true});
+  } else {
+    sfx.bad();
+    const best=A.streak>P.stats.hlBest; if(best) P.stats.hlBest=A.streak; save(); renderStats();
+    $("#hmsg").innerHTML=`❌ It was <b>${esc(w.name)}</b> (${esc(val(w))} vs ${esc(val(l))}).${esc(note)}<br><b>Final streak: ${A.streak}${best&&A.streak?" · New best!":""}</b>`;
+    $("#hact").innerHTML=`<div class="row" style="justify-content:center"><button class="btn" id="hagain">Play again</button><button class="btn ghost" id="hhome">Back to games</button></div>`;
+    $("#hagain").onclick=startHL; $("#hhome").onclick=goHome;
+  }
+}
+
+// ================= KEYBOARD =================
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT") return;
+  if(tab==="table"&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){ const n=P.sel+(e.key==="ArrowRight"?1:-1); if(n>=1&&n<=118){e.preventDefault();selectEl(n);} return; }
+  if(tab!=="play") return;
+  const k=+e.key; if(!(k>=1&&k<=4)) return;
+  if(G&&!G.done){ const q=G.qs[G.i]; if(G.answered||typingFor(q)||q.mode==="find") return; }
+  else if(!(A&&A.type==="boss"&&!A.answered)) return;
+  const b=$$(".opt")[k-1]; if(b&&!b.disabled) b.click();
+});
+
+// ================= ROUTER =================
 function render(){
   renderStats();
   if(tab==="table") return renderTable();
   if(tab==="compounds") return renderCompounds();
+  if(tab==="trophies") return renderTrophies();
   if(G&&!G.done) return renderGame();
-  if(G&&G.done) return finish();
   renderHome();
 }
 render();
