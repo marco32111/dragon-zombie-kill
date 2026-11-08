@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dylan's Science Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a night-shift mission-control console. Status bar on top, tab rail, then one column of console panels.
+   Single dark look on purpose (an arcade screen), so colors are set once on :root. */
+:root{
+  --ink:#0b1622;          /* page ground: deep observatory blue */
+  --panel:#122334;        /* console panel */
+  --panel-2:#193049;      /* raised controls */
+  --line:#2a4a69;         /* hairlines */
+  --text:#eaf4ff; --muted:#9db4cc;
+  --amber:#ffc23d; --amber-ink:#2b1d00; --amber-shadow:#b9851a;  /* primary accent: warning-lamp amber */
+  --cyan:#4fd8ff;         /* secondary: oscilloscope cyan */
+  --good:#5be49b; --bad:#ff6b6b; --warn:#ffa24d;
+  --f-display:"Bungee","Impact","Arial Black",sans-serif;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r:14px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ink);color:var(--text)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px;
+  background-image:radial-gradient(circle at 10% 0%,#17324d 0,transparent 42%),radial-gradient(circle at 95% 15%,#1d2a4f 0,transparent 38%),
+    linear-gradient(rgba(79,216,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(79,216,255,.035) 1px,transparent 1px);
+  background-size:auto,auto,28px 28px,28px 28px;background-attachment:fixed;min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.3px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.muted{color:var(--muted)} .small{font-size:13px}
+.label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.stack{display:grid;gap:14px;min-width:0}
+
+/* header */
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:54px;height:54px;border-radius:14px;background:var(--amber);display:grid;place-items:center;box-shadow:0 4px 0 var(--amber-shadow)}
+.brand h1{font-size:clamp(20px,4.6vw,30px);line-height:1.05}
+.brand p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip b{color:var(--amber)}
+nav.tabs{display:flex;gap:4px;background:var(--panel);padding:5px;border-radius:999px;border:1px solid var(--line);max-width:100%;overflow-x:auto;width:max-content}
+nav.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:900;color:var(--muted);white-space:nowrap}
+nav.tabs button[aria-selected="true"]{background:var(--amber);color:var(--amber-ink)}
+
+/* buttons */
+.btn{background:var(--amber);color:var(--amber-ink);border:0;border-radius:12px;padding:12px 20px;font-weight:900;font-size:17px;box-shadow:0 4px 0 var(--amber-shadow)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--amber-shadow)}
+.btn.ghost{background:transparent;color:var(--text);border:2px solid var(--line);box-shadow:none}
+.btn.cyan{background:var(--cyan);color:#00222e;box-shadow:0 4px 0 #1f8fae}
+.btn.sm{padding:6px 14px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+.hero h2{font-size:clamp(20px,4vw,28px)}
+.hero p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.bar{height:12px;background:var(--panel-2);border-radius:999px;overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--amber),var(--warn))}
+.bar.cy>span{background:var(--cyan)} .bar.gd>span{background:var(--good)}
+.goal{display:grid;place-items:center;width:132px;aspect-ratio:1;max-width:100%}
+.goal svg{width:100%;height:auto}
+.sechead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sechead h2{font-size:22px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mode{text-align:left;background:var(--panel-2);border:2px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:6px;transition:transform .12s,border-color .12s;min-width:0}
+.mode:hover:not(:disabled){transform:translateY(-2px);border-color:var(--amber)}
+.mode .pic{font-size:34px;line-height:1}
+.mode h3{font-size:18px}
+.mode p{margin:0;color:var(--muted);font-size:14px}
+.mode .tag{font-size:12px;font-weight:900;color:var(--amber);letter-spacing:.6px;text-transform:uppercase}
+.mode.hot{border-color:var(--bad);background:linear-gradient(160deg,rgba(255,107,107,.16),var(--panel-2) 70%)}
+.mode.exam{border-color:var(--cyan);background:linear-gradient(160deg,rgba(79,216,255,.14),var(--panel-2) 70%)}
+.mode:disabled{opacity:.55;cursor:default}
+.chpick{display:flex;flex-wrap:wrap;gap:6px}
+.chchip{--c:var(--line);border:2px solid var(--c);background:transparent;border-radius:999px;padding:4px 10px;font-weight:800;font-size:13px;color:var(--text)}
+.chchip[aria-pressed="true"]{background:var(--c);color:#06121c}
+
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel-2);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.kpi b{font-family:var(--f-display);font-size:26px;font-weight:400;font-variant-numeric:tabular-nums}
+.chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.chcard{--c:var(--cyan);background:var(--panel-2);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;padding:14px;display:grid;gap:8px;min-width:0}
+.chcard .top{display:flex;gap:10px;align-items:center}
+.chcard .ic{font-size:28px;line-height:1}
+.chcard h3{font-family:var(--f-body);font-weight:900;font-size:16px;line-height:1.2}
+.chcard .ref{font-size:12px;color:var(--muted)}
+.meter{display:grid;grid-template-columns:78px minmax(0,1fr) 42px;gap:8px;align-items:center;font-size:12px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.meter .bar{height:8px}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+.pill.new{background:var(--line);color:var(--muted)} .pill.prog{background:rgba(79,216,255,.2);color:var(--cyan)}
+.pill.weak{background:rgba(255,107,107,.2);color:var(--bad)} .pill.done{background:rgba(91,228,155,.2);color:var(--good)}
+table.hist{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.hist th,table.hist td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.hist th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+
+/* question card */
+.gamebar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.dots{flex:1 1 200px;display:flex;gap:4px}
+.dots i{flex:1;height:10px;border-radius:999px;background:var(--panel-2)}
+.dots i.ok{background:var(--good)} .dots i.no{background:var(--bad)} .dots i.now{background:var(--amber)}
+.streak{font-family:var(--f-display);font-size:18px;color:var(--warn)}
+.chtag{--c:var(--cyan);display:inline-flex;gap:6px;align-items:center;border:1px solid var(--c);color:var(--c);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:900;letter-spacing:.4px}
+.qtext{font-size:clamp(19px,3.4vw,24px);font-weight:900;line-height:1.35;max-width:62ch}
+.qfig{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;place-items:center;overflow-x:auto}
+.qfig svg{width:100%;max-width:420px;height:auto}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{background:var(--panel-2);border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:800;font-size:16px;display:flex;gap:12px;align-items:center;text-align:left;min-height:60px;transition:transform .1s,border-color .1s;min-width:0}
+.opt:hover:not(:disabled){border-color:var(--amber);transform:translateY(-2px)}
+.opt .k{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-display);font-size:14px;background:var(--line);color:var(--text)}
+.opt.correct{border-color:var(--good);background:rgba(91,228,155,.18)}
+.opt.wrong{border-color:var(--bad);background:rgba(255,107,107,.16);animation:shake .35s}
+.opt.picked{border-color:var(--amber)}
+.opt.gone{opacity:.18}
+.opt:disabled{cursor:default}
+.f{font-family:var(--f-mono);font-weight:700}
+.feedback{border-radius:14px;padding:14px 16px;display:grid;gap:8px;animation:pop .25s}
+.feedback.good{background:rgba(91,228,155,.12);border:2px solid var(--good)}
+.feedback.bad{background:rgba(255,107,107,.1);border:2px solid var(--bad)}
+.feedback.info{background:rgba(79,216,255,.08);border:2px solid var(--cyan)}
+.feedback h3{font-size:19px}
+.feedback p{margin:0;max-width:68ch}
+.helpers{display:flex;gap:8px;flex-wrap:wrap}
+.helpers button{background:transparent;border:1px dashed var(--line);border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px;color:var(--muted)}
+.helpers button:disabled{opacity:.35;cursor:default}
+.timer{font-family:var(--f-display);font-size:22px;color:var(--cyan);font-variant-numeric:tabular-nums}
+.hearts{font-size:20px;letter-spacing:2px}
+
+/* review */
+.review{display:grid;gap:12px;border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--panel-2)}
+.answers{display:grid;gap:6px}
+.ans{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:8px 12px;font-weight:800;border:1px solid var(--line)}
+.ans.ok{border-color:var(--good);background:rgba(91,228,155,.14)}
+.ans.no{border-color:var(--bad);background:rgba(255,107,107,.1)}
+.ans .who{flex:none;font-size:11px;letter-spacing:.8px;text-transform:uppercase;font-weight:900;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--muted);margin-left:auto}
+.why{background:var(--ink);border-radius:12px;padding:12px 14px;border:1px solid var(--line);max-width:100%}
+.why p{margin:0 0 6px} .why p:last-child{margin:0}
+.where{font-size:13px;font-weight:800;color:var(--amber)}
+.missrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.missrow:last-child{border-bottom:0}
+details.nb{border:1px solid var(--line);border-radius:12px;background:var(--panel-2)}
+details.nb summary{cursor:pointer;padding:12px 14px;font-weight:800;display:flex;gap:10px;align-items:center;list-style:none}
+details.nb summary::-webkit-details-marker{display:none}
+details.nb[open] summary{border-bottom:1px solid var(--line)}
+details.nb .body{padding:14px;display:grid;gap:10px}
+
+/* boss */
+.arena{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center}
+.fighter{display:grid;gap:6px;justify-items:center}
+.fighter .pic{font-size:clamp(56px,13vw,92px);line-height:1.1;transition:transform .2s}
+.fighter .nm{font-weight:900}
+.hp{width:100%;max-width:220px;height:14px;background:var(--panel-2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.hp span{display:block;height:100%;background:var(--bad);transition:width .3s}
+.hp.me span{background:var(--good)}
+.vs{font-family:var(--f-display);font-size:26px;color:var(--amber)}
+.hitme{animation:shake .4s} .hitboss{animation:bossHit .5s}
+
+/* formula vault */
+.vault{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fcard{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:6px;min-width:0}
+.fcard .eq{font-family:var(--f-mono);font-weight:700;font-size:20px;color:var(--amber);overflow-wrap:anywhere}
+.fcard .nm{font-weight:900}
+.fcard .vars{font-size:13px;color:var(--muted)}
+.fcard .ex{font-size:13px;background:var(--ink);border-radius:8px;padding:6px 10px}
+
+/* blaster */
+.stage{position:relative;border-radius:14px;overflow:hidden;border:2px solid var(--line);background:#050b14;touch-action:manipulation}
+.stage canvas{display:block;width:100%}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,11,20,.82);text-align:center;padding:20px}
+.overlay .stack{justify-items:center}
+.lanebtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.lanebtns button{border:0;border-radius:12px;padding:12px 6px;font-family:var(--f-display);font-size:18px;color:#06121c}
+.bopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bopt{display:flex;gap:10px;align-items:center;border-radius:10px;padding:8px 10px;background:var(--panel-2);font-weight:800;font-size:15px;border:2px solid transparent;min-width:0}
+.bopt .k{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:13px;color:#06121c}
+
+/* results */
+.big{font-family:var(--f-display);font-size:clamp(40px,10vw,64px);line-height:1;color:var(--amber)}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--amber);color:var(--amber-ink);font-weight:900;border-radius:999px;padding:10px 20px;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:50;animation:pop .25s;max-width:calc(100% - 32px);text-align:center}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:40;width:100%;height:100%}
+.confirm{border:2px solid var(--bad);border-radius:12px;padding:12px;display:grid;gap:10px}
+textarea{width:100%;min-height:120px;background:var(--ink);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font:13px var(--f-mono)}
+input[type=text]{background:var(--ink);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:600 14px var(--f-body);min-width:0;width:100%}
+.refgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 14px}
+.refgrid label{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;font-size:14px;font-weight:800}
+.refgrid label span{white-space:nowrap}
+
+/* svg figure palette */
+.fg-l{stroke:var(--text);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.fg-d{stroke:var(--muted);fill:none;stroke-width:2;stroke-dasharray:6 5}
+.fg-t{fill:var(--text);font:800 14px var(--f-body)}
+.fg-s{fill:var(--muted);font:700 12px var(--f-body)}
+.fg-a{fill:var(--amber);font:900 15px var(--f-mono)}
+.fg-c{fill:var(--cyan);font:900 15px var(--f-mono)}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes pop{from{transform:scale(.96);opacity:.4}to{transform:scale(1);opacity:1}}
+@keyframes bossHit{0%{transform:scale(1)}30%{transform:scale(.85) rotate(-8deg);filter:brightness(2)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .options,.bopts{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .goal{width:110px}
+  .panel{padding:16px}
+  .arena{grid-template-columns:1fr 1fr}.vs{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40" width="36" height="36"><path d="M15 5h10M17 5v10L8 32a3 3 0 0 0 3 4h18a3 3 0 0 0 3-4L23 15V5" fill="none" stroke="#2b1d00" stroke-width="3" stroke-linejoin="round"/><path d="M12 26h16l3 6H9z" fill="#2b1d00"/></svg></div>
+      <div><h1>Dylan's Science Quest</h1><p>Science + formulas exam training · 16 chapters</p></div></div>
+    <div class="stats" id="stats"></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+  <main id="app" class="wrap" style="max-width:none;width:100%"></main>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<script>
+// ================= CHAPTERS =================
+// Each chapter has a boss (Boss Battle mode). Book references are editable in Settings.
+const CH = [
+  {id:"sci",     n:1,  name:"Scientific Method & Measurement", icon:"🔬", c:"#4fd8ff", boss:["Doctor Sloppy Data","🧟"]},
+  {id:"matter",  n:2,  name:"Matter & Its Properties",        icon:"🧊", c:"#7fc8ff", boss:["The Melting Golem","🗿"]},
+  {id:"chem",    n:3,  name:"Atoms, Elements & Reactions",    icon:"⚗️", c:"#c49bff", boss:["Toxic Slime King","🦠"]},
+  {id:"force",   n:4,  name:"Forces & Motion",                icon:"🚀", c:"#ff8a65", boss:["Inertia Rex","🦖"]},
+  {id:"energy",  n:5,  name:"Energy, Work & Machines",        icon:"⚡", c:"#ffc23d", boss:["Volt Dragon","🐉"]},
+  {id:"waves",   n:6,  name:"Waves, Sound & Light",           icon:"🌈", c:"#f78fd6", boss:["The Screaming Banshee","👻"]},
+  {id:"elec",    n:7,  name:"Electricity & Magnetism",        icon:"🧲", c:"#ffe066", boss:["Robo-Zombie 9000","🤖"]},
+  {id:"cells",   n:8,  name:"Cells & Living Things",          icon:"🦠", c:"#5be49b", boss:["Germ Lord","👾"]},
+  {id:"genetics",n:9,  name:"Genetics & Heredity",            icon:"🧬", c:"#8ef0c8", boss:["The Mutant Gene Beast","🐙"]},
+  {id:"body",    n:10, name:"Human Body Systems",             icon:"❤️", c:"#ff7a8a", boss:["Bone Zombie","💀"]},
+  {id:"eco",     n:11, name:"Ecosystems & Ecology",           icon:"🌳", c:"#9be15d", boss:["Swamp Hydra","🐲"]},
+  {id:"earth",   n:12, name:"Earth's Structure & Rocks",      icon:"🌋", c:"#e0a46b", boss:["Magma Wyrm","🌋"]},
+  {id:"weather", n:13, name:"Weather, Water & Climate",       icon:"⛅", c:"#9fd3ff", boss:["Storm Wraith","🌪️"]},
+  {id:"space",   n:14, name:"Space & the Solar System",       icon:"🪐", c:"#b7a6ff", boss:["Space Zombie Overlord","👽"]},
+  {id:"mathf",   n:15, name:"Math Formulas",                  icon:"📐", c:"#ffb15a", boss:["The Geometry Dragon","🐉"]},
+  {id:"sciform", n:16, name:"Science Formulas",               icon:"🧪", c:"#6fe0e0", boss:["Formula Phantom","🧛"]}
+];
+const CHM = Object.fromEntries(CH.map(c=>[c.id,c]));
+
+// ================= QUESTION BANK =================
+// Q(chapter, question, correctAnswer, [three tricky wrong answers], explanation, figure?)
+// Wrong answers are common mistakes, so guessing does not work.
+const BANK = [];
+function Q(ch,q,a,d,why,fig){ BANK.push({id:ch+"-"+(BANK.filter(x=>x.ch===ch).length+1),ch,q,a,d,why,fig:fig||null}); }
+
+// ---------- 1. Scientific Method & Measurement ----------
+Q("sci","A student tests whether the AMOUNT of fertilizer changes how tall bean plants grow. What is the dependent variable?",
+ "The height of the plants",["The amount of fertilizer","The type of soil, kept the same for every plant","The plants that get no fertilizer at all"],
+ "The dependent variable is what you MEASURE. It 'depends' on what you change. The fertilizer amount is what you change (independent variable). The soil is kept the same (a controlled variable). The no-fertilizer plants are the control group.",["vars"]);
+Q("sci","Which of these is the BEST scientific hypothesis?",
+ "If plants get more hours of light, then they will grow taller, because light powers photosynthesis.",
+ ["Do plants grow taller when they get more hours of light, and does the color of the light matter too?","Plants are living things, so they will always grow when they are given sunlight.","My plants that got more light grew 4 cm taller than the plants that got less light."],
+ "A hypothesis is a testable prediction, often written 'If… then… because…'. A question is not a hypothesis. 'Plants grow' has nothing to test. '4 cm taller' is a RESULT you get after the experiment.");
+Q("sci","Why do scientists repeat an experiment several times?",
+ "To make sure the results are reliable and not just luck or a mistake",
+ ["To change the independent variable a little each time","To prove the hypothesis is 100% true forever","To get a different answer each time"],
+ "Repeated trials show whether results are consistent. Science never proves a hypothesis 'forever'. Evidence supports it. In each repeat you keep the same setup.");
+Q("sci","How many milliliters are in 2.5 liters?","2,500 mL",["250 mL","25 mL","25,000 mL"],
+ "1 L = 1,000 mL. So 2.5 × 1,000 = 2,500 mL. Moving from a bigger unit to a smaller unit means you multiply.",["ladder"]);
+Q("sci","What is the SI (metric) BASE unit of mass?","Kilogram (kg)",["Gram (g)","Newton (N)","Liter (L)"],
+ "The SI base unit for mass is the kilogram. It is the only base unit with a prefix built in. A newton measures FORCE (and weight). A liter measures VOLUME.");
+Q("sci","A pencil is 0.18 m long. How long is it in centimeters?","18 cm",["1.8 cm","180 cm","0.018 cm"],
+ "1 m = 100 cm. So 0.18 × 100 = 18 cm. Check it: a real pencil is about 18 cm long.",["ladder"]);
+Q("sci","Which tool measures the VOLUME of a liquid most precisely?","Graduated cylinder",["Beaker","Triple-beam balance","Spring scale"],
+ "A graduated cylinder has fine markings for volume. A beaker's markings are only rough estimates. A triple-beam balance measures mass. A spring scale measures force (weight).");
+Q("sci","In an experiment, the group that does NOT get the treatment being tested is called the…","Control group",["Experimental group","Independent group","Dependent group"],
+ "The control group is your baseline for comparison. The experimental group gets the change you are testing.",["vars"]);
+Q("sci","Water boils at 100 °C at sea level. About what is that in kelvin?","373 K",["212 K","273 K","100 K"],
+ "K = °C + 273. So 100 + 273 = 373 K. 212 is the boiling point in °F, and 273 K is where water FREEZES.");
+Q("sci","When reading a graduated cylinder, you should read the volume at…","The bottom of the curved surface (meniscus), at eye level",
+ ["The top edge of the curve where water touches the glass","The highest mark the water ever splashed to","From above, looking down into the cylinder"],
+ "Water curves up at the edges. That curve is the meniscus. Put your eye level with the liquid and read the bottom of the curve.",["meniscus"]);
+Q("sci","'The leaf is 6.2 cm long' is an example of…","Quantitative data",["Qualitative data","A hypothesis","An inference"],
+ "Quantitative data uses numbers (quantity). Qualitative data describes qualities, like 'the leaf is bright green'.");
+Q("sci","The metric prefix 'kilo-' means…","1,000 times the base unit",["1/1,000 of the base unit","100 times the base unit","1/100 of the base unit"],
+ "kilo = 1,000 (1 km = 1,000 m). milli = 1/1,000. centi = 1/100. Remember 'King Henry Died By Drinking Chocolate Milk': kilo, hecto, deka, BASE, deci, centi, milli.",["ladder"]);
+
+// ---------- 2. Matter ----------
+Q("matter","Which best describes the particles in a LIQUID?","Close together, but able to slide past each other",
+ ["Locked in fixed places, only vibrating","Far apart, zooming around to fill the whole container","Not moving at all"],
+ "Solid: packed and vibrating in place. Liquid: close but able to flow past each other. Gas: far apart and spread out. Particles are ALWAYS moving, even in solids.",["states"]);
+Q("matter","Which of these is a CHEMICAL change?","An iron nail rusting",["Ice melting into water","Sugar dissolving in water","Cutting paper into pieces"],
+ "In a chemical change a NEW substance forms. Rust (iron oxide) is a new substance. Melting, dissolving and cutting are physical changes, because the substance is still the same stuff.");
+Q("matter","Which observation is the best sign of a CHEMICAL change?","Two liquids are mixed and bubbles of a new gas form",
+ ["Water is heated and bubbles of steam form","A glass shatters into pieces","Clay is squished into a new shape"],
+ "A new gas from mixing substances means a new substance was made. Boiling water bubbles too, but steam is still H₂O, so that is a physical change.");
+Q("matter","A block with density 0.8 g/cm³ is placed in water (density 1.0 g/cm³). What happens?","It floats",
+ ["It sinks, because everything with mass sinks","It sinks only if it is a big block","It dissolves"],
+ "Objects LESS dense than water float. Size does not matter. A tiny piece or a huge piece of the same material has the same density.",["float"]);
+Q("matter","A gas turning DIRECTLY into a solid, skipping the liquid stage, is called…","Deposition",["Sublimation","Condensation","Freezing"],
+ "Deposition: gas → solid (like frost forming). Sublimation is the opposite, solid → gas (like dry ice). Condensation is gas → liquid. Freezing is liquid → solid.",["phase"]);
+Q("matter","Salt completely dissolved in water is an example of a…","Solution (a mixture that looks the same throughout)",["Compound (two elements chemically bonded)","Element (one kind of atom only)","Heterogeneous mixture (parts you can see)"],
+ "Salt water is a mixture, because you can separate it again by evaporating the water. It is evenly mixed, so it is a homogeneous mixture, called a solution. It is not a compound, since no chemical bond forms between salt and water.");
+Q("matter","Which of these is a PURE SUBSTANCE?","Distilled water (H₂O)",["Air","Salad dressing","Ocean water"],
+ "A pure substance has only one kind of matter, either an element or a compound. Distilled water is just H₂O. Air, salad dressing and ocean water are mixtures of several substances.");
+Q("matter","While pure ice is melting, its temperature…","Stays the same until all of it has melted",["Rises steadily the whole time","Drops","Rises twice as fast"],
+ "During a phase change, the heat energy goes into breaking particles apart instead of raising the temperature. That is the flat part of a heating curve, at 0 °C for ice.",["heatcurve"]);
+Q("matter","Which property helps identify a substance, no matter HOW MUCH of it you have?","Density",["Mass","Volume","Length"],
+ "Density = mass ÷ volume. It stays the same for a substance whether you have a little or a lot. Mass, volume and length change with the amount.");
+Q("matter","What happens to the particles of most substances when they are heated?","They move faster and spread farther apart",
+ ["The particles themselves get bigger","They move slower and pack closer","They turn into different atoms"],
+ "Heat makes particles move faster, so they push farther apart and the material expands. The particles do NOT grow. Only the space between them grows.",["states"]);
+Q("matter","Which method best separates IRON FILINGS from SAND?","Use a magnet",["Pour it through a filter","Boil it until it evaporates","Stir it into water"],
+ "Iron is magnetic and sand is not. A filter will not work because both are solids that stay on the filter paper.");
+Q("matter","The amount of MATTER in an object is its…","Mass",["Volume","Weight","Density"],
+ "Mass is the amount of matter (kg or g). Weight is the pull of gravity on that mass (newtons). Volume is how much SPACE something takes up.");
+
+// ---------- 3. Atoms, Elements & Reactions ----------
+Q("chem","Which particle in an atom has a NEGATIVE charge?","Electron",["Proton","Neutron","Nucleus"],
+ "Protons are positive (+), neutrons are neutral (0), and electrons are negative (−). The nucleus holds the protons and neutrons, so overall it is positive.",["atom",3,4,3]);
+Q("chem","An element's ATOMIC NUMBER tells you the number of…","Protons",["Neutrons","Protons + neutrons","Electron shells"],
+ "Atomic number = number of protons, and that is what decides which element it is. Protons + neutrons = MASS number. The number of electron shells matches the period (row).");
+Q("chem","Carbon-14 has 6 protons. How many NEUTRONS does it have?","8",["6","14","20"],
+ "Mass number (14) = protons + neutrons. So neutrons = 14 − 6 = 8.",["atom",6,8,6]);
+Q("chem","Elements in the same GROUP (column) of the periodic table act alike mainly because they have the same number of…","Valence (outer-shell) electrons",["Neutrons in the nucleus","Protons in the nucleus","Electron shells (energy levels)"],
+ "Elements in the same column have the same number of outer electrons, and those electrons control how an element reacts. Elements in the same ROW (period) share the same number of shells.",["pgrid"]);
+Q("chem","In the reaction 2H₂ + O₂ → 2H₂O, what are the REACTANTS?","H₂ and O₂",["H₂O only","H₂ and H₂O","O₂ and H₂O"],
+ "Reactants are on the LEFT of the arrow (what you start with). Products are on the RIGHT (what is made). The arrow means 'yields'.",["rxn"]);
+Q("chem","10 g of baking soda and 30 g of vinegar react inside a SEALED bag and make gas. What is the total mass afterward?","40 g",
+ ["Less than 40 g, because gas weighs nothing","More than 40 g, because new gas was made","20 g"],
+ "The Law of Conservation of Mass says matter is not created or destroyed. In a sealed bag the gas stays inside, so the total mass stays 10 + 30 = 40 g.");
+Q("chem","A solution with a pH of 3 is…","An acid",["A base","Neutral","A stronger base than pH 10"],
+ "pH below 7 = acid, 7 = neutral (pure water), and above 7 = base. A pH of 3 is a fairly strong acid, a bit like lemon juice or vinegar.",["ph",3]);
+Q("chem","What does the formula H₂O tell you?","Each molecule has 2 hydrogen atoms bonded to 1 oxygen atom",
+ ["Each molecule has 1 hydrogen atom and 2 oxygen atoms","Each molecule has 2 hydrogen and 2 oxygen atoms","Hydrogen and oxygen are just mixed, not bonded"],
+ "The small number (subscript) belongs to the atom right BEFORE it. H₂ = 2 hydrogens, and O with no number = 1 oxygen. H₂O₂ (2 and 2) is hydrogen peroxide, a different chemical.");
+Q("chem","Which of these is a COMPOUND?","Carbon dioxide (CO₂)",["Oxygen gas (O₂)","Gold (Au)","Neon (Ne)"],
+ "A compound has TWO OR MORE DIFFERENT elements bonded together. O₂ is a molecule, but it is only oxygen, so it is still an element.");
+Q("chem","Most of the elements on the periodic table are…","Metals",["Nonmetals","Metalloids","Noble gases"],
+ "About 3 out of every 4 elements are metals. Metals sit on the left and middle of the table. Nonmetals are on the upper right, and metalloids lie along the 'staircase' between them.",["pgrid"]);
+Q("chem","A reaction that RELEASES heat, so the container feels warm, is…","Exothermic",["Endothermic","A physical change","Neutral"],
+ "EXO = exit: heat leaves the reaction (fire, hand warmers). ENDO = enter: heat goes in, so it feels cold (instant ice packs).");
+Q("chem","Which element is a NOBLE GAS that almost never reacts?","Neon (Ne)",["Oxygen (O)","Chlorine (Cl)","Sodium (Na)"],
+ "Noble gases (group 18: He, Ne, Ar…) have full outer electron shells, so they rarely react. Chlorine and sodium are VERY reactive.");
+Q("chem","How many atoms in total are in ONE molecule of glucose, C₆H₁₂O₆?","24",["3","18","72"],
+ "Add the subscripts: 6 carbon + 12 hydrogen + 6 oxygen = 24 atoms. '3' counts the kinds of elements, not the atoms.");
+
+// ---------- 4. Forces & Motion ----------
+Q("force","A hockey puck slides on very smooth ice and keeps going for a long way. This best shows…","Newton's 1st law (inertia)",
+ ["Newton's 2nd law (F = ma)","Newton's 3rd law (action–reaction)","The law of conservation of mass"],
+ "1st law: an object in motion stays in motion unless an unbalanced force acts on it. Ice has very little friction, so the puck keeps going.");
+Q("force","When you push on a wall, the wall pushes back on you with…","An equal force in the opposite direction",
+ ["A smaller force, because walls don't move","No force, because walls can't push","A bigger force"],
+ "Newton's 3rd law: every action has an EQUAL and OPPOSITE reaction. That is why your hand feels the push.");
+Q("force","A box is pushed RIGHT with 10 N and LEFT with 4 N. What is the net force?","6 N to the right",["14 N to the right","6 N to the left","0 N, the forces are balanced"],
+ "Opposite directions → SUBTRACT: 10 − 4 = 6 N. The net force points toward the bigger force (right). You add only when forces point the SAME way.",["forces",10,4]);
+Q("force","Which statement about mass and weight is TRUE?","On the Moon your mass stays the same, but your weight is less",
+ ["On the Moon both your mass and your weight are less","On the Moon your weight stays the same, but your mass is less","Mass and weight are the same thing"],
+ "Mass = the amount of matter, and it does not change anywhere. Weight = the pull of gravity on that mass. The Moon's gravity is about 1/6 of Earth's, so you weigh about 1/6 as much.");
+Q("force","Velocity is different from speed because velocity also includes…","Direction",["Time","Mass","Distance"],
+ "Speed: 30 m/s. Velocity: 30 m/s NORTH. Velocity = speed + direction.");
+Q("force","A car speeds up from 0 to 20 m/s in 5 seconds. What is its acceleration?","4 m/s²",["100 m/s²","0.25 m/s²","20 m/s²"],
+ "a = (final velocity − starting velocity) ÷ time = (20 − 0) ÷ 5 = 4 m/s². 100 comes from multiplying instead of dividing.");
+Q("force","Which of these IS accelerating?","A car going around a curve at a steady 30 mph",
+ ["A car driving straight at a steady 30 mph","A car parked in a driveway","A book resting on a desk"],
+ "Acceleration is ANY change in velocity: speeding up, slowing down, OR changing direction. Going around a curve changes direction, so the car is accelerating even at a steady speed.");
+Q("force","Friction always acts…","Opposite to the direction an object moves (or tries to move)",
+ ["In the same direction the object moves","Straight down, like gravity","Only on rough surfaces"],
+ "Friction resists motion, so it points opposite to the motion. Smooth surfaces still have some friction. They just have less.");
+Q("force","With NO air resistance (like on the Moon), a hammer and a feather are dropped together. They…","Hit the ground at the same time",
+ ["Hammer lands first because it is heavier","Feather lands first because it is lighter","Float, because there is no air"],
+ "Gravity speeds up all objects at the same rate. On Earth the feather falls slowly only because AIR pushes against it. Astronauts tested this on the Moon in 1971.");
+Q("force","On a distance–time graph, a FLAT horizontal line means the object is…","Stopped, not moving",["Moving at a constant speed","Speeding up","Slowing down"],
+ "Flat line = the distance is not changing, so the object is stopped. A straight SLANTED line = constant speed. A curving line = changing speed.",["dtgraph"]);
+Q("force","The SAME force pushes a 2 kg cart and a 4 kg cart. Which accelerates more?","The 2 kg cart, about twice as much",["The 4 kg cart","Both accelerate the same","Neither one moves"],
+ "a = F ÷ m. Less mass → more acceleration. Half the mass means double the acceleration.");
+Q("force","The gravity pull between two objects gets STRONGER when…","Their masses get bigger or they move closer together",
+ ["They move farther apart from each other","They get colder and their particles slow down","They spin faster and move in a straight line"],
+ "Gravity depends on mass and distance. More mass → more pull. More distance → less pull.");
+
+// ---------- 5. Energy ----------
+Q("energy","A roller coaster car has the MOST gravitational potential energy…","At the top of the highest hill",["At the bottom of the first drop","Halfway down the first drop","When it is moving the fastest"],
+ "Potential energy depends on HEIGHT (PE = mgh). Highest point = most PE. At the bottom, that energy has turned into kinetic energy, so the car moves fastest there.",["coaster"]);
+Q("energy","As a ball falls toward the ground, its potential energy mostly changes into…","Kinetic energy",["Chemical energy","Nuclear energy","More potential energy"],
+ "Falling lowers the height (less PE) and raises the speed (more KE). Energy changes form. It is not lost.",["coaster"]);
+Q("energy","The Law of Conservation of Energy says that energy…","Cannot be created or destroyed, only changed from one form to another",
+ ["Gets used up by machines and then disappears","Can be created by machines like generators and batteries","Is destroyed and lost forever whenever heat is made"],
+ "Total energy stays the same. When energy 'turns into heat', that heat is still energy. It has just spread out into the surroundings.");
+Q("energy","A metal spoon in hot soup gets hot all the way up the handle. This is…","Conduction",["Convection","Radiation","Insulation"],
+ "Conduction = heat moving through DIRECT CONTACT, particle to particle. Metals are good conductors.",["heat"]);
+Q("energy","Warm air rising and cool air sinking in a room, making a loop, is…","Convection",["Conduction","Radiation","Reflection"],
+ "Convection = heat carried by moving liquids or gases in a loop called a convection current. Warm fluid is less dense, so it rises.",["heat"]);
+Q("energy","Heat from the Sun reaches Earth across empty space by…","Radiation",["Conduction","Convection","Insulation"],
+ "Radiation = energy carried by electromagnetic waves, which need no matter. Space is a near vacuum, so conduction and convection can't carry heat across it.",["heat"]);
+Q("energy","In science, WORK is done when…","A force moves an object a distance in the direction of the force",
+ ["You push hard on a wall that doesn't move","You hold a heavy box perfectly still","You think hard about your homework"],
+ "W = F × d. If the distance is 0, the work is 0, no matter how tired you get.");
+Q("energy","A ramp (inclined plane) makes lifting a box easier because it…","Lets you use less force, but over a longer distance",
+ ["Cuts the total amount of work down to zero","Creates extra energy that helps push the box","Makes the box's mass smaller as it goes up"],
+ "Simple machines trade force for distance. The work (F × d) stays about the same, or a bit more because of friction. You just push with less force.",["ramp"]);
+Q("energy","A seesaw is which simple machine?","Lever",["Pulley","Wedge","Screw"],
+ "A lever is a bar that pivots on a point called the fulcrum. On a seesaw, the fulcrum is in the middle.",["lever"]);
+Q("energy","The energy stored in food, gasoline and batteries is…","Chemical energy",["Kinetic energy","Thermal energy","Sound energy"],
+ "Chemical energy is stored in the bonds between atoms and is released by reactions such as digestion or burning.");
+Q("energy","A solar panel changes…","Light (radiant) energy into electrical energy",["Electrical energy into light energy","Heat energy into chemical energy","Chemical energy into electrical energy"],
+ "Solar panels: light → electricity. A light bulb does the reverse. A battery turns chemical energy into electrical energy.");
+Q("energy","Which is a RENEWABLE energy source?","Wind",["Coal","Natural gas","Oil"],
+ "Renewable sources get refilled naturally: wind, solar, water (hydro), geothermal. Coal, oil and natural gas are fossil fuels that take millions of years to form.");
+Q("energy","You hold an ice cube and your hand feels cold. What is really happening?","Heat flows from your warm hand into the colder ice",
+ ["'Cold' flows from the ice into your hand","Heat flows from the ice into your hand","No energy moves at all"],
+ "Heat ALWAYS flows from hotter to colder. There is no such thing as 'cold' flowing. Your hand feels cold because it is LOSING heat.");
+
+// ---------- 6. Waves ----------
+Q("waves","The distance from one CREST to the next CREST of a wave is the…","Wavelength",["Amplitude","Frequency","Trough"],
+ "Wavelength (λ) = the length of one full wave, crest to crest. Amplitude = height from the middle line to a crest. Frequency = waves per second.",["wave"]);
+Q("waves","A LOUDER sound has a bigger…","Amplitude",["Frequency","Wavelength","Speed"],
+ "Loudness = amplitude, the size of the vibration. Pitch (high or low) = frequency.",["wave"]);
+Q("waves","A HIGHER-PITCHED sound has a higher…","Frequency",["Amplitude","Volume","Wavelength"],
+ "High pitch = more vibrations per second = higher frequency (measured in hertz, Hz). Higher frequency also means a SHORTER wavelength.",["wave"]);
+Q("waves","Sound travels FASTEST through…","Solids, like steel",["Gases, like air","Liquids, like water","Empty space (a vacuum)"],
+ "Sound is a vibration passed from particle to particle. Particles packed closer together pass it faster: solids are fastest, then liquids, then gases. In a vacuum sound can't travel at all.");
+Q("waves","Why can't sound travel through outer space?","Space is a vacuum, with no particles to vibrate",["Space is so cold that sound waves freeze","The Sun's bright light blocks the sound","Space has too much gravity for sound to escape"],
+ "Sound is a mechanical wave and needs matter to travel through. Light is electromagnetic, so it CAN cross empty space.");
+Q("waves","A straw looks 'broken' where it enters a glass of water. This bending of light is called…","Refraction",["Reflection","Absorption","Diffraction"],
+ "Refraction = light bending as it changes speed going from one material into another, like air to water. Reflection = light bouncing off a surface.",["refract"]);
+Q("waves","A red apple looks red because it…","Reflects red light and absorbs the other colors",["Absorbs red light and reflects the other colors","Makes its own red light, like a light bulb","Reflects all the colors of light equally"],
+ "We see the color that an object REFLECTS. An object that reflects all colors looks white. One that absorbs all colors looks black.");
+Q("waves","Which of these electromagnetic waves carries the MOST energy?","Gamma rays",["X-rays","Ultraviolet","Radio waves"],
+ "From lowest to highest energy: Radio, Microwave, Infrared, Visible, Ultraviolet, X-ray, Gamma. Higher energy = higher frequency = shorter wavelength.",["spectrum"]);
+Q("waves","You see lightning BEFORE you hear the thunder because…","Light travels much faster than sound",
+ ["The thunder actually happens later","Sound is faster, but it starts later","Your eyes work faster than your ears"],
+ "They happen at the same moment. Light (about 300,000 km/s) reaches you almost instantly. Sound (about 343 m/s) takes about 3 seconds for every kilometer.");
+Q("waves","A light ray hits a flat mirror at an angle of 35° from the normal line. What is the angle of reflection?","35°",["55°","70°","145°"],
+ "Law of Reflection: angle of incidence = angle of reflection. Both are measured from the normal, the line straight out from the mirror at 90°.",["mirror"]);
+Q("waves","A material that lets NO light pass through it is…","Opaque",["Transparent","Translucent","Refractive"],
+ "Transparent: light passes clearly (window glass). Translucent: some light passes, but blurry (wax paper). Opaque: no light passes (wood).");
+Q("waves","Sound waves are which type of wave?","Longitudinal (compression) waves",["Transverse waves","Electromagnetic waves","Light waves"],
+ "In sound, particles vibrate back and forth in the SAME direction the wave travels, making squeezes (compressions) and stretches (rarefactions). Light is transverse and electromagnetic.",["longi"]);
+
+// ---------- 7. Electricity & Magnetism ----------
+Q("elec","Three bulbs are wired in a SERIES circuit. One bulb burns out. What happens?","All the bulbs go out",["Only the broken bulb goes out","The other bulbs get brighter","The battery stops working forever"],
+ "A series circuit has only ONE path. A broken bulb opens the loop, so current stops everywhere.",["circuit","s"]);
+Q("elec","Homes are wired in PARALLEL circuits because…","Each device has its own path, so one can turn off while the others stay on",
+ ["There is only one path, so every device shares the same loop","It makes the electricity travel faster through the house","Parallel circuits need less wire, so they are cheaper to build"],
+ "In parallel, each branch is its own loop. Turning off the TV doesn't shut off the fridge.",["circuit","p"]);
+Q("elec","Which of these is the BEST electrical conductor?","Copper wire",["Rubber","Plastic","Glass"],
+ "Metals like copper let electrons flow easily. Rubber, plastic and glass are insulators, which is why wires are coated in plastic or rubber.");
+Q("elec","Two magnets are placed North pole to North pole. They will…","Repel (push apart)",["Attract (pull together)","Do nothing","Swap poles so they can stick"],
+ "Like poles REPEL (N–N or S–S). Opposite poles ATTRACT (N–S).",["magnet"]);
+Q("elec","How can you make an electromagnet STRONGER?","Wrap more coils of wire around the iron core",["Use fewer coils of wire","Use a plastic core instead of iron","Disconnect the battery"],
+ "More coils, more current, and an iron core all make a stronger electromagnet. With no current there is no magnetism.");
+Q("elec","A 12-volt battery is connected to a 4-ohm resistor. What is the current? (V = I × R)","3 amps",["48 amps","0.33 amps","16 amps"],
+ "I = V ÷ R = 12 ÷ 4 = 3 A. 48 comes from multiplying. 16 comes from adding.",["ftri","V","I","R"]);
+Q("elec","A complete, unbroken loop that electricity can flow around is a…","Closed circuit",["Open circuit","Short fuse","Insulator"],
+ "Closed circuit = complete path, so current flows. Open circuit = there's a gap (like a switch turned off), so no current flows.");
+Q("elec","You rub a balloon on your hair and the balloon sticks to the wall. This is caused by…","Static electricity (electrons moving from one object to another)",
+ ["Magnetism (the balloon becomes a magnet)","Gravity (the wall pulls on the balloon)","Current electricity flowing in a circuit"],
+ "Rubbing moves electrons from your hair to the balloon. The charged balloon attracts the wall. The charge builds up and stays put, so it is 'static'.");
+Q("elec","A compass needle points north because…","Earth acts like a giant magnet with a magnetic field",["North is colder","The Sun pulls on the needle","Gravity is stronger at the North Pole"],
+ "Earth's molten outer core creates a magnetic field. The compass needle, itself a tiny magnet, lines up with that field.");
+Q("elec","A GENERATOR changes…","Mechanical (motion) energy into electrical energy",["Electrical energy into motion","Chemical energy into electrical energy","Light energy into electrical energy"],
+ "A generator spins a magnet and coils of wire to make electricity. A MOTOR does the reverse: electricity → motion. A battery: chemical → electrical.");
+Q("elec","The unit for electric CURRENT is the…","Ampere (amp, A)",["Volt (V)","Ohm (Ω)","Watt (W)"],
+ "Current = amps. Voltage (the 'push') = volts. Resistance = ohms. Power = watts.");
+Q("elec","Which of these metals is attracted to a magnet?","Iron",["Aluminum","Copper","Gold"],
+ "Only a few metals are magnetic, mainly iron, nickel and cobalt (and steel, which contains iron). Aluminum cans and copper wire are NOT attracted.",["magnet"]);
+
+// ---------- 8. Cells ----------
+Q("cells","Which organelle releases energy from food and is called the cell's 'powerhouse'?","Mitochondria",["Chloroplast","Nucleus","Ribosome"],
+ "Mitochondria do cellular respiration, turning sugar + oxygen into usable energy. Chloroplasts CAPTURE light energy to make sugar.",["cell"]);
+Q("cells","Which structure is found in PLANT cells but NOT in animal cells?","Cell wall",["Cell membrane","Nucleus","Mitochondria"],
+ "Plant cells have a stiff cell wall, chloroplasts and a large central vacuole. BOTH plant and animal cells have a membrane, a nucleus and mitochondria. Yes, plants have mitochondria too.",["cell"]);
+Q("cells","Where does photosynthesis take place?","Chloroplasts",["Mitochondria","Nucleus","Vacuole"],
+ "Chloroplasts contain green chlorophyll, which captures sunlight to make glucose.",["cell"]);
+Q("cells","Which equation shows PHOTOSYNTHESIS?","Carbon dioxide + water + light → glucose + oxygen",
+ ["Glucose + oxygen → carbon dioxide + water + energy","Oxygen + water + light → carbon dioxide + glucose","Nitrogen + water → protein + oxygen"],
+ "Photosynthesis takes in CO₂ and water and uses light to make sugar, releasing oxygen. Cellular respiration (the 2nd answer) is the exact reverse.",["photo"]);
+Q("cells","Which part of the cell is the control center and holds the DNA?","Nucleus",["Cell membrane","Cytoplasm","Vacuole"],
+ "The nucleus stores DNA, the instructions for the cell.",["cell"]);
+Q("cells","What is the main job of the cell MEMBRANE?","Controls what goes into and out of the cell",
+ ["Gives the plant cell a stiff box shape","Makes food from sunlight","Stores the cell's DNA"],
+ "The membrane is like a security gate, and it is 'selectively permeable'. The stiff box shape comes from the cell WALL in plants.",["cell"]);
+Q("cells","Which order goes from SMALLEST to LARGEST?","Cell → tissue → organ → organ system → organism",
+ ["Tissue → cell → organ → organism → organ system","Cell → organ → tissue → organ system → organism","Organism → organ system → organ → tissue → cell"],
+ "Cells form tissues (like muscle tissue). Tissues form organs (the heart). Organs form systems (the circulatory system), and systems form an organism (you).",["levels"]);
+Q("cells","Bacteria are PROKARYOTES. This means their cells…","Have no nucleus",["Have many nuclei","Are made of many cells joined together","Are always harmful to people"],
+ "Prokaryote = no nucleus; the DNA floats in the cytoplasm. Eukaryotes (plants, animals, fungi) have a nucleus. Many bacteria are helpful, like the ones in your gut.");
+Q("cells","Which is NOT true of ALL living things?","They can move from place to place",["They are made of cells","They use energy","They grow and develop"],
+ "Trees are alive but can't walk around. All living things are made of cells, use energy, grow, respond to their environment and reproduce.");
+Q("cells","The CELL THEORY says that…","All living things are made of cells, and new cells come from existing cells",
+ ["Only animals are made of cells; plants are made of fibers","Cells can form on their own from nonliving things","Cells are the smallest things that exist, the same as atoms"],
+ "Cell theory: (1) all living things are made of cells, (2) the cell is the basic unit of life, and (3) all cells come from other cells.");
+Q("cells","A frog lives in water as a tadpole, then on land as an adult. A frog is a(n)…","Amphibian",["Reptile","Mammal","Fish"],
+ "Amphibians have moist skin and live part of their life in water and part on land. Reptiles (snakes, lizards) have dry, scaly skin.");
+Q("cells","Cells release energy from glucose using oxygen. This process is called…","Cellular respiration",["Photosynthesis","Digestion","Breathing"],
+ "Breathing just moves air in and out of your lungs. Cellular respiration happens INSIDE cells, in the mitochondria, and that is where the energy is actually released.");
+Q("cells","When a body cell divides by MITOSIS, it makes…","Two identical cells",["Four different sex cells","One bigger cell","Two cells with half the DNA"],
+ "Mitosis = growth and repair, making 2 identical copies. MEIOSIS makes 4 sex cells (egg or sperm), each with half the DNA.");
+
+// ---------- 9. Genetics ----------
+Q("genetics","T (tall) is dominant over t (short). What does a plant with genes Tt look like?","Tall",["Short","Medium height","Half tall and half short"],
+ "A dominant allele (capital letter) shows up whenever it is present. Tt has one T, so the plant is tall. You need tt to be short.",["punnett","Tt","tt"]);
+Q("genetics","Two Tt plants are crossed (T = tall is dominant). What is the chance an offspring is SHORT (tt)?","25% (1 out of 4)",["50% (2 out of 4)","75% (3 out of 4)","0%"],
+ "The Punnett square gives TT, Tt, Tt, tt. Only 1 of the 4 boxes is tt, so 25%. Three out of four (75%) will be tall.",["punnett","Tt","Tt"]);
+Q("genetics","A Tt plant is crossed with a tt plant. What is the chance an offspring is SHORT?","50%",["25%","75%","100%"],
+ "Punnett square: Tt, Tt, tt, tt. Two of the 4 boxes are tt, so 50%.",["punnett","Tt","tt"]);
+Q("genetics","The molecule that carries genetic instructions and is shaped like a twisted ladder (double helix) is…","DNA",["A protein","Glucose","Chlorophyll"],
+ "DNA (deoxyribonucleic acid) is a double helix. Its 'rungs' are base pairs: A pairs with T, and C pairs with G.");
+Q("genetics","What is a PHENOTYPE?","The trait you can see or observe, like brown eyes",["The gene letters, like Bb","The shape of the DNA molecule","Only the hidden recessive traits"],
+ "Genotype = the gene letters (Bb). Phenotype = how it shows up (brown eyes). Remember: PHenotype = PHysical.");
+Q("genetics","An organism with two IDENTICAL alleles for a trait (TT or tt) is…","Homozygous",["Heterozygous","A hybrid","Always recessive"],
+ "Homo = same (TT or tt). Hetero = different (Tt). A hybrid is heterozygous.");
+Q("genetics","How many chromosomes are in most HUMAN body cells?","46 (23 pairs)",["23","48","92"],
+ "Body cells have 46 chromosomes in 23 pairs: one set from Mom and one from Dad. Sex cells (egg and sperm) have only 23.");
+Q("genetics","An inherited trait that helps an organism SURVIVE in its environment is called a(n)…","Adaptation",["Acquired trait","Extinction","Learned behavior"],
+ "Adaptations, like a polar bear's thick fur, are passed down through genes. Acquired traits, like a scar or big muscles from lifting, are NOT passed to offspring.");
+Q("genetics","Long ago, which giraffes were MOST likely to survive and have babies?","Giraffes born with longer necks that could reach more food",
+ ["Giraffes that stretched their necks and passed the stretch to their babies","Giraffes that decided to grow longer necks","All giraffes had the same chance"],
+ "Natural selection: individuals with helpful INHERITED traits survive and reproduce more, so those traits become more common. Stretching during your life does not change your genes.");
+Q("genetics","Which trait is INHERITED (from genes), not learned or acquired?","Natural eye color",["Speaking English","Riding a bike","A scar from a fall"],
+ "Eye color is coded in your DNA. Language and skills are learned. Scars are acquired during your life.");
+Q("genetics","Offspring from sexual reproduction get…","Half of their genes from each parent",["All of their genes from the mother","All of their genes from the father","An exact copy of one parent's genes"],
+ "Each parent gives one allele for each gene, so offspring are a MIX. That's why siblings look different. Asexual reproduction makes exact copies.");
+Q("genetics","A change in the sequence of DNA is called a…","Mutation",["Adaptation","Allele","Phenotype"],
+ "Mutations can be harmful, helpful or neutral. Helpful ones can become adaptations over many generations.");
+
+// ---------- 10. Human Body ----------
+Q("body","Which body system CARRIES oxygen and nutrients to every cell?","Circulatory system",["Respiratory system","Digestive system","Nervous system"],
+ "The respiratory system brings oxygen INTO the lungs, but the circulatory system (heart, blood, vessels) DELIVERS it around the body.",["heart"]);
+Q("body","Oxygen passes into the blood through tiny air sacs in the lungs called…","Alveoli",["Bronchi","Trachea","Villi"],
+ "Alveoli are tiny balloon-like sacs surrounded by capillaries, where gases are swapped. Villi are in the small intestine and absorb food.");
+Q("body","Where are MOST nutrients from food absorbed into the blood?","Small intestine",["Stomach","Large intestine","Esophagus"],
+ "The small intestine is about 6 meters long and lined with villi that absorb nutrients. The stomach mostly breaks food down with acid.",["digest"]);
+Q("body","Which blood cells fight infections and germs?","White blood cells",["Red blood cells","Platelets","Plasma"],
+ "White cells = defense. Red cells = carry oxygen. Platelets = clot blood to stop bleeding. Plasma = the liquid part.");
+Q("body","Blood vessels that carry blood AWAY from the heart are…","Arteries",["Veins","Capillaries","Alveoli"],
+ "Arteries = Away from the heart. Veins bring blood back. Capillaries are the tiny vessels in between where exchange happens.",["heart"]);
+Q("body","What is the main job of the LARGE intestine?","Absorb water and form solid waste",["Absorb most of the nutrients","Break down proteins with acid","Make bile"],
+ "By the large intestine most nutrients are already absorbed, so it soaks up water. Bile is made by the liver.",["digest"]);
+Q("body","The brain and spinal cord together make up the…","Central nervous system",["Peripheral nervous system","Endocrine system","Skeletal system"],
+ "Central nervous system = brain + spinal cord. Peripheral nervous system = all the nerves that branch out to the body.");
+Q("body","Hormones (chemical messengers like adrenaline) are made by the…","Endocrine system",["Nervous system","Digestive system","Muscular system"],
+ "Glands such as the thyroid, the adrenal glands and the pancreas release hormones into the blood. The nervous system uses electrical signals instead.");
+Q("body","TENDONS connect…","Muscle to bone",["Bone to bone","Muscle to muscle","Skin to bone"],
+ "Tendons = muscle to bone. Ligaments = bone to bone.");
+Q("body","Which organ filters waste out of the blood to make urine?","Kidneys",["Liver","Bladder","Lungs"],
+ "The kidneys filter the blood. The bladder only STORES urine. The liver cleans chemicals and makes bile.");
+Q("body","When you breathe IN, your diaphragm…","Contracts and moves down, pulling air into the lungs",["Relaxes and moves up, pulling air in","Squeezes the lungs to push air in","Stays still while the ribs do all the work"],
+ "The diaphragm contracts and flattens downward, making more space in the chest, so air rushes in. When it relaxes and moves up, you breathe out.");
+Q("body","What is the main job of RED blood cells?","Carry oxygen",["Fight germs","Clot blood","Digest food"],
+ "Red cells contain hemoglobin, an iron-rich protein that grabs oxygen. That iron is part of why blood is red.");
+
+// ---------- 11. Ecology ----------
+Q("eco","In the food chain grass → grasshopper → frog → hawk, the FROG is a…","Secondary consumer",["Primary consumer","Producer","Decomposer"],
+ "Producer (grass) → primary consumer (grasshopper eats the plant) → secondary consumer (frog eats the grasshopper) → tertiary consumer (hawk).",["food"]);
+Q("eco","In a food chain, the ARROWS point…","From the food to the eater, the way energy flows",["From the eater to its food","From the biggest animal to the smallest","The way the animal walks"],
+ "grass → rabbit means energy moves FROM the grass INTO the rabbit. Arrows show the direction energy flows.",["food"]);
+Q("eco","About how much of the energy at one level of a food pyramid passes up to the next level?","About 10%",["About 50%","About 90%","100%"],
+ "The 10% rule: about 90% is used for life processes or lost as heat. That is why there are far fewer hawks than grasshoppers.",["pyramid"]);
+Q("eco","Organisms such as mushrooms and bacteria that break down dead things are…","Decomposers",["Producers","Herbivores","Carnivores"],
+ "Decomposers recycle nutrients back into the soil so producers can use them again.");
+Q("eco","A bee drinks nectar from a flower and carries its pollen to other flowers. This relationship is…","Mutualism (both benefit)",["Parasitism","Commensalism","Competition"],
+ "Mutualism: +/+, both win. Commensalism: +/0, one wins and the other isn't affected. Parasitism: +/−, one is harmed.");
+Q("eco","A tick living on a dog and drinking its blood is an example of…","Parasitism",["Mutualism","Commensalism","Competition"],
+ "The tick benefits and the dog is harmed (+/−). A parasite usually doesn't kill its host right away, which is different from a predator.");
+Q("eco","Sunlight, water, temperature and soil are the ___ parts of an ecosystem.","Abiotic (nonliving)",["Biotic (living)","Producer","Consumer"],
+ "A = not, bio = life. Abiotic = nonliving. Biotic = living things such as plants, animals and fungi.");
+Q("eco","A group of the SAME species living in one area is a…","Population",["Community","Ecosystem","Biome"],
+ "Population = one species. Community = ALL the populations in an area. Ecosystem = the community plus nonliving things.",["levels2"]);
+Q("eco","In grass → grasshopper → frog → hawk, all the frogs die from a disease. At first, the grasshoppers will most likely…","Increase, because fewer predators are eating them",
+ ["Decrease, because frogs help grasshoppers","Stay exactly the same","All die out"],
+ "Removing a predator lets its prey population grow, at least until the grasshoppers run low on grass. Every link affects the others.",["food"]);
+Q("eco","Where do producers like plants get the energy to make their food?","Sunlight",["Nutrients in the soil","Eating other organisms","Water"],
+ "Plants make food (glucose) using LIGHT energy. Soil gives water and minerals, but not the energy.");
+Q("eco","Which biome has permanently frozen ground (permafrost) and almost no trees?","Tundra",["Taiga","Desert","Grassland"],
+ "Tundra: frozen, treeless, very cold. Taiga: cold forests of evergreen trees just south of the tundra.");
+Q("eco","In the carbon cycle, plants take carbon out of the air in the form of…","Carbon dioxide, during photosynthesis",["Oxygen, during respiration","Carbon monoxide","Nitrogen gas"],
+ "Plants absorb CO₂ to build sugars. Animals and decomposers release CO₂ back through respiration, and burning fuels releases it too.",["photo"]);
+
+// ---------- 12. Earth ----------
+Q("earth","Earth's SOLID center, made mostly of iron and nickel, is the…","Inner core",["Outer core","Mantle","Crust"],
+ "Crust (thin, rocky) → mantle (thick, hot, slowly flowing rock) → outer core (LIQUID iron and nickel) → inner core (SOLID, because the pressure is enormous).",["earthlayers"]);
+Q("earth","Earth's OUTER core is…","Liquid metal",["Solid metal","A gas","Solid rock like the crust"],
+ "The outer core is liquid iron and nickel. Its swirling motion creates Earth's magnetic field.",["earthlayers"]);
+Q("earth","Rock that forms when melted rock (magma or lava) cools and hardens is…","Igneous",["Sedimentary","Metamorphic","Fossil rock"],
+ "Igneous = 'from fire'. Examples are granite (cooled slowly underground) and basalt or obsidian (cooled quickly from lava).",["rockcycle"]);
+Q("earth","Rock formed from layers of sand, mud and shells that get pressed and cemented together is…","Sedimentary",["Igneous","Metamorphic","Magma"],
+ "Sedimentary rocks like sandstone and limestone form in layers. They are the rocks most likely to contain fossils.",["rockcycle"]);
+Q("earth","Rock that is CHANGED by great heat and pressure (without melting) is…","Metamorphic",["Sedimentary","Igneous","Lava"],
+ "Meta = change, morph = form. Limestone becomes marble, and shale becomes slate.",["rockcycle"]);
+Q("earth","Breaking rock into smaller pieces is ___. Carrying those pieces away is ___.","Weathering; erosion",["Erosion; weathering","Deposition; erosion","Weathering; deposition"],
+ "Weathering BREAKS rock down. Erosion MOVES the pieces (by water, wind or ice). Deposition DROPS them in a new place.");
+Q("earth","At which type of plate boundary do two plates PULL APART?","Divergent",["Convergent","Transform","Subduction"],
+ "Divergent = diverge (separate), as at the Mid-Atlantic Ridge. Convergent = plates collide. Transform = plates slide past each other.",["plates"]);
+Q("earth","California's San Andreas Fault, where two plates SLIDE PAST each other, is a…","Transform boundary",["Divergent boundary","Convergent boundary","Hot spot"],
+ "At transform boundaries plates grind sideways past each other, and that causes many earthquakes.",["plates"]);
+Q("earth","Which instrument records the shaking of an earthquake?","Seismograph",["Barometer","Anemometer","Thermometer"],
+ "Seismo = earthquake. A barometer measures air pressure. An anemometer measures wind speed.");
+Q("earth","On the Mohs hardness scale, the HARDEST mineral is…","Diamond (10)",["Quartz (7)","Topaz (8)","Talc (1)"],
+ "Mohs scale goes from 1 to 10: talc is 1 (softest) and diamond is 10 (hardest). A harder mineral scratches a softer one.");
+Q("earth","In undisturbed layers of sedimentary rock, the BOTTOM layers are usually…","Older than the layers above them",["Younger than the layers above","The same age as all the layers","Impossible to compare"],
+ "Law of Superposition: newer layers settle on top of older ones. Fossils in deeper layers are usually older.",["layers"]);
+Q("earth","What moves Earth's tectonic plates?","Convection currents in the hot mantle",["Wind blowing on the continents","Ocean tides","The Moon's gravity"],
+ "Hot mantle rock rises, cools and sinks in slow loops, and those loops drag the plates along a few centimeters each year.",["earthlayers"]);
+Q("earth","The Himalaya mountains formed when…","Two continental plates collided (convergent boundary)",["Two plates pulled apart (divergent boundary)","Two plates slid past each other (transform)","Rivers piled up layers of sediment over time"],
+ "India's plate crashed into Asia's plate, crumpling the crust upward. The mountains are still rising a few millimeters every year.",["plates"]);
+
+// ---------- 13. Weather ----------
+Q("weather","In the water cycle, water vapor cools and turns into tiny droplets that form clouds. This is…","Condensation",["Evaporation","Precipitation","Transpiration"],
+ "Evaporation: liquid → gas. Condensation: gas → liquid (clouds, and drops on a cold glass). Precipitation: water falls as rain, snow, sleet or hail.",["watercycle"]);
+Q("weather","Plants releasing water vapor out through their leaves is called…","Transpiration",["Evaporation","Condensation","Precipitation"],
+ "Transpiration is like plants 'sweating'. It adds a lot of water vapor to the air.",["watercycle"]);
+Q("weather","The lowest layer of the atmosphere, where almost all weather happens, is the…","Troposphere",["Stratosphere","Mesosphere","Thermosphere"],
+ "Going up: troposphere (weather), stratosphere (ozone layer), mesosphere (meteors burn up), thermosphere (auroras). 'Tropo' means turning or changing.",["atmos"]);
+Q("weather","The ozone layer, which blocks harmful ultraviolet (UV) rays, is in the…","Stratosphere",["Troposphere","Mesosphere","Exosphere"],
+ "Ozone (O₃) in the stratosphere absorbs most of the Sun's UV radiation.",["atmos"]);
+Q("weather","CLIMATE is…","The average weather of a place over many years",["The weather conditions today","One big storm","The temperature this afternoon"],
+ "Weather = short term (today). Climate = the long-term pattern, about 30+ years. 'Climate is what you expect, weather is what you get.'");
+Q("weather","Which instrument measures AIR PRESSURE?","Barometer",["Thermometer","Anemometer","Rain gauge"],
+ "Barometer = pressure. Thermometer = temperature. Anemometer = wind speed. Rain gauge = rainfall.");
+Q("weather","The barometer reading is FALLING quickly. This usually means…","Cloudy, stormy weather is likely coming",["Clear, sunny weather is coming","Snow is guaranteed tomorrow","Nothing; pressure doesn't affect weather"],
+ "Low pressure means rising air, which cools and forms clouds and storms. High pressure usually brings clear, calm skies.");
+Q("weather","A cold air mass pushes under a warm air mass, forcing the warm air up quickly. This forms a…","Cold front, often with thunderstorms",["Warm front, with light steady rain","Stationary front, with no weather","High-pressure zone with clear skies"],
+ "Cold air is denser, so it wedges under warm air and shoves it up fast, which builds tall storm clouds. On weather maps a cold front is a blue line with triangles.",["front"]);
+Q("weather","Wind blows from areas of ___ pressure to areas of ___ pressure.","High; low",["Low; high","Cold; cold","It blows randomly"],
+ "Air moves from high pressure to low pressure, like air rushing out of a popped balloon. The bigger the pressure difference, the stronger the wind.");
+Q("weather","On a sunny day at the beach, a cool breeze blows from the sea onto the land because…","Land heats up faster than water, so warm air over land rises and cooler sea air moves in",
+ ["Water heats up faster than land, so warm air over the sea pushes onto the beach","Waves crashing on the shore push the air onto the land","The Moon's gravity pulls the air from the sea toward the land"],
+ "Land warms faster in the daytime. Warm air over the land rises, which lowers the pressure there, and cooler air from over the sea flows in. That is a sea breeze, a convection current.",["seabreeze"]);
+Q("weather","Most of Earth's FRESH water is stored in…","Glaciers and ice caps",["Rivers and lakes","Clouds","The oceans"],
+ "About 97% of all water is salty ocean water. Of the fresh water, roughly 2/3 is frozen in glaciers and ice caps. Rivers and lakes hold only a tiny part.");
+Q("weather","What provides the energy that drives the water cycle?","The Sun",["Earth's core","The wind","The Moon"],
+ "Sunlight heats water so it evaporates. Gravity then pulls precipitation back down.",["watercycle"]);
+
+// ---------- 14. Space ----------
+Q("space","What causes Earth's SEASONS?","The tilt of Earth's axis (about 23.5°)",["Earth being closer to the Sun in summer","The Sun burning hotter and cooler","The Moon blocking sunlight"],
+ "When your half of Earth tilts TOWARD the Sun, sunlight hits more directly and days are longer, so it's summer. Fun fact: Earth is actually CLOSEST to the Sun in early January, which is winter in the north.",["seasons"]);
+Q("space","One full ROTATION of Earth on its axis takes about…","24 hours (1 day)",["365 days","29.5 days","7 days"],
+ "Rotation = spinning on the axis, which gives us day and night. Revolution = traveling around the Sun, which takes 1 year.");
+Q("space","One full REVOLUTION of Earth around the Sun takes about…","365¼ days (1 year)",["24 hours","29.5 days","12 days"],
+ "The extra ¼ day adds up, so we get a leap day every 4 years.");
+Q("space","What causes the PHASES of the Moon?","How much of the Moon's sunlit half we can see as it orbits Earth",
+ ["Earth's shadow covering part of the Moon","Clouds blocking part of the Moon","The Moon changing its shape"],
+ "The Sun always lights half of the Moon. As the Moon orbits, we see different amounts of that lit half. Earth's shadow on the Moon is a lunar ECLIPSE, which is something different.",["moon"]);
+Q("space","A SOLAR eclipse happens when…","The Moon passes between the Sun and Earth",["Earth passes between the Sun and the Moon","The Sun passes between Earth and the Moon","The Moon goes behind Earth's shadow"],
+ "Solar eclipse: Sun – Moon – Earth, and the Moon blocks the Sun. Lunar eclipse: Sun – Earth – Moon, and Earth's shadow falls on the Moon.",["eclipse"]);
+Q("space","Which is the LARGEST planet in our solar system?","Jupiter",["Saturn","Neptune","Uranus"],
+ "Jupiter is so big that more than 1,000 Earths could fit inside it. Saturn is second biggest.",["planets"]);
+Q("space","Which planet is the HOTTEST?","Venus",["Mercury","Mars","Jupiter"],
+ "Mercury is closest to the Sun, but Venus is hotter (about 465 °C) because its thick carbon-dioxide atmosphere traps heat, a runaway greenhouse effect.",["planets"]);
+Q("space","Our Sun is…","A medium-sized star",["A planet","The biggest star in the universe","A giant comet"],
+ "The Sun is an average yellow star. It only looks huge because it is the closest star to us. Many stars are far bigger.");
+Q("space","Ocean TIDES are mainly caused by…","The Moon's gravity",["Wind","Earth's magnetic field","Ocean currents"],
+ "The Moon's gravity pulls on Earth's oceans, making bulges of water. Most coasts get 2 high tides and 2 low tides a day. The Sun adds a smaller pull.");
+Q("space","A LIGHT-YEAR is a unit of…","Distance (how far light travels in one year)",["Time (how long light takes to reach us)","Speed (how fast light travels)","Brightness (how much light a star gives off)"],
+ "It sounds like time, but it is a DISTANCE: about 9.5 trillion km. It is used for huge space distances.");
+Q("space","Which are the four ROCKY inner planets?","Mercury, Venus, Earth, Mars",["Jupiter, Saturn, Uranus, Neptune","Earth, Mars, Jupiter, Saturn","Mercury, Venus, Mars, Pluto"],
+ "Inner planets are rocky. Outer planets (Jupiter, Saturn, Uranus, Neptune) are giants of gas and ice. Pluto is now called a dwarf planet. Order: My Very Educated Mother Just Served Us Nachos.",["planets"]);
+Q("space","Why does the Moon stay in orbit around Earth?","Earth's gravity pulls on it while its sideways motion keeps it from falling straight in",
+ ["There is no gravity in space, so nothing pulls it away","Magnets in the Moon's core lock it to Earth's magnetic field","The Sun's light pushes it around and around Earth"],
+ "There IS gravity in space. The Moon is always 'falling' toward Earth but moving sideways fast enough to keep missing it. That is what an orbit is.");
+Q("space","The asteroid belt is located between…","Mars and Jupiter",["Earth and Mars","Jupiter and Saturn","Venus and Earth"],
+ "The asteroid belt separates the rocky inner planets from the gas giants.",["planets"]);
+
+// ---------- 15. Math formulas (concepts) ----------
+Q("mathf","The Pythagorean theorem a² + b² = c² works for which triangles?","Right triangles only",["All triangles","Equilateral triangles only","Obtuse triangles only"],
+ "It only works when one angle is exactly 90°. Then c is the hypotenuse, the longest side, opposite the right angle.",["tri",3,4,"c"]);
+Q("mathf","In a² + b² = c², what is c?","The hypotenuse, the longest side, opposite the right angle",["A leg, one of the two sides that form the right angle","The shortest side, opposite the smallest angle","The height, measured straight up from the base"],
+ "a and b are the legs, which make the right angle. c is always the side across from the 90° corner.",["tri",3,4,"c"]);
+Q("mathf","What is the formula for the AREA of a triangle?","A = ½ × b × h",["A = b × h","A = a + b + c","A = ½ × (b + h)"],
+ "A triangle is half of a rectangle with the same base and height, so you take half of b × h. a + b + c is the PERIMETER.",["tarea",8,5]);
+Q("mathf","What is the formula for the CIRCUMFERENCE of a circle?","C = 2πr (or C = πd)",["C = πr²","C = 2r","C = ½πr"],
+ "Circumference = the distance around. πr² is the AREA, a very common mix-up. 2r is just the diameter.",["circle",5]);
+Q("mathf","What is the formula for the AREA of a circle?","A = πr²",["A = 2πr","A = πd","A = 2πr²"],
+ "Area = π × radius × radius. 2πr and πd are both the CIRCUMFERENCE.",["circle",5]);
+Q("mathf","What is the VOLUME formula for a rectangular prism (box)?","V = l × w × h",["V = 2(lw + lh + wh)","V = l + w + h","V = l × w"],
+ "Volume = length × width × height, in cubic units (cm³). 2(lw + lh + wh) is the SURFACE AREA. l × w alone is the area of the base.",["prism",4,3,2]);
+Q("mathf","The three angles inside ANY triangle always add up to…","180°",["360°","90°","270°"],
+ "Triangle = 180°. Quadrilateral (4 sides) = 360°. Formula for any polygon: (n − 2) × 180°.",["angles",60,70]);
+Q("mathf","What is the formula for the SLOPE of a line through (x₁, y₁) and (x₂, y₂)?","m = (y₂ − y₁) ÷ (x₂ − x₁)",["m = (x₂ − x₁) ÷ (y₂ − y₁)","m = (y₂ + y₁) ÷ (x₂ + x₁)","m = (y₂ − y₁) × (x₂ − x₁)"],
+ "Slope = rise over run = change in y ÷ change in x. Put the y's on TOP, like climbing UP stairs.",["slope",1,1,4,7]);
+Q("mathf","What is the VOLUME formula for a cylinder?","V = πr²h",["V = 2πrh","V = ⅓πr²h","V = πrh"],
+ "A cylinder is a stack of circles: circle area (πr²) × height. ⅓πr²h is the volume of a CONE. 2πrh is the area of the curved side.",["cyl",3,5]);
+Q("mathf","What is the AREA formula for a trapezoid?","A = ½(b₁ + b₂) × h",["A = b₁ × b₂ × h","A = (b₁ + b₂) × h","A = ½ × b₁ × b₂"],
+ "Average the two parallel bases, then multiply by the height. Forgetting the ½ doubles the answer.",["trap",6,10,4]);
+Q("mathf","The four angles inside any quadrilateral add up to…","360°",["180°","540°","400°"],
+ "A quadrilateral splits into 2 triangles: 2 × 180° = 360°. 540° is a pentagon (3 triangles).");
+Q("mathf","How do you find the MEAN (average) of a data set?","Add all the values, then divide by how many values there are",["Find the middle value when the values are in order","Find the value that appears most often","Subtract the smallest value from the largest"],
+ "Mean = sum ÷ count. The middle value = MEDIAN. The most frequent = MODE. Largest − smallest = RANGE.");
+Q("mathf","What is the formula for the PERIMETER of a rectangle?","P = 2l + 2w",["P = l × w","P = l + w","P = 2(l × w)"],
+ "Perimeter = all the way around: length + width + length + width. l × w is the AREA.",["rect",7,3]);
+Q("mathf","What is the area formula for a PARALLELOGRAM?","A = b × h, using the straight-up height",["A = ½ × b × h, using the straight-up height","A = b × the slanted side length","A = 2b + 2h, adding all the sides"],
+ "Slice a triangle off one end and slide it to the other end and you get a rectangle, so A = b × h. Use the perpendicular height, not the slanted side.",["para",8,4]);
+
+// ---------- 16. Science formulas (concepts) ----------
+Q("sciform","Which is the formula for DENSITY?","D = m ÷ V",["D = m × V","D = V ÷ m","D = m + V"],
+ "Density = mass divided by volume, in g/cm³ or g/mL. Cover D in the formula triangle and you see m over V.",["ftri","m","D","V"]);
+Q("sciform","Which is the formula for SPEED?","speed = distance ÷ time",["speed = distance × time","speed = time ÷ distance","speed = distance − time"],
+ "s = d ÷ t. For example, 100 m in 20 s is 5 m/s. Units tell you the formula: meters PER second means divide.",["ftri","d","s","t"]);
+Q("sciform","What is Newton's 2nd law written as a formula?","F = m × a",["F = m ÷ a","F = a ÷ m","F = m + a"],
+ "Force (N) = mass (kg) × acceleration (m/s²). 1 newton = the force to speed up 1 kg by 1 m/s every second.",["ftri","F","m","a"]);
+Q("sciform","Which shows WORK and its unit correctly?","W = F × d, measured in joules (J)",["W = F ÷ d, measured in newtons","W = F × d, measured in watts","W = m × a, measured in joules"],
+ "Work = force × distance, in joules (1 J = 1 N·m). Watts are for POWER. m × a is FORCE.",["ftri","W","F","d"]);
+Q("sciform","Which shows POWER and its unit correctly?","P = W ÷ t, measured in watts (W)",["P = W × t, measured in watts","P = F × d, measured in joules","P = t ÷ W, measured in newtons"],
+ "Power = how FAST work is done = work ÷ time. 1 watt = 1 joule per second.",["ftri","W","P","t"]);
+Q("sciform","Which is OHM'S LAW?","V = I × R",["V = I ÷ R","I = V × R","R = V × I"],
+ "Voltage = current × resistance. Rearranged: I = V ÷ R and R = V ÷ I.",["ftri","V","I","R"]);
+Q("sciform","How do you find an object's WEIGHT on Earth?","Weight = mass × g (g ≈ 9.8 m/s²)",["Weight = mass ÷ g","Weight = mass + g","Weight = mass (they're the same)"],
+ "Weight is a force: W = m × g, in newtons. A 10 kg dog weighs about 98 N on Earth.");
+Q("sciform","Which is the WAVE SPEED formula?","v = f × λ (frequency × wavelength)",["v = f ÷ λ (frequency ÷ wavelength)","v = λ ÷ f (wavelength ÷ frequency)","v = f + λ (frequency + wavelength)"],
+ "Wave speed (m/s) = frequency (Hz) × wavelength (m).",["ftri","v","f","λ"]);
+Q("sciform","Which is the formula for KINETIC energy?","KE = ½ × m × v²",["KE = m × v","KE = m × g × h","KE = ½ × m × v"],
+ "Kinetic energy is energy of MOTION, and speed is SQUARED, so going twice as fast gives 4× the energy. m × g × h is POTENTIAL energy. m × v is momentum.");
+Q("sciform","Which is the formula for gravitational POTENTIAL energy?","PE = m × g × h",["PE = ½ × m × v²","PE = m × h","PE = m × v"],
+ "PE = mass × gravity (9.8 m/s²) × height. Higher up or heavier = more stored energy.",["coaster"]);
+Q("sciform","Which is the formula for MOMENTUM?","p = m × v",["p = m × a","p = m ÷ v","p = ½ × m × v²"],
+ "Momentum = mass × velocity (kg·m/s). A slow truck can have more momentum than a fast baseball.");
+Q("sciform","Which is the formula for PRESSURE?","P = F ÷ A (force ÷ area)",["P = F × A","P = A ÷ F","P = m ÷ V"],
+ "The same force on a SMALLER area gives MORE pressure. That's why a needle pokes easily and snowshoes keep you on top of the snow. m ÷ V is density.",["ftri","F","P","A"]);
+Q("sciform","How do you convert Celsius to Fahrenheit?","°F = (9/5 × °C) + 32",["°F = (°C − 32) × 5/9","°F = °C + 273","°F = °C × 2"],
+ "Multiply by 9/5 (that is 1.8) and then add 32. (°F − 32) × 5/9 goes the OTHER way, °F → °C. Adding 273 gives kelvin.",["thermo",100]);
+Q("sciform","Which is the formula for ACCELERATION?","a = (final velocity − starting velocity) ÷ time",["a = total distance ÷ total time","a = final velocity × time taken","a = force × mass of the object"],
+ "Acceleration = change in velocity ÷ time, in m/s². distance ÷ time is SPEED.");
+// ================= FIGURES (inline SVG diagrams for explanations) =================
+const S=(w,h,inner,label)=>`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${label||"diagram"}">${ARW}${inner}</svg>`;
+const T=(x,y,s,c="fg-t",a="middle")=>`<text x="${x}" y="${y}" class="${c}" text-anchor="${a}">${s}</text>`;
+const L=(x1,y1,x2,y2,c="fg-l")=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${c}"/>`;
+const ARW=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffc23d"/></marker><marker id="ahc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fd8ff"/></marker></defs>`;
+const A=(x1,y1,x2,y2,col="#ffc23d",w=3)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" marker-end="url(#${col==="#4fd8ff"?"ahc":"ah"})"/>`;
+const C=(x,y,r,fill,stroke="none")=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+const R=(x,y,w,h,fill,stroke="none",rx=6)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+const AMB="#ffc23d",CY="#4fd8ff",GD="#5be49b",BD="#ff6b6b",PNL="#193049",LN="#2a4a69",TX="#eaf4ff",MU="#9db4cc";
+
+const FIG = {
+  // ---- math geometry ----
+  tri(a,b,c){ // right triangle; a vertical leg, b horizontal leg
+    const k=Math.min(130/(+a||3),220/(+b||4),40); const H=Math.max(40,(+a||3)*k), W=Math.max(60,(+b||4)*k);
+    const x0=60,y0=170;
+    return S(340,200,`<polygon points="${x0},${y0} ${x0+W},${y0} ${x0},${y0-H}" fill="rgba(79,216,255,.12)" class="fg-l"/>
+      ${R(x0,y0-16,16,16,"none",TX,0)}
+      ${T(x0-14,y0-H/2+5,"a = "+a,"fg-a","end")}${T(x0+W/2,y0+22,"b = "+b,"fg-a")}
+      ${T(x0+W/2+14,y0-H/2-8,"c = "+c,"fg-c","start")}${T(x0+24,y0-22,"90°","fg-s","start")}`,"right triangle");
+  },
+  rect(l,w){ return S(340,180,`${R(70,40,200,100,"rgba(79,216,255,.12)",TX,2)}${T(170,32,"length l = "+l,"fg-a")}${T(285,95,"w = "+w,"fg-a","start")}
+      ${T(170,165,"Perimeter = l + w + l + w   ·   Area = l × w","fg-s")}`,"rectangle"); },
+  para(b,h){ return S(340,180,`<polygon points="80,140 240,140 280,50 120,50" fill="rgba(79,216,255,.12)" class="fg-l"/>${L(120,50,120,140,"fg-d")}
+      ${T(160,165,"base b = "+b,"fg-a")}${T(112,100,"h = "+h,"fg-a","end")}${R(120,126,14,14,"none",MU,0)}`,"parallelogram"); },
+  trap(b1,b2,h){ return S(340,190,`<polygon points="60,150 280,150 220,60 120,60" fill="rgba(79,216,255,.12)" class="fg-l"/>${L(150,60,150,150,"fg-d")}
+      ${T(170,50,"b₁ = "+b1,"fg-a")}${T(170,175,"b₂ = "+b2,"fg-a")}${T(158,110,"h = "+h,"fg-a","start")}`,"trapezoid"); },
+  tarea(b,h){ return S(340,190,`<polygon points="60,150 280,150 200,40" fill="rgba(79,216,255,.12)" class="fg-l"/>${L(200,40,200,150,"fg-d")}${R(200,136,14,14,"none",MU,0)}
+      ${T(170,175,"base b = "+b,"fg-a")}${T(208,100,"height h = "+h,"fg-a","start")}
+      <polygon points="60,150 280,150 280,40 60,40" fill="none" stroke="${LN}" stroke-dasharray="4 4"/>${T(70,32,"the triangle is ½ of this rectangle","fg-s","start")}`,"triangle area"); },
+  circle(r){ return S(340,200,`${C(150,100,75,"rgba(79,216,255,.12)",TX)}${C(150,100,3,AMB)}${L(150,100,225,100,"fg-l")}${L(75,100,150,100,"fg-d")}
+      ${T(188,92,"r = "+r,"fg-a")}${T(112,122,"d = 2r","fg-s")}
+      ${T(240,40,"Circumference","fg-c","start")}${T(240,58,"C = 2πr","fg-s","start")}${T(240,150,"Area","fg-c","start")}${T(240,168,"A = πr²","fg-s","start")}`,"circle radius"); },
+  prism(l,w,h){ return S(340,200,`<polygon points="70,80 220,80 220,170 70,170" fill="rgba(79,216,255,.12)" class="fg-l"/>
+      <polygon points="70,80 120,40 270,40 220,80" fill="rgba(79,216,255,.2)" class="fg-l"/><polygon points="220,80 270,40 270,130 220,170" fill="rgba(79,216,255,.06)" class="fg-l"/>
+      ${T(145,190,"l = "+l,"fg-a")}${T(258,165,"w = "+w,"fg-a","start")}${T(62,128,"h = "+h,"fg-a","end")}`,"rectangular prism"); },
+  cyl(r,h){ return S(340,200,`<ellipse cx="160" cy="45" rx="70" ry="18" fill="rgba(79,216,255,.2)" class="fg-l"/>${L(90,45,90,160)}${L(230,45,230,160)}
+      <path d="M90,160 A70,18 0 0 0 230,160" class="fg-l"/><path d="M90,160 A70,18 0 0 1 230,160" class="fg-d"/>${L(160,45,230,45,"fg-l")}
+      ${T(195,38,"r = "+r,"fg-a")}${T(240,108,"h = "+h,"fg-a","start")}${T(160,192,"V = (area of circle) × height = πr²h","fg-s")}`,"cylinder"); },
+  angles(a,b){ return S(340,190,`<polygon points="50,160 290,160 140,40" fill="rgba(79,216,255,.12)" class="fg-l"/>
+      ${T(78,152,a+"°","fg-a")}${T(255,152,b+"°","fg-a")}${T(142,74,"?","fg-c")}${T(170,182,"all three add up to 180°","fg-s")}`,"triangle angles"); },
+  slope(x1,y1,x2,y2){ const g=22,ox=40,oy=170, P=(x,y)=>[ox+x*g,oy-y*g]; let grid="";
+      for(let i=0;i<=12;i++) grid+=L(ox+i*g,oy-7*g,ox+i*g,oy,"fg-d").replace('class="fg-d"','stroke="#1d3550" stroke-width="1"');
+      for(let j=0;j<=7;j++) grid+=L(ox,oy-j*g,ox+12*g,oy-j*g).replace('class="fg-l"','stroke="#1d3550" stroke-width="1"');
+      const [ax,ay]=P(x1,y1),[bx,by]=P(x2,y2);
+      return S(340,200,`${grid}${L(ox,oy,ox+12*g,oy)}${L(ox,oy,ox,oy-7*g)}${L(ax,ay,bx,by,"fg-l")}
+      ${L(ax,ay,bx,ay,"fg-d")}${L(bx,ay,bx,by,"fg-d")}${C(ax,ay,5,AMB)}${C(bx,by,5,AMB)}
+      ${T((ax+bx)/2,ay+(by<ay?16:-6),"run = "+(x2-x1),"fg-c")}${T(bx+6,(ay+by)/2+5,"rise = "+(y2-y1),"fg-c","start")}
+      ${T(ax-4,ay+(by<ay?18:-8),"("+x1+", "+y1+")","fg-s","end")}${T(bx,by+(by<ay?-10:18),"("+x2+", "+y2+")","fg-s")}`,"slope on a grid"); },
+  // ---- formula triangle ----
+  ftri(top,l,r){ return S(340,190,`<polygon points="170,20 300,170 40,170" fill="rgba(255,194,61,.1)" stroke="${AMB}" stroke-width="3"/>${L(85,115,255,115)}${L(170,115,170,170)}
+      ${T(170,95,top,"fg-a").replace('class="fg-a"','class="fg-a" style="font-size:30px"')}${T(115,155,l,"fg-c").replace('class="fg-c"','class="fg-c" style="font-size:26px"')}${T(225,155,r,"fg-c").replace('class="fg-c"','class="fg-c" style="font-size:26px"')}
+      ${T(170,188,"cover what you want: top = side × side · side = top ÷ other side","fg-s")}`,"formula triangle"); },
+  thermo(c){ const f=c*9/5+32; return S(340,190,`${R(150,20,40,140,PNL,TX,20)}${C(170,165,22,BD)}${R(162,60,16,105,BD,"none",8)}
+      ${T(120,70,c+" °C","fg-c","end")}${T(220,70,f+" °F","fg-a","start")}${T(170,188,"°F = 9/5 × °C + 32","fg-s")}`,"thermometer"); },
+  // ---- science method ----
+  vars(){ return S(340,170,`${R(10,30,100,60,PNL,CY)}${T(60,55,"I CHANGE","fg-s")}${T(60,75,"Independent","fg-c")}
+      ${A(112,60,124,60)}${R(126,30,100,60,PNL,AMB)}${T(176,55,"I MEASURE","fg-s")}${T(176,75,"Dependent","fg-a")}
+      ${R(232,30,100,60,PNL,LN)}${T(282,55,"SAME FOR ALL","fg-s")}${T(282,75,"Controlled","fg-t")}
+      ${T(170,125,"Control group = gets NO treatment (baseline to compare)","fg-s")}${T(170,150,"Example: fertilizer amount → plant height","fg-t")}`,"variables"); },
+  ladder(){ const u=["kilo","hecto","deka","BASE","deci","centi","milli"],s=["×1000","×100","×10","m, L, g","÷10","÷100","÷1000"];
+      return S(340,200,u.map((n,i)=>`${R(8+i*46,150-i*18,44,30,i===3?"rgba(255,194,61,.25)":PNL,i===3?AMB:LN,4)}${T(30+i*46,168-i*18,n,"fg-s")}${T(30+i*46,140-i*18,s[i],"fg-s")}`).join("")+
+      T(170,22,"Step DOWN the stairs (to smaller units) → multiply by 10 each step","fg-s"),"metric stairs"); },
+  meniscus(){ return S(340,190,`${L(120,20,120,170)}${L(220,20,220,170)}${L(120,170,220,170)}
+      <path d="M121,80 Q170,110 219,80 L219,169 L121,169 z" fill="rgba(79,216,255,.3)"/>${L(100,96,240,96,"fg-d")}
+      ${T(250,100,"read HERE","fg-a","start")}${T(250,118,"(bottom of curve)","fg-s","start")}${T(60,100,"👁","fg-t")}`,"meniscus"); },
+  // ---- matter ----
+  states(){ const dots=(ox,arr)=>arr.map(([x,y])=>C(ox+x,y,7,CY)).join("");
+      const solid=[];for(let i=0;i<4;i++)for(let j=0;j<4;j++)solid.push([18+i*17,60+j*17]);
+      const liq=[[15,100],[31,104],[47,99],[63,103],[20,116],[38,119],[56,117],[72,120],[28,85],[50,86],[66,87],[12,132]];
+      const gas=[[15,55],[60,70],[35,110],[75,125],[20,140],[55,100]];
+      return S(340,190,`${R(10,40,100,110,"none",LN)}${dots(10,solid)}${R(120,40,100,110,"none",LN)}${dots(120,liq)}${R(230,40,100,110,"none",LN)}${dots(230,gas)}
+      ${T(60,30,"SOLID","fg-c")}${T(170,30,"LIQUID","fg-c")}${T(280,30,"GAS","fg-c")}
+      ${T(60,170,"packed, vibrate","fg-s")}${T(170,170,"close, slide past","fg-s")}${T(280,170,"far apart, fast","fg-s")}`,"particles in states of matter"); },
+  float(){ return S(340,180,`${R(40,70,260,100,"rgba(79,216,255,.25)","none",0)}${L(40,70,300,70,"fg-l")}${R(80,52,60,40,AMB,"none",4)}${R(210,128,50,40,BD,"none",4)}
+      ${T(110,40,"0.8 g/cm³ floats","fg-a")}${T(235,120,"2.7 g/cm³ sinks","fg-t")}${T(170,195,"water = 1.0 g/cm³","fg-s")}`,"floating and sinking"); },
+  phase(){ return S(340,200,`${R(10,120,90,40,PNL,CY)}${T(55,145,"SOLID","fg-c")}${R(125,20,90,40,PNL,CY)}${T(170,45,"GAS","fg-c")}${R(240,120,90,40,PNL,CY)}${T(285,145,"LIQUID","fg-c")}
+      ${A(60,116,130,64)}${T(70,85,"sublimation","fg-s","end")}${A(150,64,80,116,"#4fd8ff")}${T(124,105,"deposition","fg-a","end")}
+      ${A(104,132,236,132)}${T(170,126,"melting","fg-s")}${A(236,152,104,152,"#4fd8ff")}${T(170,172,"freezing","fg-s")}
+      ${A(270,116,205,64)}${T(268,80,"evaporation","fg-s","start")}${A(220,48,290,116,"#4fd8ff")}${T(300,100,"condensation","fg-s","start")}`,"phase changes"); },
+  heatcurve(){ return S(340,190,`${L(40,160,320,160)}${L(40,160,40,20)}<polyline points="40,150 90,110 170,110 200,70 280,70 320,30" class="fg-l" stroke="${AMB}"/>
+      ${T(130,102,"melting: flat!","fg-a")}${T(240,62,"boiling: flat!","fg-a")}${T(180,182,"heat added →","fg-s")}${T(30,90,"temp","fg-s","end")}`,"heating curve"); },
+  // ---- chemistry ----
+  atom(p,n,e){ let s=C(170,100,26,"rgba(255,107,107,.25)",BD)+T(170,96,p+"p⁺","fg-t")+T(170,112,n+"n⁰","fg-s");
+      const sh=[2,8,18]; let left=e, rr=48;
+      for(let k=0;k<3&&left>0;k++){ const cnt=Math.min(sh[k],left); left-=cnt; s+=`<circle cx="170" cy="100" r="${rr}" fill="none" stroke="${LN}" stroke-width="2"/>`;
+        for(let i=0;i<cnt;i++){const a=i/cnt*6.283; s+=C(170+rr*Math.cos(a),100+rr*Math.sin(a),5,CY);} rr+=24; }
+      return S(340,200,s+T(20,30,"protons (+) and neutrons in the nucleus","fg-s","start")+T(20,190,"electrons (−) orbit in shells","fg-c","start"),"atom model"); },
+  pgrid(){ let s=""; const cols=18; for(let g=0;g<cols;g++){ const rows=g===0?7:(g===1||g>=12)?6:(g>=2&&g<=11)?4:0; const start=g===0?0:(g===1||g>=12)?1:3;
+        for(let r=0;r<rows;r++){ const row=start+r; const metal=!(g>=12&&(row<=g-11))&&!(g===0&&row===0); s+=R(10+g*18,30+row*20,16,18,metal?"rgba(79,216,255,.3)":"rgba(255,194,61,.45)","none",2);} }
+      s+=R(10+17*18,30,16,18,"rgba(255,194,61,.45)","none",2);
+      return S(340,200,s+T(20,20,"↓ GROUP (column) = same outer electrons","fg-s","start")+T(20,188,"blue = metals (most!) · amber = nonmetals + metalloids","fg-s","start"),"periodic table outline"); },
+  rxn(){ return S(340,140,`${T(70,60,"2H₂ + O₂","fg-c")}${A(130,55,200,55)}${T(260,60,"2H₂O","fg-a")}${T(70,95,"REACTANTS","fg-s")}${T(70,112,"(what you start with)","fg-s")}${T(260,95,"PRODUCTS","fg-s")}${T(260,112,"(what is made)","fg-s")}`,"chemical equation"); },
+  ph(mark){ let s=""; const cols=["#ff4d4d","#ff6a3d","#ff8c33","#ffad2e","#ffd02b","#e8e33a","#9be15d","#4fd38a","#3fc7b8","#3fa7e0","#4f86f0","#6a6af0","#8a5ae8","#a24ad8","#b03fc8"];
+      for(let i=0;i<15;i++) s+=R(15+i*21,70,20,40,cols[i],"none",2)+T(25+i*21,128,i,"fg-s");
+      if(mark!=null) s+=`<polygon points="${25+mark*21},64 ${19+mark*21},50 ${31+mark*21},50" fill="${TX}"/>`;
+      return S(340,170,s+T(60,40,"ACID","fg-t")+T(172,40,"neutral 7","fg-t")+T(290,40,"BASE","fg-t")+T(170,155,"lemon ≈ 2 · water = 7 · soap ≈ 10","fg-s"),"pH scale"); },
+  // ---- forces ----
+  forces(r,l){ return S(340,160,`${R(130,60,80,60,PNL,TX)}${A(210,90,210+r*10,90)}${A(130,90,130-l*10,90,"#4fd8ff")}
+      ${T(215+r*5,80,r+" N","fg-a")}${T(130-l*5,80,l+" N","fg-c")}${L(20,120,320,120,"fg-d")}${T(170,150,"net force = "+r+" − "+l+" = "+(r-l)+" N → right","fg-t")}`,"forces on a box"); },
+  dtgraph(){ return S(340,190,`${L(40,160,320,160)}${L(40,160,40,20)}<polyline points="40,160 120,90 200,90 300,30" class="fg-l" stroke="${CY}"/>
+      ${T(80,115,"moving","fg-s","end")}${T(160,82,"flat = STOPPED","fg-a")}${T(268,72,"steeper = faster","fg-s")}${T(180,182,"time →","fg-s")}${T(34,90,"distance","fg-s","end")}`,"distance time graph"); },
+  // ---- energy ----
+  coaster(){ return S(340,190,`<path d="M10,40 C60,40 70,170 140,170 C200,170 210,90 260,90 C300,90 310,150 330,150" class="fg-l" stroke="${CY}"/>
+      ${C(30,36,9,AMB)}${T(30,22,"most PE","fg-a")}${C(140,162,9,GD)}${T(140,148,"most KE (fastest)","fg-t")}${T(170,188,"PE = mgh   ·   KE = ½mv²","fg-s")}`,"roller coaster energy"); },
+  heat(){ return S(340,190,`${R(10,60,100,90,PNL,LN)}${L(30,140,95,70)}${T(60,170,"CONDUCTION","fg-c")}${T(60,186,"touching","fg-s")}
+      ${R(120,60,100,90,PNL,LN)}<path d="M150,140 C130,110 140,80 170,75 C200,80 210,110 190,140" fill="none" stroke="${AMB}" stroke-width="3" marker-end="url(#ah)"/>${T(170,170,"CONVECTION","fg-c")}${T(170,186,"fluid loops","fg-s")}
+      ${C(255,80,16,AMB)}${[0,1,2].map(i=>`<path d="M${275+i*0},${92+i*14} q8,-6 16,0 t16,0" fill="none" stroke="${AMB}" stroke-width="2.5"/>`).join("")}${T(280,170,"RADIATION","fg-c")}${T(280,186,"waves, no matter","fg-s")}
+      ${ARW}`,"heat transfer"); },
+  ramp(){ return S(340,170,`<polygon points="30,150 300,150 300,50" fill="rgba(79,216,255,.12)" class="fg-l"/>${R(180,72,30,26,AMB,"none",3)}
+      ${T(170,170,"long distance, LESS force","fg-a")}${T(312,105,"height","fg-s","start")}`,"inclined plane"); },
+  lever(){ return S(340,160,`${L(30,90,310,90)}<polygon points="170,92 150,130 190,130" fill="${AMB}"/>${R(40,60,40,30,BD,"none",3)}${A(290,40,290,86)}
+      ${T(60,52,"load","fg-t")}${T(290,30,"effort","fg-t")}${T(170,150,"fulcrum (pivot)","fg-a")}`,"lever"); },
+  // ---- waves ----
+  wave(){ let d="M20,100"; for(let x=20;x<=320;x+=4) d+=` L${x},${100-50*Math.sin((x-20)/150*6.283)}`;
+      return S(340,200,`${ARW}${L(20,100,320,100,"fg-d")}<path d="${d}" class="fg-l" stroke="${CY}"/>
+      <line x1="57" y1="38" x2="207" y2="38" stroke="${AMB}" stroke-width="2.5" marker-start="url(#ah)" marker-end="url(#ah)"/>${T(132,30,"wavelength λ","fg-a")}
+      <line x1="245" y1="100" x2="245" y2="54" stroke="${AMB}" stroke-width="2.5" marker-end="url(#ah)"/>${T(252,80,"amplitude","fg-a","start")}
+      ${T(57,170,"crest ↑ at top · trough ↓ at bottom","fg-s","start")}${T(132,190,"more waves per second = higher frequency","fg-s")}`,"wave parts"); },
+  longi(){ let s=""; const xs=[]; for(let i=0;i<40;i++){ const x=20+i*7.5+6*Math.sin(i/40*6.283*3); xs.push(x); s+=L(x,60,x,120).replace('class="fg-l"',`stroke="${CY}" stroke-width="2"`);}
+      return S(340,170,s+T(60,150,"compression","fg-a")+T(170,150,"rarefaction","fg-s")+A(30,30,300,30)+T(170,22,"wave travels →, particles vibrate ↔","fg-s")+ARW,"longitudinal wave"); },
+  refract(){ return S(340,190,`${R(0,100,340,90,"rgba(79,216,255,.2)","none",0)}${L(0,100,340,100)}${L(170,20,170,180,"fg-d")}
+      ${A(80,20,170,100)}${A(170,100,215,180)}${T(20,90,"air","fg-s","start")}${T(20,125,"water","fg-c","start")}${T(230,140,"light bends","fg-a","start")}${ARW}`,"refraction"); },
+  mirror(){ return S(340,190,`${R(40,150,260,10,MU,"none",2)}${L(170,30,170,150,"fg-d")}${A(70,40,168,148)}${A(172,148,270,40)}
+      ${T(140,110,"in","fg-a")}${T(200,110,"out","fg-a")}${T(170,22,"normal","fg-s")}${T(170,182,"angle in = angle out","fg-t")}${ARW}`,"law of reflection"); },
+  spectrum(){ const n=["Radio","Micro","Infra","Vis","UV","X-ray","Gamma"]; const cols=["#3b5a85","#4a6a99","#ff7a5a","#ffd02b","#a77bff","#7fb8ff","#5be49b"];
+      return S(340,170,n.map((t,i)=>R(8+i*47,60,45,40,cols[i],"none",3)+T(30+i*47,120,t,"fg-s")).join("")+ARW+A(20,145,320,145)+T(170,160,"more energy · higher frequency · shorter wavelength","fg-s")+T(170,40,"Electromagnetic spectrum","fg-t"),"EM spectrum"); },
+  // ---- electricity ----
+  circuit(t){ if(t==="s") return S(340,180,`${R(40,30,260,120,"none",TX,4)}${R(30,75,20,30,AMB,"none",3)}${["120","180","240"].map(x=>C(+x,30,12,AMB)).join("")}
+      ${T(170,175,"SERIES: one path — one break stops all","fg-t")}${T(60,95,"battery","fg-s","start")}`,"series circuit");
+      return S(340,190,`${L(40,30,40,150)}${L(40,30,300,30)}${L(40,150,300,150)}${[120,200,280].map(x=>L(x,30,x,150)+C(x,90,12,AMB)).join("")}${R(30,75,20,30,AMB,"none",3)}
+      ${T(170,180,"PARALLEL: each bulb has its own path","fg-t")}`,"parallel circuit"); },
+  magnet(){ return S(340,150,`${R(20,50,60,40,BD,"none",3)}${R(80,50,60,40,CY,"none",3)}${T(50,76,"N","fg-t")}${T(110,76,"S","fg-t")}
+      ${R(200,50,60,40,BD,"none",3)}${R(260,50,60,40,CY,"none",3)}${T(230,76,"N","fg-t")}${T(290,76,"S","fg-t")}
+      ${T(170,120,"S facing N → ATTRACT · N facing N → REPEL","fg-s")}${T(170,30,"opposites attract, likes repel","fg-a")}`,"magnet poles"); },
+  // ---- life ----
+  cell(){ return S(340,200,`<ellipse cx="85" cy="100" rx="70" ry="60" fill="rgba(91,228,155,.12)" stroke="${GD}" stroke-width="2.5"/>${C(85,95,18,"rgba(196,155,255,.4)")}<ellipse cx="55" cy="130" rx="14" ry="7" fill="${AMB}"/>
+      ${T(85,30,"ANIMAL","fg-t")}${T(85,99,"nucleus","fg-s")}${T(55,152,"mitochondria","fg-s")}
+      ${R(190,40,130,120,"rgba(91,228,155,.12)",GD,2)}${R(184,34,142,132,"none",AMB,4)}${R(230,60,60,60,"rgba(79,216,255,.25)","none",8)}${C(300,135,12,"rgba(196,155,255,.4)")}<ellipse cx="210" cy="140" rx="12" ry="6" fill="${GD}"/>
+      ${T(255,28,"PLANT","fg-t")}${T(260,95,"vacuole","fg-s")}${T(210,128,"chloroplast","fg-s")}${T(255,185,"cell wall (amber) only in plants","fg-a")}`,"plant and animal cells"); },
+  photo(){ return S(340,170,`${T(170,40,"PHOTOSYNTHESIS (chloroplast)","fg-c")}${T(170,65,"CO₂ + H₂O + light → glucose + O₂","fg-t")}
+      ${T(170,110,"CELLULAR RESPIRATION (mitochondria)","fg-a")}${T(170,135,"glucose + O₂ → CO₂ + H₂O + energy","fg-t")}${T(170,160,"they are opposites!","fg-s")}`,"photosynthesis and respiration"); },
+  levels(){ const n=["cell","tissue","organ","system","organism"]; return S(340,150,n.map((t,i)=>R(6+i*67,60-i*6,60,30+i*12,PNL,CY)+T(36+i*67,80+i*0,t,"fg-s")).join("")+T(170,30,"small → big","fg-a")+T(170,140,"muscle cell → muscle → heart → circulatory → you","fg-s"),"levels of organization"); },
+  levels2(){ const n=["organism","population","community","ecosystem"]; return S(340,140,n.map((t,i)=>R(6+i*84,50,78,40,PNL,GD)+T(45+i*84,75,t,"fg-s")).join("")+T(170,30,"one frog → all frogs → all living things → + nonliving","fg-s"),"ecology levels"); },
+  punnett(p1,p2){ const a=[p1[0],p1[1]], b=[p2[0],p2[1]]; const cell=(x,y)=>{ const g=[b[y],a[x]].sort((m,n)=>(m===m.toLowerCase())-(n===n.toLowerCase())).join(""); const rec=g===g.toLowerCase(); return R(130+x*70,50+y*60,66,56,rec?"rgba(255,107,107,.22)":"rgba(91,228,155,.18)","none",4)+T(163+x*70,84+y*60,g,"fg-t"); };
+      return S(340,190,`${T(165,40,a[0],"fg-a")}${T(235,40,a[1],"fg-a")}${T(115,84,b[0],"fg-c")}${T(115,144,b[1],"fg-c")}${cell(0,0)}${cell(1,0)}${cell(0,1)}${cell(1,1)}
+      ${T(20,30,"parent 1: "+p1,"fg-a","start")}${T(20,180,"parent 2: "+p2+" · each box = 25%","fg-c","start")}`,"Punnett square"); },
+  heart(){ return S(340,150,`${C(170,75,30,"rgba(255,107,107,.3)",BD)}${T(170,80,"heart","fg-t")}${A(200,65,300,40)}${T(300,30,"ARTERY: away","fg-a","end")}${A(40,40,138,65,"#4fd8ff")}${T(40,30,"VEIN: back to heart","fg-c","start")}${T(170,140,"capillaries connect them","fg-s")}${ARW}`,"blood vessels"); },
+  digest(){ const n=["mouth","esophagus","stomach","small int.","large int."]; return S(340,150,n.map((t,i)=>R(4+i*67,50,62,40,i===3?"rgba(255,194,61,.3)":PNL,i===3?AMB:LN)+T(35+i*67,75,t,"fg-s")).join("")+T(170,115,"small intestine: absorbs nutrients","fg-a")+T(170,135,"large intestine: absorbs water","fg-c"),"digestive path"); },
+  food(){ const n=[["🌾","grass","producer"],["🦗","grasshopper","1st consumer"],["🐸","frog","2nd consumer"],["🦅","hawk","3rd consumer"]];
+      return S(340,150,ARW+n.map(([e,t,r],i)=>`<text x="${40+i*87}" y="70" text-anchor="middle" font-size="30">${e}</text>`+T(40+i*87,100,t,"fg-t")+T(40+i*87,118,r,"fg-s")+(i<3?A(62+i*87,60,104+i*87,60):"")).join("")+T(170,145,"arrow = energy flows to the eater","fg-a"),"food chain"); },
+  pyramid(){ const l=[["hawk","10 J"],["frog","100 J"],["grasshopper","1,000 J"],["grass","10,000 J"]];
+      return S(340,190,l.map(([t,e],i)=>{const w=70+i*60;return R(170-w/2,20+i*40,w,36,i===3?"rgba(91,228,155,.3)":PNL,GD,3)+T(170,43+i*40,t+" · "+e,"fg-s");}).join("")+T(170,186,"only ~10% passes up each level","fg-a"),"energy pyramid"); },
+  // ---- earth ----
+  earthlayers(){ return S(340,200,`${C(110,100,90,"#7a5a3a")}${C(110,100,80,"#d06a2a")}${C(110,100,48,"#ffb347")}${C(110,100,24,"#ffe08a")}
+      ${[["crust (thin rock)",20,"#c9a27a"],["mantle (hot, flows slowly)",60,"#d06a2a"],["outer core (LIQUID)",120,"#ffb347"],["inner core (SOLID)",170,"#ffe08a"]].map(([t,y,c])=>T(215,y,t,"fg-s","start")).join("")}`,"Earth's layers"); },
+  rockcycle(){ return S(340,200,`${ARW}${R(120,10,100,36,PNL,BD)}${T(170,33,"IGNEOUS","fg-t")}${R(10,140,120,36,PNL,AMB)}${T(70,163,"SEDIMENTARY","fg-t")}${R(210,140,120,36,PNL,CY)}${T(270,163,"METAMORPHIC","fg-t")}
+      ${A(130,46,80,136)}${T(66,90,"weathering, layers","fg-s","end")}${A(132,158,206,158)}${T(170,192,"heat + pressure","fg-s")}${A(270,136,222,46)}${T(280,90,"melts, then cools","fg-s","start")}`,"rock cycle"); },
+  plates(){ return S(340,170,`${ARW}${R(10,60,90,30,PNL,AMB,2)}${A(60,50,20,50)}${A(60,50,100,50)}${T(55,110,"DIVERGENT","fg-t")}${T(55,126,"pull apart","fg-s")}
+      ${R(125,60,90,30,PNL,AMB,2)}${A(130,50,165,50)}${A(210,50,175,50)}${T(170,110,"CONVERGENT","fg-t")}${T(170,126,"collide","fg-s")}
+      ${R(240,55,90,20,PNL,AMB,2)}${R(240,77,90,20,PNL,AMB,2)}${A(250,65,320,65)}${A(320,87,250,87)}${T(285,110,"TRANSFORM","fg-t")}${T(285,126,"slide past","fg-s")}`,"plate boundaries"); },
+  layers(){ const c=["#8a6a4a","#a07a52","#b78d5e","#c9a27a"]; return S(340,170,c.map((col,i)=>R(60,30+i*30,220,30,col,"none",0)).join("")+T(290,50,"youngest","fg-s","start")+T(290,140,"oldest","fg-s","start")+T(170,165,"Law of Superposition","fg-a"),"rock layers"); },
+  watercycle(){ return S(340,200,`${ARW}${C(300,30,18,AMB)}${R(0,150,340,50,"rgba(79,216,255,.3)","none",0)}<ellipse cx="170" cy="40" rx="60" ry="20" fill="${MU}"/>
+      ${A(80,145,130,65)}${T(70,110,"evaporation","fg-s","end")}${T(170,45,"condensation","fg-t")}${A(200,62,240,140,"#4fd8ff")}${T(250,110,"precipitation","fg-c","start")}
+      ${T(170,180,"collection (oceans, lakes)","fg-s")}`,"water cycle"); },
+  atmos(){ const l=[["thermosphere · auroras","#2a2f6a"],["mesosphere · meteors burn","#2a4070"],["stratosphere · OZONE","#2a5578"],["troposphere · WEATHER","#2f6d8a"]];
+      return S(340,190,l.map(([t,c],i)=>R(20,10+i*44,300,42,c,"none",2)+T(170,36+i*44,t,"fg-t")).join(""),"atmosphere layers"); },
+  front(){ return S(340,160,`${ARW}${R(10,40,150,90,"rgba(79,216,255,.2)","none",4)}${R(180,40,150,90,"rgba(255,107,107,.2)","none",4)}${T(85,90,"COLD air (dense)","fg-c")}${T(255,90,"WARM air","fg-t")}${A(170,110,250,50)}${T(170,150,"cold air wedges under, warm air shoots up → storms","fg-s")}`,"cold front"); },
+  seabreeze(){ return S(340,170,`${ARW}${R(0,120,170,50,"#7a5a3a","none",0)}${R(170,120,170,50,"rgba(79,216,255,.35)","none",0)}${A(85,110,85,40)}${A(100,30,250,30)}${A(255,40,255,105,"#4fd8ff")}${A(240,112,110,112,"#4fd8ff")}
+      ${T(85,145,"land: heats fast","fg-t")}${T(255,145,"sea: heats slow","fg-t")}${T(170,100,"cool sea breeze →","fg-c")}`,"sea breeze"); },
+  // ---- space ----
+  seasons(){ return S(340,190,`${C(170,95,24,AMB)}<ellipse cx="170" cy="95" rx="140" ry="55" fill="none" stroke="${LN}" stroke-width="2"/>
+      ${C(40,95,16,CY)}${L(48,75,32,115)}${C(300,95,16,CY)}${L(308,75,292,115)}${T(40,140,"June: N tilts toward Sun","fg-s")}${T(300,140,"Dec: N tilts away","fg-s")}
+      ${T(170,185,"tilt ≈ 23.5° causes seasons, not distance","fg-a")}`,"seasons and tilt"); },
+  moon(){ const ph=["new","waxing crescent","first quarter","waxing gibbous","full","waning gibbous","third quarter","waning crescent"];
+      let s=C(170,100,20,CY)+T(170,104,"Earth","fg-s")+T(20,20,"☀ sunlight from the left →","fg-a","start");
+      for(let i=0;i<8;i++){const a=Math.PI-i/8*6.283, x=170+110*Math.cos(a), y=100-70*Math.sin(a); s+=C(x,y,10,"#2a3a50")+`<path d="M${x},${y-10} A10,10 0 0 0 ${x},${y+10} z" fill="${TX}"/>`;}
+      return S(340,200,s+T(170,192,"half is always lit; we see different amounts","fg-s"),"moon phases"); },
+  eclipse(){ return S(340,140,`${C(40,70,30,AMB)}${C(170,70,8,MU)}${C(290,70,22,CY)}${T(40,125,"Sun","fg-t")}${T(170,125,"Moon","fg-t")}${T(290,125,"Earth","fg-t")}
+      <polygon points="178,62 268,58 268,82 178,78" fill="rgba(0,0,0,.5)"/>${T(170,30,"SOLAR eclipse: Moon in the middle","fg-a")}`,"solar eclipse"); },
+  planets(){ const p=[["Me",5,"#b0a090"],["V",8,"#e8c070"],["E",8,"#4f9ff0"],["Ma",6,"#e06a40"],["J",24,"#e0b080"],["S",20,"#e8d090"],["U",13,"#8fe0e8"],["N",13,"#4f6ff0"]];
+      let x=14, s=C(-20,90,40,AMB); p.forEach(([n,r,c],i)=>{ x+=r+(i===4?26:12); s+=C(x,90,r,c)+T(x,135,n,"fg-s"); x+=r; if(i===3) s+=T(x+12,60,"asteroid belt","fg-s")+`<line x1="${x+12}" y1="70" x2="${x+12}" y2="110" stroke="${MU}" stroke-dasharray="2 4" stroke-width="3"/>`; });
+      return S(340,170,s+T(170,165,"rocky inner 4 · giant outer 4","fg-a"),"planets in order"); }
+};
+function fig(f){ if(!f) return ""; const fn=FIG[f[0]]; if(!fn) return ""; try{ return fn(...f.slice(1)); }catch(e){ return ""; } }
+// ================= NUMBER PROBLEMS (fresh numbers every time) =================
+// Each generator builds a problem whose wrong answers come from real mistakes (wrong operation, forgot to square, used diameter...).
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=n=>{ const v=Math.round(n*100)/100; return v.toLocaleString("en-US",{maximumFractionDigits:2}); };
+function numQ(o){ // o: {q, ans, ds, u, why, fig, f}
+  const u=o.u?" "+o.u:""; const seen=new Set([fmt(o.ans)]); const ds=[];
+  const extra=[o.ans*2,o.ans+10,o.ans/2,o.ans*10,o.ans+1,o.ans-1,o.ans*3];
+  for(const d of [...o.ds,...extra]){ if(ds.length>=3) break; if(!isFinite(d)||d<0&&o.ans>=0) continue; const k=fmt(d); if(seen.has(k)) continue; seen.add(k); ds.push(k+u); }
+  return {q:o.q, a:fmt(o.ans)+u, d:ds, why:o.why, fig:o.fig||null};
+}
+const TRIPLES=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25],[12,16,20],[20,21,29]];
+const GEN = [
+  // ---------- Math formulas ----------
+  {id:"g-pyth-c",ch:"mathf",name:"Pythagorean theorem: find the hypotenuse",make(){ const [a,b,c]=pick(TRIPLES);
+    return numQ({q:`A right triangle has legs of ${a} and ${b}. How long is the hypotenuse?`,ans:c,ds:[a+b,a*a+b*b,Math.abs(b-a)+a],u:"units",
+      why:`a² + b² = c² → ${a}² + ${b}² = ${a*a} + ${b*b} = ${a*a+b*b}. Then take the square root: √${a*a+b*b} = <b>${c}</b>. Adding the legs (${a+b}) is the most common trap, and ${a*a+b*b} means you forgot the square root.`,fig:["tri",a,b,"?"]}); }},
+  {id:"g-pyth-a",ch:"mathf",name:"Pythagorean theorem: find a missing leg",make(){ const [a,b,c]=pick(TRIPLES);
+    return numQ({q:`A right triangle has a hypotenuse of ${c} and one leg of ${b}. How long is the other leg?`,ans:a,ds:[c-b,c*c-b*b,Math.round(Math.sqrt(c*c+b*b)*100)/100],u:"units",
+      why:`For a missing LEG, subtract: a² = c² − b² = ${c*c} − ${b*b} = ${c*c-b*b}. Then √${c*c-b*b} = <b>${a}</b>. Just subtracting the sides (${c}−${b} = ${c-b}) does not work.`,fig:["tri","?",b,c]}); }},
+  {id:"g-rect-p",ch:"mathf",name:"Perimeter of a rectangle",make(){ const l=ri(5,15),w=ri(2,l-1);
+    return numQ({q:`A garden is ${l} m long and ${w} m wide. How much fence goes all the way around it (the perimeter)?`,ans:2*(l+w),ds:[l*w,l+w,2*l+w],u:"m",
+      why:`P = 2l + 2w = 2(${l}) + 2(${w}) = <b>${2*(l+w)} m</b>. ${l*w} is the AREA, which measures the space inside, in m².`,fig:["rect",l,w]}); }},
+  {id:"g-rect-a",ch:"mathf",name:"Area of a rectangle",make(){ const l=ri(6,14),w=ri(3,9);
+    return numQ({q:`A rug is ${l} ft long and ${w} ft wide. What is its area?`,ans:l*w,ds:[2*(l+w),l+w,2*l*w],u:"ft²",
+      why:`A = l × w = ${l} × ${w} = <b>${l*w} ft²</b>. Area is in SQUARE units. ${2*(l+w)} is the perimeter.`,fig:["rect",l,w]}); }},
+  {id:"g-tri-a",ch:"mathf",name:"Area of a triangle",make(){ const b=ri(3,9)*2,h=ri(3,12);
+    return numQ({q:`A triangle has a base of ${b} cm and a height of ${h} cm. What is its area?`,ans:b*h/2,ds:[b*h,b+h,(b+h)/2],u:"cm²",
+      why:`A = ½ × b × h = ½ × ${b} × ${h} = <b>${b*h/2} cm²</b>. Forgetting the ½ gives ${b*h}, the area of the whole rectangle.`,fig:["tarea",b,h]}); }},
+  {id:"g-circ-a",ch:"mathf",name:"Area of a circle",make(){ const r=ri(2,10);
+    return numQ({q:`A circle has a radius of ${r} cm. What is its area? (Use π ≈ 3.14)`,ans:3.14*r*r,ds:[2*3.14*r,3.14*(2*r)*(2*r),3.14*r],u:"cm²",
+      why:`A = πr² = 3.14 × ${r} × ${r} = 3.14 × ${r*r} = <b>${fmt(3.14*r*r)} cm²</b>. ${fmt(2*3.14*r)} is the circumference (2πr). Squaring the diameter instead of the radius gives ${fmt(3.14*4*r*r)}.`,fig:["circle",r]}); }},
+  {id:"g-circ-c",ch:"mathf",name:"Circumference of a circle",make(){ const d=ri(2,12)*2,r=d/2;
+    return numQ({q:`A wheel has a DIAMETER of ${d} in. What is its circumference? (Use π ≈ 3.14)`,ans:3.14*d,ds:[3.14*r*r,3.14*r,2*3.14*d],u:"in",
+      why:`C = πd = 3.14 × ${d} = <b>${fmt(3.14*d)} in</b>. You can also use C = 2πr with r = ${r}. Watch out: the problem gave the DIAMETER, so using 2πd doubles the answer.`,fig:["circle",r]}); }},
+  {id:"g-prism",ch:"mathf",name:"Volume of a rectangular prism",make(){ const l=ri(3,10),w=ri(2,6),h=ri(2,8);
+    return numQ({q:`A box is ${l} cm long, ${w} cm wide and ${h} cm tall. What is its volume?`,ans:l*w*h,ds:[2*(l*w+l*h+w*h),l+w+h,l*w],u:"cm³",
+      why:`V = l × w × h = ${l} × ${w} × ${h} = <b>${l*w*h} cm³</b>. ${2*(l*w+l*h+w*h)} is the surface area (the outside wrapping paper).`,fig:["prism",l,w,h]}); }},
+  {id:"g-cyl",ch:"mathf",name:"Volume of a cylinder",make(){ const r=ri(1,5),h=ri(2,10);
+    return numQ({q:`A can has a radius of ${r} cm and a height of ${h} cm. What is its volume? (Use π ≈ 3.14)`,ans:3.14*r*r*h,ds:[2*3.14*r*h,3.14*r*h,3.14*r*r*h/3],u:"cm³",
+      why:`V = πr²h = 3.14 × ${r*r} × ${h} = <b>${fmt(3.14*r*r*h)} cm³</b>. ⅓πr²h is for a CONE.`,fig:["cyl",r,h]}); }},
+  {id:"g-angle",ch:"mathf",name:"Missing angle in a triangle",make(){ const a=ri(30,80),b=ri(30,150-a);
+    return numQ({q:`Two angles of a triangle are ${a}° and ${b}°. What is the third angle?`,ans:180-a-b,ds:[360-a-b,a+b,90-Math.min(a,b)],u:"°",
+      why:`Angles in a triangle add to 180°: 180 − ${a} − ${b} = <b>${180-a-b}°</b>. 360° is for four-sided shapes.`,fig:["angles",a,b]}); }},
+  {id:"g-slope",ch:"mathf",name:"Slope between two points",make(){ const x1=ri(0,3),y1=ri(0,2),dx=pick([1,2,3,4]),m=pick([1,2,3]); const x2=x1+dx,y2=y1+m*dx>7?y1+dx:y1+m*dx; const mm=(y2-y1)/dx;
+    return numQ({q:`What is the slope of the line through (${x1}, ${y1}) and (${x2}, ${y2})?`,ans:mm,ds:[dx/(y2-y1),-mm,(y2+y1)/(x2+x1)],
+      why:`slope = rise ÷ run = (y₂ − y₁) ÷ (x₂ − x₁) = (${y2} − ${y1}) ÷ (${x2} − ${x1}) = ${y2-y1} ÷ ${dx} = <b>${fmt(mm)}</b>. Flipping it to run ÷ rise is the classic mistake.`,fig:["slope",x1,y1,x2,y2]}); }},
+  {id:"g-mean",ch:"mathf",name:"Mean (average)",make(){ let v; do{ v=[ri(2,20),ri(2,20),ri(2,20),ri(2,20),ri(2,20)]; }while(v.reduce((a,b)=>a+b)%5!==0);
+    const s=[...v].sort((a,b)=>a-b), mean=v.reduce((a,b)=>a+b)/5, med=s[2], rng=s[4]-s[0];
+    return numQ({q:`Dylan's quiz scores were ${v.join(", ")}. What is the MEAN?`,ans:mean,ds:[med,rng,v.reduce((a,b)=>a+b)],
+      why:`Mean = sum ÷ count = (${v.join(" + ")}) ÷ 5 = ${v.reduce((a,b)=>a+b)} ÷ 5 = <b>${mean}</b>. The median (middle value in order) is ${med}, and the range is ${rng}.`}); }},
+  {id:"g-pct",ch:"mathf",name:"Percent of a number",make(){ const p=pick([10,20,25,30,40,50,75]),n=pick([40,60,80,120,200,240]);
+    return numQ({q:`What is ${p}% of ${n}?`,ans:n*p/100,ds:[n*p/10,n-n*p/100,n/p],
+      why:`Percent means 'out of 100': ${p}% = ${p/100}. Then ${p/100} × ${n} = <b>${fmt(n*p/100)}</b>.`}); }},
+  {id:"g-trap",ch:"mathf",name:"Area of a trapezoid",make(){ const b1=ri(3,8),b2=b1+ri(2,6),h=ri(2,6)*2;
+    return numQ({q:`A trapezoid has parallel bases of ${b1} m and ${b2} m and a height of ${h} m. What is its area?`,ans:(b1+b2)*h/2,ds:[(b1+b2)*h,b1*b2*h,b1*b2/2],u:"m²",
+      why:`A = ½(b₁ + b₂)h = ½ × (${b1} + ${b2}) × ${h} = ½ × ${b1+b2} × ${h} = <b>${(b1+b2)*h/2} m²</b>.`,fig:["trap",b1,b2,h]}); }},
+  // ---------- Science formulas ----------
+  {id:"g-density",ch:"sciform",name:"Density = mass ÷ volume",make(){ const d=pick([2,3,4,5,0.5]),V=pick([4,5,8,10,20]); const m=d*V;
+    return numQ({q:`A rock has a mass of ${fmt(m)} g and a volume of ${V} cm³. What is its density?`,ans:d,ds:[m*V,V/m,m-V],u:"g/cm³",
+      why:`D = m ÷ V = ${fmt(m)} ÷ ${V} = <b>${fmt(d)} g/cm³</b>. ${d<1?"It is less than water (1 g/cm³), so it would FLOAT.":"It is more than water (1 g/cm³), so it SINKS."}`,fig:["ftri","m","D","V"]}); }},
+  {id:"g-speed",ch:"sciform",name:"Speed = distance ÷ time",make(){ const s=ri(2,12),t=pick([4,5,10,20]); const d=s*t;
+    return numQ({q:`A cyclist rides ${d} m in ${t} s. What is the average speed?`,ans:s,ds:[d*t,t/d,d-t],u:"m/s",
+      why:`speed = distance ÷ time = ${d} ÷ ${t} = <b>${s} m/s</b>. The unit 'meters PER second' tells you to divide.`,fig:["ftri","d","s","t"]}); }},
+  {id:"g-dist",ch:"sciform",name:"Distance = speed × time",make(){ const s=pick([40,50,60,65,70]),t=pick([2,3,4,5]);
+    return numQ({q:`A car drives at ${s} km/h for ${t} hours. How far does it go?`,ans:s*t,ds:[s/t,s+t,t/s*100],u:"km",
+      why:`distance = speed × time = ${s} × ${t} = <b>${s*t} km</b>. Cover d in the triangle and s × t is left.`,fig:["ftri","d","s","t"]}); }},
+  {id:"g-fma",ch:"sciform",name:"Force = mass × acceleration",make(){ const m=ri(2,25),a=ri(2,9);
+    return numQ({q:`What net force is needed to accelerate a ${m} kg cart at ${a} m/s²?`,ans:m*a,ds:[m/a,m+a,a/m],u:"N",
+      why:`F = m × a = ${m} × ${a} = <b>${m*a} N</b>. That is Newton's 2nd law.`,fig:["ftri","F","m","a"]}); }},
+  {id:"g-acc",ch:"sciform",name:"Acceleration = change in velocity ÷ time",make(){ const t=pick([2,4,5]),a=ri(2,6),v0=pick([0,0,2,4,10]); const v1=v0+a*t;
+    return numQ({q:`A bike speeds up from ${v0} m/s to ${v1} m/s in ${t} s. What is its acceleration?`,ans:a,ds:[v1/t,(v1-v0)*t,(v1+v0)/t,v1-v0],u:"m/s²",
+      why:`a = (v_final − v_start) ÷ t = (${v1} − ${v0}) ÷ ${t} = ${v1-v0} ÷ ${t} = <b>${a} m/s²</b>.`}); }},
+  {id:"g-work",ch:"sciform",name:"Work = force × distance",make(){ const F=ri(5,60),d=ri(2,10);
+    return numQ({q:`You push a box with ${F} N of force for ${d} m. How much work do you do?`,ans:F*d,ds:[F/d,F+d,F*d/2],u:"J",
+      why:`W = F × d = ${F} × ${d} = <b>${F*d} J</b> (joules).`,fig:["ftri","W","F","d"]}); }},
+  {id:"g-power",ch:"sciform",name:"Power = work ÷ time",make(){ const P=ri(5,50),t=pick([2,4,5,10]); const W=P*t;
+    return numQ({q:`A motor does ${W} J of work in ${t} s. What is its power?`,ans:P,ds:[W*t,t/W,W-t],u:"W",
+      why:`P = W ÷ t = ${W} ÷ ${t} = <b>${P} W</b> (watts = joules per second).`,fig:["ftri","W","P","t"]}); }},
+  {id:"g-ohm",ch:"sciform",name:"Ohm's law: V = I × R",make(){ const I=ri(2,6),R=ri(2,12); const V=I*R; const ask=pick(["I","V"]);
+    if(ask==="I") return numQ({q:`A ${V} V battery is connected to a ${R} Ω resistor. What current flows?`,ans:I,ds:[V*R,R/V,V-R],u:"A",
+      why:`I = V ÷ R = ${V} ÷ ${R} = <b>${I} A</b>.`,fig:["ftri","V","I","R"]});
+    return numQ({q:`A current of ${I} A flows through a ${R} Ω resistor. What is the voltage?`,ans:V,ds:[R/I,I+R,I/R],u:"V",
+      why:`V = I × R = ${I} × ${R} = <b>${V} V</b>.`,fig:["ftri","V","I","R"]}); }},
+  {id:"g-weight",ch:"sciform",name:"Weight = mass × gravity",make(){ const m=pick([5,10,20,30,40,50]);
+    return numQ({q:`What does a ${m} kg object WEIGH on Earth? (g = 9.8 m/s²)`,ans:m*9.8,ds:[m,m/9.8,m+9.8],u:"N",
+      why:`Weight = m × g = ${m} × 9.8 = <b>${fmt(m*9.8)} N</b>. Mass (${m} kg) is NOT the same thing as weight (a force in newtons).`}); }},
+  {id:"g-wave",ch:"sciform",name:"Wave speed = frequency × wavelength",make(){ const f=pick([2,4,5,10,20]),l=pick([0.5,2,3,5,10]);
+    return numQ({q:`A wave has a frequency of ${f} Hz and a wavelength of ${l} m. What is its speed?`,ans:f*l,ds:[f/l,l/f,f+l],u:"m/s",
+      why:`v = f × λ = ${f} × ${l} = <b>${fmt(f*l)} m/s</b>.`,fig:["wave"]}); }},
+  {id:"g-ke",ch:"sciform",name:"Kinetic energy = ½mv²",make(){ const m=pick([2,4,6,10]),v=pick([2,3,4,5,10]);
+    return numQ({q:`A ${m} kg ball moves at ${v} m/s. What is its kinetic energy?`,ans:m*v*v/2,ds:[m*v*v,m*v/2,m*v],u:"J",
+      why:`KE = ½ × m × v² = ½ × ${m} × ${v}² = ½ × ${m} × ${v*v} = <b>${m*v*v/2} J</b>. Remember to square the speed FIRST.`,fig:["coaster"]}); }},
+  {id:"g-pe",ch:"sciform",name:"Potential energy = mgh",make(){ const m=pick([2,5,10]),h=pick([2,3,5,10]);
+    return numQ({q:`A ${m} kg rock sits on a ledge ${h} m high. What is its potential energy? (g = 9.8 m/s²)`,ans:m*9.8*h,ds:[m*h,m*9.8,m*9.8*h/2],u:"J",
+      why:`PE = m × g × h = ${m} × 9.8 × ${h} = <b>${fmt(m*9.8*h)} J</b>.`,fig:["coaster"]}); }},
+  {id:"g-mom",ch:"sciform",name:"Momentum = mass × velocity",make(){ const m=pick([2,5,10,50,60]),v=ri(2,9);
+    return numQ({q:`A ${m} kg object moves at ${v} m/s. What is its momentum?`,ans:m*v,ds:[m/v,m*v*v/2,m+v],u:"kg·m/s",
+      why:`p = m × v = ${m} × ${v} = <b>${m*v} kg·m/s</b>.`}); }},
+  {id:"g-press",ch:"sciform",name:"Pressure = force ÷ area",make(){ const P=pick([5,10,20,25,50]),A=pick([2,4,5,10]); const F=P*A;
+    return numQ({q:`A ${F} N force pushes on an area of ${A} m². What is the pressure?`,ans:P,ds:[F*A,A/F,F-A],u:"Pa",
+      why:`P = F ÷ A = ${F} ÷ ${A} = <b>${P} Pa</b> (pascals = N/m²).`,fig:["ftri","F","P","A"]}); }},
+  {id:"g-temp",ch:"sciform",name:"Celsius to Fahrenheit",make(){ const c=pick([0,10,20,25,30,35,40,100,-10]); const f=c*9/5+32;
+    return numQ({q:`Convert ${c} °C to Fahrenheit.`,ans:f,ds:[c*9/5,c+32,(c-32)*5/9],u:"°F",
+      why:`°F = (9/5 × °C) + 32 = (1.8 × ${c}) + 32 = ${fmt(c*1.8)} + 32 = <b>${fmt(f)} °F</b>. Don't forget to add the 32.`,fig:["thermo",c]}); }}
+];
+const GENM = Object.fromEntries(GEN.map(g=>[g.id,g]));
+
+// ================= FORMULA VAULT (study cards) =================
+const VAULT = [
+  ["mathf","Pythagorean theorem","a² + b² = c²","a, b = legs · c = hypotenuse (right triangles only)","3, 4 → c = √25 = 5"],
+  ["mathf","Perimeter of a rectangle","P = 2l + 2w","l = length · w = width","7 by 3 → 20"],
+  ["mathf","Area of a rectangle","A = l × w","answer in square units","7 by 3 → 21 units²"],
+  ["mathf","Area of a square","A = s²","s = side","s = 5 → 25"],
+  ["mathf","Area of a triangle","A = ½ × b × h","b = base · h = height (straight up)","b 8, h 5 → 20"],
+  ["mathf","Area of a parallelogram","A = b × h","use the straight-up height","b 8, h 4 → 32"],
+  ["mathf","Area of a trapezoid","A = ½(b₁ + b₂) × h","b₁, b₂ = parallel sides","6, 10, h 4 → 32"],
+  ["mathf","Circumference","C = 2πr = πd","r = radius · d = diameter = 2r · π ≈ 3.14","r 5 → 31.4"],
+  ["mathf","Area of a circle","A = πr²","square the RADIUS","r 5 → 78.5"],
+  ["mathf","Volume of a rectangular prism","V = l × w × h","answer in cubic units","4·3·2 → 24 units³"],
+  ["mathf","Volume of a cube","V = s³","s = side","s 3 → 27"],
+  ["mathf","Volume of a cylinder","V = πr²h","circle area × height","r 3, h 5 → 141.3"],
+  ["mathf","Volume of a cone","V = ⅓πr²h","one-third of a cylinder","r 3, h 5 → 47.1"],
+  ["mathf","Surface area of a box","SA = 2(lw + lh + wh)","add the area of all 6 faces","4·3·2 → 52"],
+  ["mathf","Angles","triangle = 180° · quadrilateral = 360°","polygon: (n − 2) × 180°","pentagon → 540°"],
+  ["mathf","Slope","m = (y₂ − y₁) ÷ (x₂ − x₁)","rise over run","(1,1),(4,7) → 2"],
+  ["mathf","Line equation","y = mx + b","m = slope · b = y-intercept","y = 2x + 1"],
+  ["mathf","Mean · Median · Mode · Range","mean = sum ÷ count","median = middle · mode = most often · range = max − min","2,4,9 → mean 5"],
+  ["mathf","Percent","part = percent × whole","25% = 0.25","25% of 80 = 20"],
+  ["mathf","Simple interest","I = P × r × t","principal × rate × time","$100, 5%, 2 yr → $10"],
+  ["sciform","Density","D = m ÷ V","g/cm³ · water = 1 g/cm³ (less floats)","60 g ÷ 20 cm³ = 3"],
+  ["sciform","Speed","s = d ÷ t","m/s or km/h","100 m ÷ 20 s = 5 m/s"],
+  ["sciform","Velocity","v = d ÷ t + direction","speed with a direction","5 m/s north"],
+  ["sciform","Acceleration","a = (v_f − v_i) ÷ t","m/s²","0→20 m/s in 5 s → 4"],
+  ["sciform","Newton's 2nd law","F = m × a","newtons (N) = kg·m/s²","10 kg × 2 → 20 N"],
+  ["sciform","Weight","W = m × g","g = 9.8 m/s² on Earth","10 kg → 98 N"],
+  ["sciform","Momentum","p = m × v","kg·m/s","2 kg × 3 m/s → 6"],
+  ["sciform","Work","W = F × d","joules (J) = N·m","10 N × 5 m → 50 J"],
+  ["sciform","Power","P = W ÷ t","watts (W) = J/s","100 J ÷ 4 s → 25 W"],
+  ["sciform","Kinetic energy","KE = ½ m v²","energy of motion","2 kg at 3 m/s → 9 J"],
+  ["sciform","Potential energy","PE = m g h","stored energy from height","2 kg, 5 m → 98 J"],
+  ["sciform","Ohm's law","V = I × R","volts = amps × ohms","12 V ÷ 4 Ω → 3 A"],
+  ["sciform","Electric power","P = V × I","watts = volts × amps","120 V × 2 A → 240 W"],
+  ["sciform","Wave speed","v = f × λ","m/s = Hz × m","5 Hz × 2 m → 10 m/s"],
+  ["sciform","Pressure","P = F ÷ A","pascals (Pa) = N/m²","100 N ÷ 4 m² → 25 Pa"],
+  ["sciform","Temperature","°F = 9/5·°C + 32 · K = °C + 273","°C = (°F − 32) × 5/9","100 °C = 212 °F = 373 K"],
+  ["sciform","Mechanical advantage","MA = output force ÷ input force","how much a machine multiplies force","500 N ÷ 100 N → 5"],
+  ["sciform","Percent error","|measured − real| ÷ real × 100","how far off a measurement was","9.5 vs 10 → 5%"]
+];
+// ================= SAVE DATA =================
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY="dylan-science-quest-v1";
+const DEF=()=>({name:"Dylan",xp:0,score:0,games:0,q:{},miss:{},hist:[],days:[],sound:true,book:{},bosses:{},best:{},sel:[],examBest:0});
+let P=DEF();
+try{ const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) P=Object.assign(DEF(),s); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(P)); }catch(e){} }
+const st=id=>P.q[id]||(P.q[id]={c:0,w:0,s:0});
+const peek=id=>P.q[id]||{c:0,w:0,s:0};
+const mastered=id=>peek(id).s>=2;
+
+// ================= ITEMS =================
+const ITEMS=[...BANK.map(b=>({id:b.id,ch:b.ch,kind:"bank",b})),...GEN.map(g=>({id:g.id,ch:g.ch,kind:"gen",g}))];
+const ITM=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+const BYCH=Object.fromEntries(CH.map(c=>[c.id,ITEMS.filter(i=>i.ch===c.id)]));
+const shuffle=a=>{ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+function build(item){
+  const base=item.kind==="bank"?{q:item.b.q,a:item.b.a,d:item.b.d,why:item.b.why,fig:item.b.fig}:item.g.make();
+  const opts=shuffle([base.a,...base.d]);
+  return {id:item.id,ch:item.ch,q:base.q,opts,ans:opts.indexOf(base.a),aText:base.a,why:base.why,svg:fig(base.fig)};
+}
+function reshuffle(rq){ const o=shuffle(rq.opts.slice()); return Object.assign({},rq,{opts:o,ans:o.indexOf(rq.aText)}); }
+function weight(id){ const s=peek(id); if(s.c+s.w===0) return 4; if(s.s>=2) return 1; if(s.w>0) return 5; return 3; }
+function pickItems(pool,n){ const left=pool.slice(), out=[];
+  while(out.length<n&&left.length){ const tot=left.reduce((a,i)=>a+weight(i.id),0); let r=Math.random()*tot, k=0;
+    for(;k<left.length;k++){ r-=weight(left[k].id); if(r<=0) break; } out.push(left.splice(Math.min(k,left.length-1),1)[0]); }
+  return out; }
+function chStats(ch){ const its=BYCH[ch]; let seen=0,mast=0,c=0,w=0;
+  its.forEach(i=>{const s=peek(i.id); if(s.c+s.w>0) seen++; if(s.s>=2) mast++; c+=s.c; w+=s.w;});
+  const acc=c+w?Math.round(c/(c+w)*100):null, cov=Math.round(seen/its.length*100), mp=Math.round(mast/its.length*100);
+  let status="new"; if(seen>0) status="prog"; if(acc!==null&&c+w>=3&&acc<60) status="weak"; if(mp>=80) status="done";
+  return {total:its.length,seen,mast,c,w,acc,cov,mp,status}; }
+const STATUS={new:"Not started",prog:"In progress",weak:"Needs work",done:"Mastered"};
+function weakItems(){ return ITEMS.filter(i=>{const s=peek(i.id); return s.w>0&&s.s<2;}).sort((a,b)=>peek(b.id).w-peek(a.id).w); }
+function weakChapters(){ return CH.map(c=>({c,s:chStats(c.id)})).filter(x=>x.s.acc!==null&&x.s.c+x.s.w>=3).sort((a,b)=>a.s.acc-b.s.acc); }
+const where=ch=>{ const c=CHM[ch]; return `Chapter ${c.n} · ${esc(c.name)}${P.book[ch]?` · Book: ${esc(P.book[ch])}`:""}`; };
+
+// ================= RANKS / XP / DAYS =================
+const RANKS=[[0,"Lab Cadet"],[100,"Junior Scientist"],[300,"Lab Explorer"],[600,"Formula Finder"],[1000,"Science Ranger"],[1500,"Physics Pilot"],[2200,"Zombie-Proof Biologist"],[3000,"Dragon Tamer of Chemistry"],[4000,"Star Navigator"],[5500,"Grand Science Master"]];
+function rank(){ let i=0; RANKS.forEach((r,k)=>{ if(P.xp>=r[0]) i=k; }); const nx=RANKS[i+1]; return {i,name:RANKS[i][1],next:nx?nx[0]:null,from:RANKS[i][0]}; }
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+function dayStreak(){ const set=new Set(P.days); let n=0; const d=new Date(); if(!set.has(today())) d.setDate(d.getDate()-1);
+  for(;;){ const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); if(set.has(k)){n++;d.setDate(d.getDate()-1);} else break; } return n; }
+const masteredChapters=()=>CH.filter(c=>chStats(c.id).status==="done").length;
+const overallMastery=()=>Math.round(ITEMS.filter(i=>mastered(i.id)).length/ITEMS.length*100);
+
+// ================= SOUND / FX =================
+let AC=null;
+function tone(seq){ if(!P.sound) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); let t=AC.currentTime;
+  seq.forEach(([f,d,type,vol])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||"triangle";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.16,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02);t+=d*.8;}); }catch(e){} }
+const sfx={good:()=>tone([[660,.12],[880,.18]]),bad:()=>tone([[220,.18,"sawtooth",.1],[170,.25,"sawtooth",.1]]),win:()=>tone([[523,.12],[659,.12],[784,.12],[1047,.3]]),
+  click:()=>tone([[500,.05,"triangle",.08]]),laser:()=>tone([[1200,.06,"square",.04],[700,.06,"square",.03]]),boom:()=>tone([[140,.2,"sawtooth",.14],[90,.25,"square",.08]]),hit:()=>tone([[300,.08,"square",.1],[600,.12,"square",.1]])};
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+let parts=[],fraf=0;
+function confetti(n){ if(reduce) return; const fx=$("#fx"); fx.width=innerWidth; fx.height=innerHeight; const cols=["#ffc23d","#5be49b","#4fd8ff","#f78fd6","#ff8a65"];
+  for(let i=0;i<n;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*240,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:Math.random()*6+4,c:cols[i%5],a:Math.random()*6,life:120});
+  if(!fraf) floop(); }
+function floop(){ const fx=$("#fx"),c=fx.getContext("2d"); c.clearRect(0,0,fx.width,fx.height);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.a+=.2;p.life--;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);c.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<fx.height+20); fraf=parts.length?requestAnimationFrame(floop):0; if(!fraf) c.clearRect(0,0,fx.width,fx.height); }
+function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+
+// ================= SHELL =================
+let tab="play", G=null;
+const TABS=[["play","Play"],["dash","Dashboard"],["notebook","Mistake Notebook"],["vault","Formula Vault"],["settings","Settings"]];
+function renderStats(){ const r=rank();
+  $("#stats").innerHTML=`<span class="chip" title="Rank">🎖️ <b>${esc(r.name)}</b></span><span class="chip">⭐ <b>${P.xp.toLocaleString()}</b> XP</span><span class="chip" title="Days in a row">🔥 <b>${dayStreak()}</b> day${dayStreak()===1?"":"s"}</span><span class="chip" title="Chapters mastered">🏆 <b>${masteredChapters()}</b>/16</span>`; }
+function renderTabs(){ $("#tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${tab===k&&!G}" data-tab="${k}">${l}</button>`).join(""); }
+function render(){ renderStats(); renderTabs(); ({play:renderPlay,dash:renderDash,notebook:renderNotebook,vault:renderVault,settings:renderSettings})[tab](); }
+function goTab(k){ leaveGame(); tab=k; render(); window.scrollTo({top:0}); }
+function leaveGame(){ if(G&&G.stop) G.stop(); G=null; }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-tab]"); if(b){ sfx.click(); goTab(b.dataset.tab); } });
+
+// ================= PLAY (home) =================
+const MODES=[
+  {id:"quest",pic:"🗺️",title:"Quest Run",desc:"10 questions from the chapters you pick. One 50/50 power-up.",cls:""},
+  {id:"blaster",pic:"☄️",title:"Meteor Blaster",desc:"Answers fall from space as meteors. Shoot the right one before it lands!",cls:""},
+  {id:"boss",pic:"🐉",title:"Boss Battles",desc:"Every chapter has a dragon or zombie boss. Right answers are your attacks.",cls:""},
+  {id:"lightning",pic:"⚡",title:"Lightning Round",desc:"60 seconds. Every right answer adds 2 seconds. How many can you get?",cls:""},
+  {id:"forge",pic:"📐",title:"Formula Forge",desc:"Math and science formulas with fresh numbers every time.",cls:""},
+  {id:"weak",pic:"💪",title:"Weakness Gym",desc:"Only the questions you missed and your weakest chapters.",cls:"hot"},
+  {id:"exam",pic:"🎓",title:"Practice Exam",desc:"32 questions, 2 from every chapter. No hints. Pass mark is 70%.",cls:"exam"}
+];
+function selChapters(){ return P.sel&&P.sel.length?P.sel:CH.map(c=>c.id); }
+function renderPlay(){
+  const r=rank(), pct=r.next?Math.round((P.xp-r.from)/(r.next-r.from)*100):100, mc=masteredChapters(), om=overallMastery();
+  const weak=weakItems().length, wc=weakChapters()[0];
+  const unstarted=CH.find(c=>chStats(c.id).seen===0);
+  const sugg=wc&&wc.s.acc<70?{c:wc.c,why:`your lowest score (${wc.s.acc}% correct)`}:unstarted?{c:unstarted,why:"you haven't started it yet"}:null;
+  $("#app").innerHTML=`
+  <section class="panel hero">
+    <div class="stack" style="gap:8px">
+      <span class="label">Mission control</span>
+      <h2>Ready for a quest, ${esc(P.name)}?</h2>
+      <p>Final goal: master all 16 chapters of science and formulas. Get a question right twice in a row to master it. Anything you miss comes back at the end of the game for a Second Chance, with the answer explained.</p>
+      <div class="bar" aria-label="Rank progress"><span style="width:${pct}%"></span></div>
+      <span class="small muted">Rank ${r.i+1}: <b>${esc(r.name)}</b>${r.next?` · ${r.next-P.xp} XP to the next rank`:" · top rank!"}</span>
+      ${sugg?`<div class="row" style="margin-top:6px"><button class="btn cyan sm" data-quick="${sugg.c.id}">Train ${sugg.c.icon} ${esc(sugg.c.name)}</button><span class="small muted">Suggested because ${sugg.why}.</span></div>`:""}
+    </div>
+    <div class="goal" aria-label="${mc} of 16 chapters mastered">${ring(om,`${mc}/16`,"chapters")}</div>
+  </section>
+  <section class="panel stack">
+    <div class="sechead"><h2>Pick chapters</h2><span class="small muted">Used by Quest Run, Meteor Blaster and Lightning Round. Leave all off to mix every chapter.</span></div>
+    <div class="chpick" id="chpick">${CH.map(c=>`<button class="chchip" style="--c:${c.c}" data-ch="${c.id}" aria-pressed="${P.sel.includes(c.id)}">${c.icon} ${c.n}. ${esc(c.name)}</button>`).join("")}</div>
+    <div class="row"><button class="btn ghost sm" id="chall">Mix all chapters</button><span class="small muted" id="chcount">${P.sel.length?P.sel.length+" chapter"+(P.sel.length>1?"s":"")+" picked":"All 16 chapters mixed"}</span></div>
+  </section>
+  <div class="sechead"><h2>Choose a game</h2></div>
+  <section class="modes">${MODES.map(m=>{ let tag=""; if(m.id==="weak") tag=weak?`${weak} question${weak>1?"s":""} to fix`:"Nothing missed yet"; else if(m.id==="exam") tag=P.examBest?`Best: ${P.examBest}%`:""; else if(m.id==="boss") tag=`${Object.keys(P.bosses).length}/${CH.length+1} bosses beaten`; else if(P.best[m.id]) tag="Best: "+P.best[m.id].toLocaleString();
+    return `<button class="mode ${m.cls}" data-mode="${m.id}" ${m.id==="weak"&&!weak&&!wc?"disabled":""}><span class="pic" aria-hidden="true">${m.pic}</span><h3>${m.title}</h3><p>${m.desc}</p>${tag?`<span class="tag">${tag}</span>`:""}</button>`; }).join("")}</section>`;
+  $("#chpick").onclick=e=>{ const b=e.target.closest("[data-ch]"); if(!b) return; const id=b.dataset.ch; P.sel=P.sel.includes(id)?P.sel.filter(x=>x!==id):[...P.sel,id]; save(); sfx.click(); renderPlay(); };
+  $("#chall").onclick=()=>{ P.sel=[]; save(); renderPlay(); };
+  $$("[data-mode]").forEach(b=>b.onclick=()=>{ sfx.click(); launch(b.dataset.mode); });
+  $$("[data-quick]").forEach(b=>b.onclick=()=>briefing({mode:"quest",chs:[b.dataset.quick],title:"Quest Run"}));
+}
+function ring(p,big,small){ const r=52,c=2*Math.PI*r;
+  return `<svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="${r}" fill="none" stroke="#193049" stroke-width="12"/>${p>0?`<circle cx="66" cy="66" r="${r}" fill="none" stroke="#5be49b" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c*p/100} ${c}" transform="rotate(-90 66 66)"/>`:""}
+  <text x="66" y="64" text-anchor="middle" style="font:400 26px var(--f-display);fill:var(--text)">${big}</text><text x="66" y="84" text-anchor="middle" style="font:800 11px var(--f-body);fill:var(--muted)">${small}</text><text x="66" y="100" text-anchor="middle" style="font:800 11px var(--f-body);fill:var(--good)">${p}% mastered</text></svg>`; }
+
+function launch(mode){
+  const chs=selChapters();
+  if(mode==="quest") return briefing({mode,chs,title:"Quest Run"});
+  if(mode==="lightning") return briefing({mode,chs,title:"Lightning Round"});
+  if(mode==="blaster") return briefing({mode,chs,title:"Meteor Blaster"});
+  if(mode==="forge") return briefing({mode,chs:["mathf","sciform"],title:"Formula Forge"});
+  if(mode==="exam") return briefing({mode,chs:CH.map(c=>c.id),title:"Practice Exam"});
+  if(mode==="weak"){ const wi=weakItems(); let chs=[...new Set([...wi.map(i=>i.ch),...weakChapters().filter(x=>x.s.acc<70).map(x=>x.c.id)])];
+    if(!chs.length) chs=weakChapters().slice(0,2).map(x=>x.c.id); if(!chs.length){ toast("Nothing to fix yet. Play a game first!"); return; } return briefing({mode,chs,title:"Weakness Gym"}); }
+  if(mode==="boss") return bossMenu();
+}
+
+// ---- briefing: shows which chapters this game covers ----
+function briefing(cfg){
+  leaveGame(); G={briefing:true}; renderTabs();
+  const rules={quest:"10 questions. Correct = 100 points plus a streak bonus. One 50/50 power-up.",lightning:"60 seconds on the clock. Every right answer adds 2 seconds.",
+    blaster:"Shoot the meteor with the right letter. Tap a meteor, press 1–4 or A–D, or use ← → and Space. 3 shields.",forge:"10 formula problems. The numbers change every time, so you have to really use the formula.",
+    exam:"32 questions, 2 from every chapter. No hints and no feedback until the end, just like the real test.",weak:"10 questions you missed before, plus questions from your weakest chapters."};
+  $("#app").innerHTML=`<section class="panel stack">
+    <span class="label">Mission briefing</span><h2>${cfg.title}</h2><p style="margin:0">${rules[cfg.mode]||""}</p>
+    <div class="stack" style="gap:8px"><span class="label">This game covers</span><div class="chpick">${cfg.chs.map(id=>{const c=CHM[id];return `<span class="chchip" style="--c:${c.c}" aria-pressed="true">${c.icon} ${c.n}. ${esc(c.name)}</span>`;}).join("")}</div></div>
+    <p class="small muted" style="margin:0">Missed questions are not shown during the game. At the end you get a Second Chance at each one, then the full explanation with a diagram.</p>
+    <div class="row"><button class="btn" id="go">Start</button><button class="btn ghost" data-tab="play">Back</button></div></section>`;
+  $("#go").onclick=()=>{ sfx.click(); cfg.mode==="blaster"?startBlaster(cfg):startQuiz(cfg); };
+  $("#go").focus();
+}
+
+// ================= QUIZ ENGINE =================
+function makeList(cfg){
+  const pool=cfg.chs.flatMap(id=>BYCH[id]);
+  if(cfg.mode==="exam") return CH.flatMap(c=>pickItems(BYCH[c.id],2)).sort(()=>Math.random()-.5);
+  if(cfg.mode==="weak"){ const wi=weakItems().slice(0,10); const rest=pickItems(pool.filter(i=>!wi.includes(i)&&!mastered(i.id)),10-wi.length); return shuffle([...wi,...rest]); }
+  if(cfg.mode==="lightning") return pickItems(pool,pool.length);
+  if(cfg.mode==="boss") return pickItems(pool,pool.length);
+  return pickItems(pool,Math.min(10,pool.length));
+}
+function newGame(cfg){ const list=makeList(cfg).map(build);
+  return Object.assign({mode:cfg.mode,title:cfg.title,chs:cfg.chs,list,i:0,score:0,streak:0,bestStreak:0,log:[],answered:false,fifty:cfg.mode==="quest"?1:0,removed:[]},cfg.extra||{}); }
+function startQuiz(cfg){
+  G=newGame(cfg);
+  if(cfg.mode==="lightning"){ G.time=60; G.tick=setInterval(()=>{ if(!G||G.mode!=="lightning") return; G.time=Math.max(0,G.time-.1); const t=$("#timer"); if(t) t.textContent=G.time.toFixed(1)+"s"; if(G.time<=0){ clearInterval(G.tick); finish(); } },100); G.stop=()=>clearInterval(G.tick); }
+  G.t0=Date.now(); renderQ();
+}
+function record(rq,pick,ok){
+  const s=st(rq.id); if(ok){ s.c++; s.s++; } else { s.w++; s.s=0; P.miss[rq.id]={q:rq.q,a:rq.aText,why:rq.why,svg:rq.svg,t:Date.now()}; }
+  if(ok&&s.s>=2&&P.miss[rq.id]) delete P.miss[rq.id];
+  G.log.push({rq,pick,ok}); save();
+}
+function dotsHTML(){ if(G.mode==="lightning"||G.mode==="boss") return "";
+  return `<div class="dots" aria-hidden="true">${G.list.map((_,k)=>{const l=G.log[k];return `<i class="${l?(l.ok?"ok":"no"):(k===G.i?"now":"")}"></i>`;}).join("")}</div>`; }
+function optsHTML(rq,opts){ return `<div class="options" id="opts">${rq.opts.map((o,k)=>`<button class="opt ${opts&&opts[k]||""}" data-o="${k}" ${G.answered?"disabled":""}><span class="k">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`).join("")}</div>`; }
+function chtag(ch){ const c=CHM[ch]; return `<span class="chtag" style="--c:${c.c}">${c.icon} Ch. ${c.n} · ${esc(c.name)}</span>`; }
+function renderQ(){
+  const rq=G.list[G.i]; if(!rq) return finish(); G.answered=false; G.removed=[];
+  const top=G.mode==="lightning"?`<span class="timer" id="timer" aria-live="off">${G.time.toFixed(1)}s</span>`:`<span class="small muted">Question ${G.i+1} of ${G.list.length}</span>`;
+  $("#app").innerHTML=`${G.mode==="boss"?arenaHTML():""}<section class="panel stack" style="gap:16px">
+    <div class="gamebar"><span class="label">${esc(G.title)}</span>${top}<span class="streak">${G.streak>=2?"🔥 "+G.streak+" streak":""}</span><span class="chip">Score <b>${G.score.toLocaleString()}</b></span></div>
+    ${dotsHTML()}
+    <div>${chtag(rq.ch)}</div>
+    <div class="qtext">${esc(rq.q)}</div>
+    ${optsHTML(rq)}
+    <div class="helpers">${G.mode==="quest"?`<button id="fifty" ${G.fifty?"":"disabled"}>✂️ 50/50 (${G.fifty} left)</button>`:""}<button id="quit">Quit game</button></div>
+    <div id="fb" aria-live="polite"></div></section>`;
+  bindQ(rq);
+}
+function bindQ(rq){
+  $("#opts").onclick=e=>{ const b=e.target.closest("[data-o]"); if(b&&!b.disabled) answer(+b.dataset.o); };
+  const f=$("#fifty"); if(f) f.onclick=()=>{ if(!G.fifty||G.answered) return; G.fifty--; const wrong=shuffle(rq.opts.map((_,k)=>k).filter(k=>k!==rq.ans)).slice(0,2); G.removed=wrong;
+    wrong.forEach(k=>{const b=$(`[data-o="${k}"]`); b.classList.add("gone"); b.disabled=true;}); f.disabled=true; f.textContent="✂️ 50/50 used"; };
+  $("#quit").onclick=()=>{ if(G.log.length) finish(true); else goTab("play"); };
+}
+function answer(k){
+  if(!G||G.answered||G.done) return; const rq=G.list[G.i]; G.answered=true; const ok=k===rq.ans; record(rq,k,ok);
+  let pts=0; if(ok){ G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak); pts=(G.mode==="lightning"?50:100)+Math.min(G.streak-1,10)*10; if(G.removed.length) pts=Math.round(pts/2); G.score+=pts; } else G.streak=0;
+  ok?sfx.good():sfx.bad();
+  const btns=$$(".opt"); btns.forEach(b=>b.disabled=true);
+  btns[k].classList.add(G.mode==="exam"?"picked":ok?"correct":"wrong");
+  if(G.mode==="exam"){ setTimeout(next,280); return; }
+  if(G.mode==="lightning"){ if(ok) G.time+=2; setTimeout(next,ok?450:800); return; }
+  if(G.mode==="boss") bossHit(ok);
+  const fb=$("#fb");
+  if(ok) fb.innerHTML=`<div class="feedback good"><h3>Correct! +${pts}</h3><p>${rq.why}</p>${rq.svg?`<div class="qfig">${rq.svg}</div>`:""}<div class="row"><button class="btn" id="nx">${G.over?"See results":"Next"}</button></div></div>`;
+  else fb.innerHTML=`<div class="feedback bad"><h3>Not this time.</h3><p>This one is saved for your <b>Second Chance</b> at the end of the game. Think about it, because you'll get to try again before you see the answer.</p><div class="row"><button class="btn" id="nx">${G.over?"See results":"Next"}</button></div></div>`;
+  $("#nx").onclick=next; $("#nx").focus({preventScroll:true});
+}
+function next(){ if(!G||G.done) return; if(G.over) return finish(); G.i++; if(G.mode==="lightning"&&G.i>=G.list.length){ G.list.push(...makeList(G).map(build)); } if(G.i>=G.list.length) return finish(); renderQ(); }
+document.addEventListener("keydown",e=>{
+  if(!G||G.blaster||e.target.matches("input,textarea")) return;
+  const m={"1":0,"2":1,"3":2,"4":3,a:0,b:1,c:2,d:3}[e.key.toLowerCase()];
+  if(G.retry){ if(m!==undefined&&!G.retry.answered) retryAnswer(m); else if(e.key==="Enter"&&$("#rnx")){ e.preventDefault(); $("#rnx").click(); } return; }
+  if(G.list&&!G.answered&&m!==undefined){ const b=$(`[data-o="${m}"]`); if(b&&!b.disabled) answer(m); }
+  else if(e.key==="Enter"&&$("#nx")){ e.preventDefault(); $("#nx").click(); }
+});
+
+// ================= BOSS =================
+const FINAL={id:"final",name:"Dragon Zombie King",pic:"🐲",hp:10};
+function bossMenu(){
+  leaveGame(); G={briefing:true}; renderTabs();
+  const card=(id,name,pic,sub,beaten)=>`<button class="mode" data-boss="${id}"><span class="pic" aria-hidden="true">${pic}</span><h3>${esc(name)}</h3><p>${sub}</p>${beaten?`<span class="tag">✔ Defeated</span>`:""}</button>`;
+  $("#app").innerHTML=`<section class="panel stack"><span class="label">Boss Battles</span><h2>Choose your boss</h2>
+    <p style="margin:0">Each right answer hits the boss. A streak of 3 or more lands a <b>critical hit</b> for double damage. A wrong answer costs one of your 3 hearts. Beat every chapter boss, then face the Dragon Zombie King.</p>
+    <div class="modes">${CH.map(c=>card(c.id,c.boss[0],c.boss[1],`Ch. ${c.n}: ${esc(c.name)}`,P.bosses[c.id])).join("")}${card("final",FINAL.name,FINAL.pic,"Final boss · questions from ALL chapters · 10 HP",P.bosses.final)}</div>
+    <div><button class="btn ghost" data-tab="play">Back</button></div></section>`;
+  $$("[data-boss]").forEach(b=>b.onclick=()=>{ const id=b.dataset.boss; sfx.click();
+    if(id==="final") startQuiz({mode:"boss",chs:CH.map(c=>c.id),title:"Boss: "+FINAL.name,extra:{boss:{id,name:FINAL.name,pic:FINAL.pic,hp:FINAL.hp,max:FINAL.hp},hearts:3}});
+    else { const c=CHM[id]; startQuiz({mode:"boss",chs:[id],title:"Boss: "+c.boss[0],extra:{boss:{id,name:c.boss[0],pic:c.boss[1],hp:6,max:6},hearts:3}}); } });
+}
+function arenaHTML(){ const B=G.boss;
+  return `<section class="panel arena" aria-label="Boss battle"><div class="fighter"><span class="pic" id="mepic" aria-hidden="true">🧑‍🚀</span><span class="nm">${esc(P.name)}</span><span class="hearts" aria-label="${G.hearts} hearts">${"❤️".repeat(G.hearts)}${"🖤".repeat(3-G.hearts)}</span></div>
+  <span class="vs">VS</span><div class="fighter"><span class="pic" id="bosspic" aria-hidden="true">${B.pic}</span><span class="nm">${esc(B.name)}</span><div class="hp" aria-label="Boss HP ${B.hp} of ${B.max}"><span style="width:${B.hp/B.max*100}%"></span></div></div></section>`; }
+function bossHit(ok){ const B=G.boss;
+  let dmg=0; if(ok){ dmg=G.streak>=3?2:1; B.hp=Math.max(0,B.hp-dmg); sfx.hit(); if(dmg>1) toast("CRITICAL HIT! Double damage!"); } else G.hearts--;
+  const a=document.querySelector(".arena"); if(a) a.outerHTML=arenaHTML();
+  const p=$(ok?"#bosspic":"#mepic"); if(p) p.classList.add(ok?"hitboss":"hitme");
+  if(B.hp<=0){ G.over=true; G.won=true; } else if(G.hearts<=0){ G.over=true; }
+}
+
+// ================= FINISH / RESULTS =================
+function finish(quit){
+  if(!G||G.done) return; if(G.stop) G.stop(); G.done=true; G.answered=true;
+  const right=G.log.filter(l=>l.ok).length, total=G.log.length, acc=total?Math.round(right/total*100):0;
+  let bonus=0;
+  if(G.mode==="boss"&&G.won){ bonus=G.boss.id==="final"?1500:500; if(!P.bosses[G.boss.id]) toast("Boss defeated! Trophy unlocked."); P.bosses[G.boss.id]=true; }
+  if(G.mode==="exam"&&!quit) P.examBest=Math.max(P.examBest||0,acc);
+  G.score+=bonus;
+  const before=rank().i;
+  P.score+=G.score; P.xp+=Math.round(G.score/10)+total*2; P.games++; if(!P.days.includes(today())) P.days.push(today());
+  P.best[G.mode]=Math.max(P.best[G.mode]||0,G.score);
+  P.hist.unshift({d:Date.now(),m:G.title,s:G.score,r:right,t:total}); P.hist=P.hist.slice(0,40); save();
+  const lvUp=rank().i>before;
+  G.missed=G.log.filter(l=>!l.ok);
+  const per={}; G.log.forEach(l=>{ const o=per[l.rq.ch]||(per[l.rq.ch]={r:0,t:0}); o.t++; if(l.ok) o.r++; });
+  const title=G.mode==="boss"?(G.won?"Boss defeated!":"The boss won this time"):G.mode==="exam"?(acc>=70?"You passed!":"Not passing yet"):acc===100&&total?"Perfect game!":acc>=80?"Awesome work!":acc>=60?"Good effort!":"Keep training!";
+  renderStats(); renderTabs();
+  $("#app").innerHTML=`<section class="panel stack" style="gap:16px">
+    <span class="label">${esc(G.title)} · results</span>
+    <div class="row" style="gap:24px;align-items:flex-end"><div><div class="big">${G.score.toLocaleString()}</div><span class="small muted">points${bonus?` (includes +${bonus} boss bonus)`:""}</span></div>
+      <div><div class="big" style="color:${acc>=70?"var(--good)":"var(--bad)"}">${acc}%</div><span class="small muted">${right} of ${total} correct${G.mode==="exam"?" · pass mark 70%":""}</span></div></div>
+    <h2>${title}</h2>
+    ${lvUp?`<div class="feedback good"><h3>Rank up! You are now a ${esc(rank().name)}.</h3></div>`:""}
+    <div class="stack" style="gap:8px"><span class="label">Chapters in this game</span>
+      <div class="tablewrap"><table class="hist"><thead><tr><th>Chapter</th><th>Right</th><th>Result</th></tr></thead><tbody>
+      ${Object.entries(per).map(([ch,o])=>`<tr><td>${CHM[ch].icon} ${CHM[ch].n}. ${esc(CHM[ch].name)}</td><td>${o.r} / ${o.t}</td><td>${o.r===o.t?`<span class="pill done">Got it</span>`:`<span class="pill weak">Review</span>`}</td></tr>`).join("")}
+      </tbody></table></div></div>
+    ${G.missed.length?`<div class="feedback info"><h3>${G.missed.length} question${G.missed.length>1?"s":""} to review</h3><p>Try ${G.missed.length>1?"each one":"it"} once more. After your second try you'll see the right answer, where it is in the book, and why.</p>
+      <div class="row"><button class="btn" id="retry">Start Second Chance</button><button class="btn ghost" id="showall">Just show me the answers</button></div></div>`
+      :`<div class="feedback good"><h3>No mistakes to review!</h3><p>Every answer was right. Questions you get right twice in a row count as mastered.</p></div>`}
+    <div class="row"><button class="btn ${G.missed.length?"ghost":""}" id="again">Play again</button><button class="btn ghost" data-tab="dash">Dashboard</button><button class="btn ghost" data-tab="play">Home</button></div></section>`;
+  if(!G.missed.length&&total) { sfx.win(); confetti(140); } else if(G.won){ sfx.win(); confetti(160); }
+  const cfg={mode:G.mode,chs:G.chs,title:G.title,boss:G.boss};
+  $("#again").onclick=()=>{ if(cfg.mode==="boss") return bossMenu(); if(cfg.mode==="weak") return launch("weak"); briefing(cfg); };
+  if(G.missed.length){ $("#retry").onclick=startRetry; $("#showall").onclick=()=>recap(true); $("#retry").focus({preventScroll:true}); }
+  window.scrollTo({top:0});
+}
+
+// ================= SECOND CHANCE =================
+function startRetry(){ G.retry={list:G.missed.map(l=>({first:l.pick,rq:reshuffleKeep(l.rq,l.pick)})),i:0,res:[]}; renderRetry(); }
+function reshuffleKeep(rq,pick){ const r=reshuffle(rq); r.firstText=pick==null?null:rq.opts[pick]; return r; }
+function renderRetry(){
+  const R=G.retry, it=R.list[R.i]; if(!it) return recap(false); R.answered=false; const rq=it.rq;
+  $("#app").innerHTML=`<section class="panel stack" style="gap:16px">
+    <div class="gamebar"><span class="label">Second Chance · ${R.i+1} of ${R.list.length}</span><span class="small muted">The answers are in a new order.</span></div>
+    <div>${chtag(rq.ch)}</div><div class="qtext">${esc(rq.q)}</div>
+    ${rq.firstText?`<p class="small muted" style="margin:0">Your first answer was <b>${esc(rq.firstText)}</b>. That one isn't right.</p>`:`<p class="small muted" style="margin:0">Last time this meteor reached the ground before you answered.</p>`}
+    <div class="options" id="ropts">${rq.opts.map((o,k)=>`<button class="opt" data-o="${k}"><span class="k">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`).join("")}</div>
+    <div id="rfb" aria-live="polite"></div></section>`;
+  $("#ropts").onclick=e=>{ const b=e.target.closest("[data-o]"); if(b&&!b.disabled) retryAnswer(+b.dataset.o); };
+  window.scrollTo({top:0});
+}
+function retryAnswer(k){
+  const R=G.retry; if(R.answered) return; R.answered=true; const it=R.list[R.i], rq=it.rq, ok=k===rq.ans;
+  R.res.push({rq,first:rq.firstText,second:rq.opts[k],ok});
+  if(ok){ const s=st(rq.id); s.c++; s.s=1; P.score+=50; P.xp+=5; sfx.good(); } else sfx.bad(); save(); renderStats();
+  $$("#ropts .opt").forEach((b,j)=>{ b.disabled=true; if(j===rq.ans) b.classList.add("correct"); else if(j===k) b.classList.add("wrong"); });
+  $("#rfb").innerHTML=`<div class="feedback ${ok?"good":"bad"}"><h3>${ok?"You got it on the second try! +50":"Here's the right answer"}</h3>${explainHTML(rq,rq.firstText,rq.opts[k])}
+    <div class="row"><button class="btn" id="rnx">${R.i+1<R.list.length?"Next question":"See my lesson recap"}</button></div></div>`;
+  $("#rnx").onclick=()=>{ R.i++; renderRetry(); }; $("#rnx").focus({preventScroll:true});
+}
+function explainHTML(rq,first,second){
+  const tries=[]; if(first!==undefined) tries.push(["1st try",first]); if(second!==undefined) tries.push(["2nd try",second]);
+  return `<div class="answers">
+    <div class="ans ok"><span>✔</span><span>${esc(rq.aText)}</span><span class="who">correct answer</span></div>
+    ${tries.filter(([,t])=>t&&t!==rq.aText).map(([w,t])=>`<div class="ans no"><span>✘</span><span>${esc(t)}</span><span class="who">${w}</span></div>`).join("")}</div>
+    <div class="where">📖 Where to study: ${where(rq.ch)}</div>
+    <div class="why"><p><b>Why:</b> ${rq.why}</p></div>${rq.svg?`<div class="qfig">${rq.svg}</div>`:""}`;
+}
+function recap(skipped){
+  const list=skipped?G.missed.map(l=>({rq:l.rq,first:l.pick==null?null:l.rq.opts[l.pick],second:undefined,ok:false})):G.retry.res;
+  const fixed=list.filter(x=>x.ok).length;
+  $("#app").innerHTML=`<section class="panel stack" style="gap:16px">
+    <span class="label">Lesson recap</span><h2>${skipped?"Here are the answers":`You fixed ${fixed} of ${list.length} on the second try`}</h2>
+    <p style="margin:0" class="muted">These stay in your Mistake Notebook until you get each one right twice in a row. Weakness Gym will bring them back.</p>
+    ${list.map((x,k)=>`<div class="review"><div class="row" style="justify-content:space-between">${chtag(x.rq.ch)}${skipped?"":x.ok?`<span class="pill done">Fixed on 2nd try</span>`:`<span class="pill weak">Still learning</span>`}</div>
+      <div style="font-weight:900;font-size:18px">${k+1}. ${esc(x.rq.q)}</div>${explainHTML(x.rq,x.first||undefined,x.second)}</div>`).join("")}
+    <div class="row"><button class="btn" id="gym">Practice my weak spots</button><button class="btn ghost" data-tab="dash">Dashboard</button><button class="btn ghost" data-tab="play">Home</button></div></section>`;
+  $("#gym").onclick=()=>launch("weak");
+  if(!skipped&&fixed===list.length&&list.length){ sfx.win(); confetti(100); }
+  window.scrollTo({top:0});
+}
+
+// ================= METEOR BLASTER =================
+const LANECOL=["#4fd8ff","#ffc23d","#f78fd6","#5be49b"];
+function startBlaster(cfg){
+  G=newGame(cfg); G.list=G.list.slice(0,12); while(G.list.length<12){ G.list.push(...makeList(cfg).map(build)); G.list=G.list.slice(0,12); }
+  G.blaster=true; G.lives=3;
+  $("#app").innerHTML=`<section class="panel stack" style="gap:12px">
+    <div class="gamebar"><span class="label">Meteor Blaster</span><span class="small muted" id="bq-n"></span><span class="hearts" id="blives"></span><span class="chip">Score <b id="bscore">0</b></span></div>
+    <div id="bchap"></div><div class="qtext" id="bq" style="font-size:clamp(17px,3vw,21px)"></div>
+    <div class="bopts" id="bopts"></div>
+    <div class="stage" id="stage"><canvas id="bcv" tabindex="0" aria-label="Meteor game. Press 1 to 4 to shoot a meteor."></canvas>
+      <div class="overlay" id="bover"><div class="stack"><h2>Meteor Blaster</h2><p style="margin:0">Each meteor is an answer. Shoot the right one before it hits the ground!<br>Tap a meteor · keys 1–4 or A–D · ← → and Space</p><button class="btn" id="bgo">Launch</button></div></div></div>
+    <div class="lanebtns">${LANECOL.map((c,k)=>`<button style="background:${c}" data-lane="${k}" aria-label="Shoot meteor ${"ABCD"[k]}">${"ABCD"[k]}</button>`).join("")}</div>
+    <div class="helpers"><button id="bquit">Quit game</button></div></section>`;
+  const cv=$("#bcv"), cx=cv.getContext("2d"), stage=$("#stage"); let W=600,H=420,raf=0,last=0;
+  const S={ship:{x:0,lane:0},met:[],bul:[],fx:[],txt:[],stars:[],state:"idle",wait:0,shake:0};
+  function size(){ W=stage.clientWidth; H=Math.round(Math.min(460,Math.max(320,W*.62))); const d=window.devicePixelRatio||1; cv.width=W*d; cv.height=H*d; cv.style.height=H+"px"; cx.setTransform(d,0,0,d,0,0);
+    if(!S.stars.length) for(let i=0;i<70;i++) S.stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.6+.3,v:Math.random()*.03+.01}); S.ship.x=laneX(S.ship.lane); }
+  const laneX=k=>W*(k+.5)/4;
+  function hud(){ $("#bscore").textContent=G.score.toLocaleString(); $("#blives").innerHTML="🛡️".repeat(Math.max(0,G.lives))+"<span style='opacity:.3'>"+"🛡️".repeat(3-Math.max(0,G.lives))+"</span>"; $("#bq-n").textContent=`Meteor wave ${Math.min(G.i+1,G.list.length)} of ${G.list.length}`; }
+  function loadQ(){ const rq=G.list[G.i]; $("#bchap").innerHTML=chtag(rq.ch); $("#bq").textContent=rq.q;
+    $("#bopts").innerHTML=rq.opts.map((o,k)=>`<div class="bopt"><span class="k" style="background:${LANECOL[k]}">${"ABCD"[k]}</span><span>${esc(o)}</span></div>`).join("");
+    const fall=Math.max(9,17-G.i*.6); S.met=rq.opts.map((_,k)=>({k,y:-30-Math.random()*40,v:(H-70)/fall,alive:true,rot:Math.random()*6,r:24})); S.state="play"; hud(); }
+  function fire(k){ if(S.state!=="play") return; const m=S.met[k]; if(!m||!m.alive) return; S.ship.lane=k; S.bul.push({x:laneX(k),y:H-56,k}); sfx.laser(); }
+  function boom(x,y,c,n){ for(let i=0;i<n;i++){const a=Math.random()*6.28,s=Math.random()*220+40;S.fx.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5+Math.random()*.5,c});} }
+  function say(x,y,t,c){ S.txt.push({x:Math.min(W-110,Math.max(110,x)),y,t,c,life:1.6}); }
+  function resolve(k,timeout){
+    const rq=G.list[G.i], ok=!timeout&&k===rq.ans; S.state="wait"; S.wait=ok?.9:1.5;
+    record(rq,timeout?null:k,ok);
+    if(ok){ G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak); const m=S.met[k]; const speedBonus=Math.round(Math.max(0,1-m.y/H)*50); const pts=100+Math.min(G.streak-1,10)*10+speedBonus; G.score+=pts;
+      S.met.forEach(mm=>{ if(mm.alive){ boom(laneX(mm.k),mm.y,LANECOL[mm.k],mm.k===k?40:12); mm.alive=false; } }); say(laneX(k),m.y,"+"+pts+(G.streak>=3?" 🔥":""),"#5be49b"); sfx.boom(); }
+    else { G.streak=0; G.lives--; S.shake=.4; sfx.bad(); const x=timeout?W/2:laneX(k), y=timeout?H-80:S.met[k].y;
+      S.met.forEach(mm=>{ if(mm.alive){ boom(laneX(mm.k),mm.y,"#ff6b6b",10); mm.alive=false; } }); say(x,y,timeout?"Too slow! Saved for review":"Wrong meteor! Saved for review","#ff6b6b"); }
+    hud();
+  }
+  function update(dt){
+    S.stars.forEach(s=>{ s.y+=s.v*dt*3; if(s.y>1){s.y=0;s.x=Math.random();} });
+    S.ship.x+=(laneX(S.ship.lane)-S.ship.x)*Math.min(1,dt*14);
+    if(S.state==="play"){ S.met.forEach(m=>{ m.y+=m.v*dt; m.rot+=dt; }); if(S.met.some(m=>m.alive&&m.y>H-62)) resolve(null,true); }
+    S.bul.forEach(b=>{ b.y-=760*dt; const m=S.met[b.k]; if(S.state==="play"&&m&&m.alive&&b.y<m.y+m.r){ b.dead=true; resolve(b.k,false); } }); S.bul=S.bul.filter(b=>!b.dead&&b.y>-20);
+    S.fx.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;p.life-=dt;}); S.fx=S.fx.filter(p=>p.life>0);
+    S.txt.forEach(t=>{t.y-=30*dt;t.life-=dt;}); S.txt=S.txt.filter(t=>t.life>0); S.shake=Math.max(0,S.shake-dt);
+    if(S.state==="wait"){ S.wait-=dt; if(S.wait<=0){ G.i++; if(G.lives<=0||G.i>=G.list.length){ S.state="over"; end(); } else loadQ(); } }
+  }
+  function draw(){ cx.save(); if(S.shake>0&&!reduce) cx.translate((Math.random()-.5)*12*S.shake,(Math.random()-.5)*12*S.shake);
+    cx.fillStyle="#050b14"; cx.fillRect(-20,-20,W+40,H+40);
+    S.stars.forEach(s=>{cx.fillStyle="rgba(234,244,255,.7)";cx.fillRect(s.x*W,s.y*H,s.s,s.s);});
+    for(let k=1;k<4;k++){ cx.strokeStyle="rgba(79,216,255,.07)"; cx.beginPath(); cx.moveTo(W*k/4,0); cx.lineTo(W*k/4,H); cx.stroke(); }
+    cx.fillStyle="rgba(255,107,107,.18)"; cx.fillRect(0,H-40,W,40); cx.fillStyle="#ff6b6b"; cx.fillRect(0,H-40,W,2);
+    S.met.forEach(m=>{ if(!m.alive) return; const x=laneX(m.k); cx.save(); cx.translate(x,m.y);
+      cx.fillStyle="rgba(255,140,60,.25)"; cx.beginPath(); cx.moveTo(-14,-10); cx.lineTo(0,-60); cx.lineTo(14,-10); cx.fill();
+      cx.rotate(m.rot); cx.fillStyle="#5a4a3e"; cx.beginPath(); for(let i=0;i<9;i++){const a=i/9*6.283, rr=m.r*(i%2?.86:1); cx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);} cx.closePath(); cx.fill();
+      cx.lineWidth=4; cx.strokeStyle=LANECOL[m.k]; cx.stroke(); cx.restore();
+      cx.fillStyle="#fff"; cx.font="400 20px Bungee, Impact, sans-serif"; cx.textAlign="center"; cx.textBaseline="middle"; cx.fillText("ABCD"[m.k],x,m.y+1); });
+    S.bul.forEach(b=>{ cx.fillStyle=LANECOL[b.k]; cx.fillRect(b.x-2.5,b.y-14,5,16); });
+    const sx=S.ship.x, sy=H-50; cx.fillStyle="#eaf4ff"; cx.beginPath(); cx.moveTo(sx,sy-20); cx.lineTo(sx+18,sy+14); cx.lineTo(sx,sy+6); cx.lineTo(sx-18,sy+14); cx.closePath(); cx.fill();
+    cx.fillStyle=LANECOL[S.ship.lane]; cx.beginPath(); cx.arc(sx,sy,5,0,6.283); cx.fill();
+    S.fx.forEach(p=>{cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.c;cx.fillRect(p.x-2,p.y-2,4,4);}); cx.globalAlpha=1;
+    S.txt.forEach(t=>{cx.globalAlpha=Math.min(1,t.life);cx.fillStyle=t.c;cx.font="900 17px Nunito, sans-serif";cx.textAlign="center";cx.fillText(t.t,t.x,t.y);}); cx.globalAlpha=1;
+    cx.restore(); }
+  function frame(ts){ const dt=Math.min(.05,(ts-(last||ts))/1000); last=ts; if(!document.hidden) update(dt); draw(); if(S.state!=="over") raf=requestAnimationFrame(frame); }
+  const KM={arrowleft:-1,arrowright:1};
+  function key(e){ if(!G||!G.blaster||S.state==="idle") return; const k=e.key.toLowerCase();
+    const m={"1":0,"2":1,"3":2,"4":3,a:0,b:1,c:2,d:3}[k];
+    if(m!==undefined){ fire(m); e.preventDefault(); } else if(KM[k]){ S.ship.lane=Math.max(0,Math.min(3,S.ship.lane+KM[k])); e.preventDefault(); } else if(k===" "||k==="arrowup"){ fire(S.ship.lane); e.preventDefault(); } }
+  function end(){ cancelAnimationFrame(raf); setTimeout(()=>{ if(G&&G.blaster) { G.blaster=false; finish(); } },300); }
+  cv.addEventListener("pointerdown",e=>{ const r=cv.getBoundingClientRect(); fire(Math.max(0,Math.min(3,Math.floor((e.clientX-r.left)/r.width*4)))); });
+  $$("[data-lane]").forEach(b=>b.onclick=()=>fire(+b.dataset.lane));
+  document.addEventListener("keydown",key); addEventListener("resize",size);
+  G.stop=()=>{ cancelAnimationFrame(raf); document.removeEventListener("keydown",key); removeEventListener("resize",size); };
+  $("#bquit").onclick=()=>{ if(G.log.length){ G.blaster=false; finish(true); } else goTab("play"); };
+  $("#bgo").onclick=()=>{ $("#bover").hidden=true; sfx.click(); loadQ(); cv.focus({preventScroll:true}); };
+  size(); loadQ(); S.state="idle"; hud(); raf=requestAnimationFrame(frame);
+  const rq0=G.list[0]; $("#bq").textContent=rq0.q;
+  $("#bgo").focus();
+}
+
+// ================= DASHBOARD =================
+function renderDash(){
+  const answered=Object.values(P.q).reduce((a,s)=>a+s.c+s.w,0), corr=Object.values(P.q).reduce((a,s)=>a+s.c,0), acc=answered?Math.round(corr/answered*100):0;
+  const mc=masteredChapters(), om=overallMastery(), weak=weakChapters().filter(x=>x.s.acc<80).slice(0,3);
+  const done=CH.filter(c=>chStats(c.id).seen>0).length;
+  $("#app").innerHTML=`
+  <section class="panel hero"><div class="stack" style="gap:8px"><span class="label">Master dashboard</span><h2>${esc(P.name)}'s road to Science Master</h2>
+    <p>Final goal: <b>all 16 chapters mastered</b> (80% of a chapter's questions answered right twice in a row). ${mc===16?"🏆 GOAL COMPLETE! You are a Grand Science Master!":`${16-mc} chapter${16-mc===1?"":"s"} to go.`}</p>
+    <div class="row small"><span class="pill done">${mc} mastered</span><span class="pill prog">${done-mc} started</span><span class="pill new">${16-done} not started</span></div></div>
+    <div class="goal">${ring(om,`${mc}/16`,"chapters")}</div></section>
+  <section class="kpis">
+    <div class="kpi"><span class="label">Total score</span><b>${P.score.toLocaleString()}</b></div>
+    <div class="kpi"><span class="label">Games played</span><b>${P.games}</b></div>
+    <div class="kpi"><span class="label">Questions answered</span><b>${answered.toLocaleString()}</b></div>
+    <div class="kpi"><span class="label">Accuracy</span><b style="color:${acc>=70?"var(--good)":"var(--warn)"}">${acc}%</b></div>
+    <div class="kpi"><span class="label">Best exam</span><b>${P.examBest?P.examBest+"%":"—"}</b></div>
+    <div class="kpi"><span class="label">Bosses beaten</span><b>${Object.keys(P.bosses).length}/${CH.length+1}</b></div>
+  </section>
+  ${weak.length?`<section class="panel stack"><div class="sechead"><h2>Weak spots</h2><span class="small muted">Lowest accuracy first</span></div>
+    ${weak.map(x=>`<div class="missrow"><span style="font-size:26px" aria-hidden="true">${x.c.icon}</span><div><b>${x.c.n}. ${esc(x.c.name)}</b><div class="small muted">${x.s.acc}% correct · ${x.s.w} wrong answers${P.book[x.c.id]?" · Book: "+esc(P.book[x.c.id]):""}</div></div><button class="btn sm cyan" data-train="${x.c.id}">Train</button></div>`).join("")}
+    <div><button class="btn sm" id="gymb">Weakness Gym: all weak spots</button></div></section>`:""}
+  <section class="panel stack"><div class="sechead"><h2>All chapters</h2><span class="small muted">Covered = questions seen · Mastered = right twice in a row · Accuracy = % right</span></div>
+    <div class="chgrid">${CH.map(c=>{const s=chStats(c.id);return `<div class="chcard" style="--c:${c.c}">
+      <div class="top"><span class="ic" aria-hidden="true">${c.icon}</span><div style="min-width:0;flex:1"><h3>${c.n}. ${esc(c.name)}</h3><div class="ref">${P.book[c.id]?"Book: "+esc(P.book[c.id]):s.total+" questions"}${P.bosses[c.id]?" · 🏆 boss beaten":""}</div></div><span class="pill ${s.status}">${STATUS[s.status]}</span></div>
+      <div class="meter"><span>Covered</span><div class="bar cy"><span style="width:${s.cov}%"></span></div><span>${s.cov}%</span></div>
+      <div class="meter"><span>Mastered</span><div class="bar gd"><span style="width:${s.mp}%"></span></div><span>${s.mp}%</span></div>
+      <div class="meter"><span>Accuracy</span><div class="bar"><span style="width:${s.acc||0}%"></span></div><span>${s.acc===null?"—":s.acc+"%"}</span></div>
+      <div><button class="btn sm ghost" data-train="${c.id}">Play this chapter</button></div></div>`;}).join("")}</div></section>
+  <section class="panel stack"><div class="sechead"><h2>Recent games</h2></div>
+    ${P.hist.length?`<div class="tablewrap"><table class="hist"><thead><tr><th>When</th><th>Game</th><th>Score</th><th>Right</th></tr></thead><tbody>
+    ${P.hist.slice(0,12).map(h=>`<tr><td>${new Date(h.d).toLocaleDateString(undefined,{month:"short",day:"numeric"})} ${new Date(h.d).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</td><td>${esc(h.m)}</td><td>${h.s.toLocaleString()}</td><td>${h.r}/${h.t}${h.t?` (${Math.round(h.r/h.t*100)}%)`:""}</td></tr>`).join("")}</tbody></table></div>`
+    :`<p class="muted" style="margin:0">No games yet. Your scores will show up here after your first game.</p><div><button class="btn" data-tab="play">Play your first game</button></div>`}</section>`;
+  $$("[data-train]").forEach(b=>b.onclick=()=>briefing({mode:"quest",chs:[b.dataset.train],title:"Quest Run"}));
+  const g=$("#gymb"); if(g) g.onclick=()=>launch("weak");
+}
+
+// ================= MISTAKE NOTEBOOK =================
+function renderNotebook(){
+  const ids=Object.keys(P.miss).filter(id=>ITM[id]&&!mastered(id));
+  const fixedN=Object.entries(P.q).filter(([id,s])=>s.w>0&&s.s>=2).length;
+  const by={}; ids.forEach(id=>{(by[ITM[id].ch]=by[ITM[id].ch]||[]).push(id);});
+  $("#app").innerHTML=`<section class="panel stack"><span class="label">Mistake Notebook</span><h2>${ids.length?`${ids.length} question${ids.length>1?"s":""} still to master`:"Your notebook is empty"}</h2>
+    <p style="margin:0" class="muted">Every question you miss lands here with the right answer, where to study it, and a diagram. Get it right twice in a row in any game and it leaves the notebook. ${fixedN?`You've already fixed <b>${fixedN}</b> past mistake${fixedN>1?"s":""}.`:""}</p>
+    ${ids.length?`<div><button class="btn" id="gym2">Practice these in Weakness Gym</button></div>`:`<div><button class="btn" data-tab="play">Play a game</button></div>`}</section>
+  ${CH.filter(c=>by[c.id]).map(c=>`<section class="panel stack"><div class="sechead"><h2>${c.icon} ${c.n}. ${esc(c.name)}</h2><span class="small muted">${by[c.id].length} to master${P.book[c.id]?" · Book: "+esc(P.book[c.id]):""}</span></div>
+    ${by[c.id].map(id=>{const m=P.miss[id], s=peek(id);return `<details class="nb"><summary><span class="pill weak">missed ${s.w}×</span><span style="min-width:0">${esc(m.q)}</span></summary><div class="body">
+      ${explainHTML({ch:c.id,aText:m.a,why:m.why,svg:m.svg})}</div></details>`;}).join("")}</section>`).join("")}`;
+  const g=$("#gym2"); if(g) g.onclick=()=>launch("weak");
+}
+
+// ================= FORMULA VAULT =================
+function renderVault(){
+  const card=f=>`<div class="fcard"><span class="nm">${esc(f[1])}</span><span class="eq">${esc(f[2])}</span><span class="vars">${esc(f[3])}</span><span class="ex">Example: ${esc(f[4])}</span></div>`;
+  $("#app").innerHTML=`<section class="panel stack"><span class="label">Formula Vault</span><h2>Every formula to memorize</h2>
+    <p style="margin:0" class="muted">Study a section, then test yourself in Formula Forge. The numbers change every game, so you have to really use the formula.</p>
+    <div class="qfig" style="max-width:420px">${FIG.ftri("m","D","V")}</div>
+    <p class="small muted" style="margin:0">Trick: put formulas like D = m ÷ V in a triangle. Cover the one you want. Side by side means multiply, top over bottom means divide.</p>
+    <div><button class="btn" id="forge">Play Formula Forge</button></div></section>
+  <section class="panel stack"><div class="sechead"><h2>📐 Math formulas</h2></div><div class="vault">${VAULT.filter(f=>f[0]==="mathf").map(card).join("")}</div></section>
+  <section class="panel stack"><div class="sechead"><h2>🧪 Science formulas</h2></div><div class="vault">${VAULT.filter(f=>f[0]==="sciform").map(card).join("")}</div></section>`;
+  $("#forge").onclick=()=>launch("forge");
+}
+
+// ================= SETTINGS =================
+function renderSettings(){
+  $("#app").innerHTML=`<section class="panel stack"><span class="label">Player</span>
+    <label class="stack" style="gap:6px;max-width:320px"><span class="small" style="font-weight:800">Player name</span><input type="text" id="pname" value="${esc(P.name)}" maxlength="20"></label>
+    <label class="row" style="font-weight:800"><input type="checkbox" id="psound" ${P.sound?"checked":""} style="width:20px;height:20px;accent-color:var(--amber)"> Sound effects</label></section>
+  <section class="panel stack"><span class="label">Match the chapters to your book</span>
+    <p class="small muted" style="margin:0">Type the chapter or page from his science book (like “Ch. 7, p. 112”). It shows up in every explanation so he knows exactly where to study.</p>
+    <div class="refgrid">${CH.map(c=>`<label><span>${c.icon} ${c.n}. ${esc(c.name)}</span><input type="text" id="bk-${c.id}" data-bk="${c.id}" value="${esc(P.book[c.id]||"")}" placeholder="Book chapter / pages"></label>`).join("")}</div></section>
+  <section class="panel stack"><span class="label">Backup and move to another computer</span>
+    <p class="small muted" style="margin:0">Progress is saved in this browser. To move it, copy the backup code, open the game on the other computer, paste it below and press Load.</p>
+    <textarea id="bk" aria-label="Backup code" readonly>${esc(btoa(unescape(encodeURIComponent(JSON.stringify(P)))))}</textarea>
+    <div class="row"><button class="btn sm" id="copy">Copy backup code</button></div>
+    <textarea id="imp" aria-label="Paste a backup code" placeholder="Paste a backup code here"></textarea>
+    <div class="row"><button class="btn sm ghost" id="load">Load backup</button><span class="small" id="impmsg" role="status"></span></div></section>
+  <section class="panel stack"><span class="label">Start over</span><div id="resetzone"><button class="btn sm ghost" id="reset">Reset all progress…</button></div></section>`;
+  $("#pname").oninput=e=>{ P.name=e.target.value.trim()||"Dylan"; save(); renderStats(); };
+  $("#psound").onchange=e=>{ P.sound=e.target.checked; save(); };
+  $$("[data-bk]").forEach(i=>i.oninput=()=>{ const v=i.value.trim(); if(v) P.book[i.dataset.bk]=v; else delete P.book[i.dataset.bk]; save(); });
+  $("#copy").onclick=()=>{ const t=$("#bk"); const ok=()=>toast("Backup code copied"); try{ navigator.clipboard.writeText(t.value).then(ok,()=>{t.select();toast("Selected. Press Ctrl+C to copy");}); }catch(e){ t.select(); toast("Selected. Press Ctrl+C to copy"); } };
+  $("#load").onclick=()=>{ try{ const d=JSON.parse(decodeURIComponent(escape(atob($("#imp").value.trim())))); if(!d||typeof d!=="object"||!d.q) throw 0; P=Object.assign(DEF(),d); save(); render(); toast("Backup loaded"); }catch(e){ $("#impmsg").textContent="That code didn't work. Copy the whole code and try again."; } };
+  $("#reset").onclick=()=>{ $("#resetzone").innerHTML=`<div class="confirm"><b>Erase every score, trophy and mistake? This can't be undone.</b><div class="row"><button class="btn sm" id="rsyes" style="background:var(--bad);box-shadow:none">Yes, erase everything</button><button class="btn sm ghost" id="rsno">Keep my progress</button></div></div>`;
+    $("#rsyes").onclick=()=>{ const keep={name:P.name,book:P.book,sound:P.sound}; P=Object.assign(DEF(),keep); save(); render(); toast("Progress reset"); }; $("#rsno").onclick=renderSettings; };
+}
+
+render();
+</script>
+</body>
+</html>
