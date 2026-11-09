@@ -791,12 +791,12 @@ VIEW.actions = function () {
   const open = all.filter(a => !a.done), done = all.filter(a => a.done);
   const row = a => `<li><label class="check ${a.done ? 'done' : ''}"><input type="checkbox" data-act="action" data-id="${a.id}" data-custom="${a.custom ? 1 : 0}" ${a.done ? 'checked' : ''}><span style="flex:1;min-width:0"><span class="t">${esc(a.text)}</span>${a.note ? `<br><span class="small muted">${esc(a.note)}</span>` : ''}</span>${a.custom ? `<button class="btn sm ghost" data-act="rmaction" data-id="${a.id}" aria-label="Remove">Remove</button>` : ''}</label></li>`;
   return `<div class="head"><div><span class="eyebrow">Actions & reminders</span><h1>Take action, then come back twice a day</h1>
-    <p class="lede">Your reminders are on your Google Calendar. The action items below are the inputs that make this dashboard specific to your division.</p></div></div>
+    <p class="lede">Two 10-minute sessions every weekday. The action items below are the inputs that make this dashboard specific to your division.</p></div></div>
   <div class="grid g2">
     <section class="card"><h2>Reminder schedule</h2>
       <div class="sess"><span class="n">AM</span><div><b>Weekdays, 8:00 AM</b><div class="small muted">Check in · 60-second rapid fire · today’s interview question · read LAPP and LEAP</div></div><span class="pill p-comm">10 min</span></div>
       <div class="sess"><span class="n">PM</span><div><b>Weekdays, 4:05 PM</b><div class="small muted">Check in · weak-spot flashcards · one KPI out loud · polish your closing statement</div></div><span class="pill p-comm">10 min</span></div>
-      <p class="note">Both reminders are recurring Google Calendar events (Pacific time) with a link back here. To change the time, edit the event in Google Calendar.</p></section>
+      <p class="note">Set these as two recurring weekday events in your calendar with a link back to this page. If you reconnect Google Calendar with permission to create events, Claude can add them for you.</p></section>
     <section class="card"><h2>Weekly rhythm</h2><ul class="dots small">
       <li><b>Monday:</b> Safety deck + one safety STAR answer</li><li><b>Tuesday:</b> EEO deck + one EEO scenario answer</li>
       <li><b>Wednesday:</b> Case question with an issue tree</li><li><b>Thursday:</b> KPI library + one dashboard read out loud</li>
